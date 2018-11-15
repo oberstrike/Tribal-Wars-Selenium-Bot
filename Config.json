@@ -13,7 +13,9 @@
       "wall": 20,
       "hide": 10,
       "snob": 1,
-      "place": 1
+      "place": 1,
+      "statue": 1,
+      "stable": 20
     }
   },
   "isGreedyOnRessources": true,

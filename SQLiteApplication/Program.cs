@@ -36,12 +36,19 @@ namespace SQLiteApplication
             configuration.Village = village;
            
 
-            Client client = new Client(@"G:\GeckoDriver", configuration);
+            Client client = new AdvancedClient(@"G:\GeckoDriver", configuration);
             client.Connect();
             client.Login();
 
-            Thread.Sleep(1000);
             client.Farm();
+
+            Console.Read();
+            return;
+    
+
+
+            Thread.Sleep(1000);
+
 
             if (configuration.IsGreedyOnRessources)
             {
@@ -58,14 +65,14 @@ namespace SQLiteApplication
                 {
                     Console.WriteLine(b);
                 }
-                
-               
-                
-
             }
-    
 
 
+
+            foreach(var move in configuration.Village.TroupMovements)
+            {
+                Console.WriteLine(move);
+            }
 
 
             Thread.Sleep(1000);

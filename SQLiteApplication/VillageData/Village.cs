@@ -20,6 +20,8 @@ namespace SQLiteApplication
         public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
         public void AddBuilding(Building building) => Buildings.Add(building);
 
+        public ICollection<TroupMovement> TroupMovements { get; set; }
+
         public Dictionary<string, double> GetUnits()
         {
             return _units;
