@@ -103,13 +103,13 @@ namespace SQLiteApplication
                         diff = (targetTime.Value - DateTime.Now).TotalSeconds;
                         if (diff > 1000 || diff < 0)
                         {
-                            diff = 100 + new Random().Next(300, 900);
+                            diff = 100 + new Random().Next(400, 1000);
                         }
 
                     }
                     else
                     {
-                        diff = 100 + new Random().Next(300, 700);
+                        diff = 100 + new Random().Next(400, 1000);
                     }
 
 
