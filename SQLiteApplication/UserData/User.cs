@@ -9,6 +9,14 @@ namespace SQLiteApplication.UserData
         public string Name { get; set; }
         public string Password { get; set; }
         public int Server { get; set; }
+
+        public bool HasFarmmanager { get; set; }
+
+        public override string ToString()
+        {
+            return $"Name: {Name}, Server: {Server}";
+        }
+
         /*
         private ICollection<Village> villages = new List<Village>();
         

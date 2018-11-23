@@ -50,7 +50,15 @@ namespace SQLiteApplication.Web
         {
             return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=overview_villages";
         }
-        
-        
+
+        public string GetMarketModeSend()
+        {
+            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=market&mode=send";
+        }
+
+        public string GetBarracks()
+        {
+            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=barracks";
+        }
     }
 }

@@ -24,17 +24,28 @@ namespace SQLiteApplication.UserData
 
         private void Init()
         {
-            using (var file = File.OpenText(Path))
+            try
             {
-                using (var reader = new JsonTextReader(file))
+                using (var file = File.OpenText(Path))
                 {
-                    JObject o2 = (JObject)JToken.ReadFrom(reader);
-                    Configuration = JsonConvert.DeserializeObject<Configuration>(o2.ToString());
+                    using (var reader = new JsonTextReader(file))
+                    {
+                        JObject o2 = (JObject)JToken.ReadFrom(reader);
+                        Configuration = JsonConvert.DeserializeObject<Configuration>(o2.ToString());
 
+                        Console.WriteLine(reader.Path);
+                    }
 
                 }
-
             }
+            catch(Exception e)
+            {
+                Console.WriteLine(e.Message);
+                Console.WriteLine("Die Config wurde nicht gefunden.");
+                File.Create(Path);
+                return;
+            }
+
         }
 
     }

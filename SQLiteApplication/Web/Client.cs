@@ -1,9 +1,11 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
+using OpenQA.Selenium.Support.UI;
 using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -12,8 +14,13 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    public abstract class Client
+    public class Client
     {
+        public static void Sleep()
+        {
+            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
+        }
+
         private IJavaScriptExecutor _executor;
         private Farmmanager _farmmanager;
         private bool _isConnected;
@@ -21,23 +28,54 @@ namespace SQLiteApplication.Web
         private PathCreator _creator;
         private string _csrf;
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
+        public Process TorProcess { get; set; }
+        private FirefoxOptions options;
 
-        public FirefoxDriver Driver { get; }
+        public FirefoxDriver Driver { get; set; }
 
-        public Client(string driverPath, Configuration configuration)
+        public Client( Configuration configuration)
         {
-            Driver = new FirefoxDriver(driverPath);
-            Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-            Executor = (IJavaScriptExecutor)Driver;
             Config = configuration;
-            Farmmanager = new Farmmanager() { Templates = configuration.Templates };
+            options = new FirefoxOptions();
+            options.AddArgument("--headless");
+            if (configuration.TorBrowserPath != null)
+            {
+                ConfigureAdvancedBrowser();
 
+            }
+        }
+
+        private void ConfigureAdvancedBrowser()
+        {
+            var localIds = Process.GetProcessesByName("tor");
+
+            if (localIds.Length == 0)
+            {
+
+                TorProcess = new Process();
+                TorProcess.StartInfo.FileName = Config.TorBrowserPath;
+                TorProcess.StartInfo.Arguments = " - n";
+                TorProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
+                TorProcess.Start();
+                Sleep();
+            }
+            FirefoxProfile profile = new FirefoxProfile();
+            profile.SetPreference("network.proxy.type", 1);
+            profile.SetPreference("network.proxy.socks", "127.0.0.1");
+            profile.SetPreference("network.proxy.socks_port", 9150);
+            options.Profile = profile;
         }
 
         public void Connect()
         {
             try
             {
+                Driver = new FirefoxDriver(options);
+                Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
+                WebDriverWait webDriver = new WebDriverWait(this.Driver, TimeSpan.FromSeconds(60));
+                Executor = (IJavaScriptExecutor)Driver;
+      
+                Farmmanager = new Farmmanager() { Templates = Config.Templates };
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -52,20 +90,28 @@ namespace SQLiteApplication.Web
         {
             if (IsConnected)
             {
-                if (Driver.Url.Equals(urls[0]))
+                if (!Driver.Url.Equals(urls[0]))
+                {
+                    Driver.Navigate().GoToUrl(urls[0]);
+                }
+                var contains = Driver.PageSource.Contains(Config.User.Name);
+                if (!contains)
                 {
                     Driver.FindElement(By.Id("user")).SendKeys(Config.User.Name);
                     Driver.FindElement(By.Id("password")).SendKeys(Config.User.Password);
                     Driver.FindElement(By.ClassName("btn-login")).Click();
-                    Thread.Sleep(750);
+                    Sleep();
+                }
+
+
                     Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
-                    Thread.Sleep(750);
+                    Sleep();
                     if (Driver.Url != urls[0])
                     {
                         UpdateVillage();
                     }
                     IsLoggedIn = true;
-                }
+                
 
             }
 
@@ -73,10 +119,34 @@ namespace SQLiteApplication.Web
 
         public List<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
+      
             List<Building> newBuildings = new List<Building>();
             foreach (var key in keyValuePairs.Keys)
-            {
+            {            
                 var dictionary = (Dictionary<string, object>)keyValuePairs[key];
+
+                string text = null;
+                DateTime? dateTime = null;
+                if (dictionary.ContainsKey("error"))
+                {
+                    text = (string)dictionary["error"];
+                    if (text != null)
+                    {
+                        if (text.Length > 1 && text.Contains("Genug") && text.Contains("um"))
+                        {
+                            var date = text.Split(' ')[4];
+
+                            dateTime = DateTime.Parse(date);
+                            var nowTime = DateTime.Now;
+
+                            if (dateTime.Value.Ticks < nowTime.Ticks)
+                            {
+                                dateTime = dateTime.Value.AddDays(1).AddMinutes(2);
+                            }
+                        }
+                    }
+
+                }
                 try
                 {
                     newBuildings.Add(new BuildingBuilder()
@@ -88,12 +158,13 @@ namespace SQLiteApplication.Web
                                 .WithPopulation((Int64)dictionary["pop"])
                                 .WithMaxLevel((Int64)dictionary["max_level"])
                                 .WithTargetLevel(Config.Village.MaxBuildings[key])
-                                .WithBuildeable(!dictionary.ContainsKey("error"))
+                                .WithBuildeable(text == null)
+                                .WithBuildingTime(dateTime)
                                 .Build());
 
-                }catch(Exception e)
+                }catch
                 {
-                    Console.WriteLine(key + " wurde nicht gefunden");
+                    Console.WriteLine(key + " wurde nicht gefunden");Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
                 }
 
 
@@ -101,26 +172,29 @@ namespace SQLiteApplication.Web
             }
             return newBuildings;
         }
-
-
         public void Logout()
         {
             Driver.Navigate().GoToUrl(Creator.GetLogout(Csrf));
             IsLoggedIn = false;
         }
-        public abstract void Farm();
 
-        protected void UpdateVillage()
+        public void Close()
         {
-            Console.WriteLine("Aktualisiere Das Dorf");
-            Thread.Sleep(500);
-            RefreshRessis();
-            Thread.Sleep(500);
-            UpdateTroops();
-            Thread.Sleep(500);
-            UpdateTroupMovement();
-            Thread.Sleep(500);
+            Driver.Close();
+        }
 
+        protected virtual void UpdateVillage()
+        {
+            Sleep();
+            RefreshRessis();
+            Sleep();
+            UpdateTroupMovement();
+            Sleep();
+            UpdateBuildingQueue();
+            Sleep();
+            UpdateMarket();
+            Sleep();
+            UpdateTroops();
         }
 
         public virtual void UpdateTroops()
@@ -138,15 +212,15 @@ namespace SQLiteApplication.Web
         {
             if (IsConnected && IsLoggedIn)
             {
-                Thread.Sleep(250);
-                if (Driver.Url != Creator.GetMain())
-                {
-                    Driver.Navigate().GoToUrl(Creator.GetMain());
-                }
+                Sleep();
+                GoToMain();
 
                 Executor.ExecuteScript($"BuildingMain.build(\"{buildingName}\")");
+                Sleep();
+                RefreshRessis();
+                return;
             }
-            Console.WriteLine("Ausbauen nicht möglich");
+            
         }
         public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
         public bool IsConnected { get => _isConnected; set => _isConnected = value; }
@@ -162,11 +236,10 @@ namespace SQLiteApplication.Web
             foreach (var kvp in units)
             {
                 Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
-                Thread.Sleep(500);
+                Sleep();
             }
-            Console.WriteLine("Ich greife " + target + " an");
             Driver.FindElement(By.Id("target_attack")).Click();
-            Thread.Sleep(500);
+            Sleep();
             Driver.FindElement(By.Id("troop_confirm_go")).Click();
 
         }
@@ -184,11 +257,8 @@ namespace SQLiteApplication.Web
             {
                 id = Config.Village.Id;
             }
-      
-
-            Thread.Sleep(500);
-            Driver.Navigate().GoToUrl(Creator.GetMain());
-            Thread.Sleep(500);
+            GoToMain();
+            Sleep();
             Config.Village.Buildings = GetBuildings((Dictionary<string, object>)Executor.ExecuteScript("return BuildingMain.buildings"));
             Config.Village.Id = id;
             Config.Village.Wood = (Int64)villageData["wood"];
@@ -197,12 +267,39 @@ namespace SQLiteApplication.Web
             Csrf = (string)Executor.ExecuteScript("return csrf_token");
         }
 
+        private void GoToMain()
+        {
+            if (Driver.Url != Creator.GetMain())
+            {
+                Sleep();
+                Driver.Navigate().GoToUrl(Creator.GetMain());
+            }
+        }
+
+        private void GoToBarracks()
+        {
+            if (Driver.Url != Creator.GetBarracks())
+            {
+                Sleep();
+                Driver.Navigate().GoToUrl(Creator.GetBarracks());
+            }
+        }
+
+        private void GoToMarket()
+        {
+            if (Driver.Url != Creator.GetMarketModeSend())
+            {
+                Sleep();
+                Driver.Navigate().GoToUrl(Creator.GetMarketModeSend());
+            }
+        }
+
         public double GetVillageId()
         {
             double id = 0;
             if (IsLoggedIn && IsConnected)
             {
-                Thread.Sleep(500);
+                Sleep();
                 var output = (Executor.ExecuteScript("return TribalWars.getGameData().village.id"));
 
                 if (typeof(string).Equals(output.GetType()))
@@ -223,7 +320,7 @@ namespace SQLiteApplication.Web
         {
             Driver.Navigate().GoToUrl(Creator.GetPlace());
             string tr_Class = "command-row";
-            Thread.Sleep(500);
+            Sleep();
             try
             {
                 var rows = Driver.FindElement(By.Id("commands_outgoings")).FindElements(By.ClassName(tr_Class));
@@ -237,7 +334,7 @@ namespace SQLiteApplication.Web
 
                     movements.Add(new TroupMovement() { Type = attackType, MovementId = movementId });
 
-                    Thread.Sleep(500);
+                    Sleep();
                 }
 
                 foreach (var movement in movements)
@@ -248,24 +345,24 @@ namespace SQLiteApplication.Web
                     if (movements.Where(move => move.MovementId == d.GetAttribute("")).Count() == 0)
                     {
                         d.Click();
-                        var id = Driver.FindElement(By.CssSelector($".village_anchor.contexted[data-player='0']")).GetAttribute("data-id");
+                        var id = Driver.FindElements(By.XPath("//*[@data-player]")).ToArray()[1].GetAttribute("data -id");
                         movement.TargetId = id;
-                        Thread.Sleep(500);
+                        Sleep();
                         Driver.Navigate().GoToUrl(Creator.GetPlace());
                     }
                 }
-                Config.Village.TroupMovements = movements;
+                Config.Village.OutcomingTroops = movements;
             }
             catch
             {
-                Console.WriteLine("Keine Truppenbewegungen entdeckt");
+                
             }
         }
 
         public IList<string> GetNotAttackedVillages()
         {
             var villages = Config.FarmingVillages;
-            var movements = Config.Village.TroupMovements;
+            var movements = Config.Village.OutcomingTroops;
             List<string> targets = new List<string>();
 
 
@@ -297,6 +394,97 @@ namespace SQLiteApplication.Web
             }
 
             return targets;
+        }
+
+        public void UpdateBuildingQueue()
+        {
+            GoToMain();
+            try
+            {
+                var firstElement = Driver.FindElement(By.XPath("//tr[contains(@class, 'lit nodrag buildorder_')]"));
+                var nextElements = Driver.FindElements(By.XPath("//tr[contains(@id, 'buildorder_')]"));
+
+                if (firstElement != null)
+                {
+                    var currentQueue = firstElement.FindElement(By.XPath("//img[@class='bmain_list_img']")).GetAttribute("title");
+                    var currentTime = DateTime.Parse(Driver.FindElement(By.XPath("//tbody[@id='buildqueue']//td[contains(@class, 'nowrap')]")).Text);
+                    Config.Village.BuildingsInQueue = new KeyValuePair<string, DateTime>(currentQueue, currentTime);
+
+
+                    /*
+                     * Experimantal
+                     *
+                     */
+
+                    var web = Driver.FindElements(By.XPath("//tr[contains(@id, 'buildorder')]"));
+                    foreach (var element in web)
+                    {
+                        var innerElement = element.FindElement(By.XPath("//img[contains(@class, 'bmain_list_img')]"));
+                        string title = innerElement.GetAttribute("title");
+    
+
+                    }
+                }
+            }
+            catch
+            {
+
+            }
+        }
+
+        public void UpdateMarket()
+        {
+            GoToMarket();
+            Sleep();
+            Config.Village.HaendlerCount = int.Parse(Driver.FindElement(By.Id("market_merchant_available_count")).Text);
+   
+
+        }
+
+        public void SendRessource(int wood, int stone, int iron, string targetId)
+        {
+            GoToMarket();
+
+            var woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
+            var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
+            var ironInput = Driver.FindElement(By.XPath("//input[@name='iron']"));
+            var targetInput = Driver.FindElement(By.XPath("//input[@placeholder='123|456']"));
+
+            woodInput.SendKeys(wood.ToString());
+            stoneInput.SendKeys(stone.ToString());
+            ironInput.SendKeys(iron.ToString());
+            targetInput.SendKeys(targetId);
+           
+            UpdateMarket();
+
+        }
+
+        public void TrainUnits(Dictionary<string, double> units)
+        {
+            GoToBarracks();
+            
+            var spearsInput = Driver.FindElementByXPath("//input[@id='spear_0']");
+            var swordInput = Driver.FindElementByXPath("//input[@id='sword_0']");
+            var axeInput = Driver.FindElementByXPath("//input[@id='axe_0']");
+            var trainBtn = Driver.FindElementByXPath(".btn.btn-recruit");
+
+            if (units.ContainsKey("spears"))
+            {
+                spearsInput.SendKeys(units["spears"].ToString());
+            }
+            if (units.ContainsKey("sword"))
+            {
+                spearsInput.SendKeys(units["sword"].ToString());
+            }
+            if (units.ContainsKey("axe"))
+            {
+                spearsInput.SendKeys(units["axe"].ToString());
+            }
+
+            trainBtn.Click();
+            Sleep();
+
+
         }
     }
 }

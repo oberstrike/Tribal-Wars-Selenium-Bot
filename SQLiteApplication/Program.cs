@@ -20,13 +20,17 @@ namespace SQLiteApplication
     class Program
     {
 
+        public static void Sleep()
+        {
+            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
 
+        }
 
 
         static void Main(string[] args)
         {
 
-            string configPath = @"C:\Users\oberstrike\source\repos\Project_Uno\config.json";
+            string configPath = @"Config.json";
 
             ConfigurationManager manager = new ConfigurationManager(configPath);
             Configuration configuration = manager.Configuration;
@@ -34,55 +38,84 @@ namespace SQLiteApplication
 
             Village village = new Village(configuration.Village.MaxBuildings);
             configuration.Village = village;
-           
+            Client client = null;
 
-            Client client = new AdvancedClient(@"G:\GeckoDriver", configuration);
-            client.Connect();
-            client.Login();
-
-            client.Farm();
-
-            Console.Read();
-            return;
-    
-
-
-            Thread.Sleep(1000);
-
-
-            if (configuration.IsGreedyOnRessources)
+            if (configuration.User.HasFarmmanager)
             {
-                var buildings = village.Buildings.Where(value => value.Level < configuration.Village.MaxBuildings[value.Name]).ToList();
+                client = new AdvancedClient(@"", configuration);
+            }
+            else
+            {
+                client = new BasisClient(@"", configuration);
+            }
 
 
-                var mainLevel = buildings.Where(value => value.Name == "main").First().Level;
+            while (true)
+            {
+                client.Connect();
 
-
-                var ressisBuilding = buildings.Where(value => value.Name == "wood" || value.Name == "iron" || value.Name == "stone").ToList();
-                                
-
-                foreach(var b in ressisBuilding)
+                DateTime? targetTime = new DateTime?();
+                client.Login();
+                string[] ressis = { "main" };
+                foreach (var building in village.Buildings)
                 {
-                    Console.WriteLine(b);
+                    if (ressis.Contains(building.Name))
+                    {
+                        if (building.IsBuildeable)
+                        {
+                            client.Build(building.Name);
+                        }
+                        else
+                        {
+                            if (!targetTime.HasValue)
+                            {
+                                targetTime = building.BuildingTime;
+                            }
+                            else
+                            {
+                                if(building.BuildingTime < targetTime)
+                                {
+                                    targetTime = building.BuildingTime;
+                                }
+                            }
+                        }
+
+                    }
                 }
+
+
+                client.Farm();
+                Thread.Sleep(2500);
+                client.Logout();
+                client.Close();
+
+                double diff = 0;
+                if (targetTime.HasValue)
+                {
+                    diff = (targetTime.Value - DateTime.Now).TotalSeconds;
+                    if (diff > 600 || diff < 0)
+                    {
+                        diff = 100 + new Random().Next(300, 700);
+                    }
+
+                }
+                else
+                {
+                    diff = 100 + new Random().Next(300, 700);
+                }
+
+
+
+
+                Console.WriteLine(DateTime.Now + " Warte: " + diff + " Sekunden");
+
+
+
+                Thread.Sleep(System.Convert.ToInt32(diff)* 1000);
             }
 
 
-
-            foreach(var move in configuration.Village.TroupMovements)
-            {
-                Console.WriteLine(move);
-            }
-
-
-            Thread.Sleep(1000);
-            client.Logout();
-
-            Console.Read();
-
-
-            return;
-
+        
 
             
         }

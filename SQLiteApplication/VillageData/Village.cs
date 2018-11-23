@@ -17,10 +17,16 @@ namespace SQLiteApplication
         public double Wood { get; set; }
         public double Stone { get; set; }
         public double Iron { get; set; }
+        public KeyValuePair<String,DateTime> BuildingsInQueue { get; set; }
+
+        public int HaendlerCount { get; set; }
+
         public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
         public void AddBuilding(Building building) => Buildings.Add(building);
 
-        public ICollection<TroupMovement> TroupMovements { get; set; }
+        public ICollection<TroupMovement> OutcomingTroops { get; set; }
+
+        public ICollection<TroupMovement> IncomingTroops { get; set; }
 
         public Dictionary<string, double> GetUnits()
         {
