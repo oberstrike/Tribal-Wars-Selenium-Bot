@@ -22,7 +22,8 @@ namespace SQLiteApplication
 
         public static void Sleep()
         {
-            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
+//            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
+            Thread.Sleep((new Random().Next(1, 3) * 1000) + 245);
 
         }
 
@@ -52,8 +53,8 @@ namespace SQLiteApplication
 
             while (true)
             {
-                try
-                {
+             //   try
+             //   {
                     client.Connect();
                     Console.WriteLine($"{DateTime.Now.ToString("HH:mm: ")}: Starte Prozess");
                     Console.WriteLine(configuration);
@@ -63,8 +64,10 @@ namespace SQLiteApplication
                     client.Login();
                     Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + configuration.Village);
                     Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + village.BuildingsInQueue.Key + " " + village.BuildingsInQueue.Value.ToString("HH:mm:ss"));
+                    Console.WriteLine(village.Technologies["heavy"]);
 
 
+                    return;
                     string[] ressis = { "iron", "wood", "stone" };
                     foreach (var building in village.Buildings)
                     {
@@ -118,11 +121,11 @@ namespace SQLiteApplication
 
                     Console.WriteLine(DateTime.Now + " Warte bis " + nextTime.ToString("HH:mm:ss"));
                     Thread.Sleep(System.Convert.ToInt32(diff) * 1000);
-                }
-                catch(Exception exception)
-                {
-                    Console.WriteLine(exception.Message);
-                }
+   //             }
+    //            catch(Exception exception)
+     //           {
+      //              Console.WriteLine(exception.Message);
+      //          }
             }
         }
     }

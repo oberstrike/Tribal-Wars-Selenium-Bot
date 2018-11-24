@@ -60,5 +60,16 @@ namespace SQLiteApplication.Web
         {
             return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=barracks";
         }
+
+        internal string GetStable()
+        {
+            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=stable";
+        }
+
+        internal string GetSmith()
+        {
+            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=smith";
+
+        }
     }
 }

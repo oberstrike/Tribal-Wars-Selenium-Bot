@@ -37,7 +37,14 @@ namespace SQLiteApplication.Web
         {
             Config = configuration;
             options = new FirefoxOptions();
+
+            #if DEBUG
+
+            #else
             options.AddArgument("--headless");
+
+            #endif
+
             if (configuration.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -70,9 +77,11 @@ namespace SQLiteApplication.Web
         {
             try
             {
+                options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
                 Driver = new FirefoxDriver(options);
+                
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-                WebDriverWait webDriver = new WebDriverWait(this.Driver, TimeSpan.FromSeconds(60));
+               
                 Executor = (IJavaScriptExecutor)Driver;
       
                 Farmmanager = new Farmmanager() { Templates = Config.Templates };
@@ -195,6 +204,16 @@ namespace SQLiteApplication.Web
             UpdateMarket();
             Sleep();
             UpdateTroops();
+            Sleep();
+            UpdateTechs();
+        }
+
+        private void UpdateTechs()
+        {
+            GoTo(Creator.GetSmith());
+
+            Config.Village.Technologies = (Dictionary<string, object>) Executor.ExecuteScript("return BuildingSmith.techs.available");
+            Sleep();
         }
 
         public virtual void UpdateTroops()
@@ -213,8 +232,7 @@ namespace SQLiteApplication.Web
             if (IsConnected && IsLoggedIn)
             {
                 Sleep();
-                GoToMain();
-
+                GoTo(Creator.GetMain());
                 Executor.ExecuteScript($"BuildingMain.build(\"{buildingName}\")");
                 Sleep();
                 RefreshRessis();
@@ -257,40 +275,30 @@ namespace SQLiteApplication.Web
             {
                 id = Config.Village.Id;
             }
-            GoToMain();
+            GoTo(Creator.GetMain());
             Sleep();
             Config.Village.Buildings = GetBuildings((Dictionary<string, object>)Executor.ExecuteScript("return BuildingMain.buildings"));
             Config.Village.Id = id;
             Config.Village.Wood = (Int64)villageData["wood"];
             Config.Village.Iron = (Int64)villageData["iron"];
             Config.Village.Stone = (Int64)villageData["stone"];
+            Config.Village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
+            Config.Village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
+            Config.Village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
+            Config.Village.StorageMax = (Int64)villageData["storage_max"];
+            Config.Village.Population = (Int64)villageData["pop"];
+            Config.Village.MaxPopulation = (Int64)villageData["pop_max"];
+
             Csrf = (string)Executor.ExecuteScript("return csrf_token");
         }
 
-        private void GoToMain()
-        {
-            if (Driver.Url != Creator.GetMain())
-            {
-                Sleep();
-                Driver.Navigate().GoToUrl(Creator.GetMain());
-            }
-        }
 
-        private void GoToBarracks()
+        private void GoTo(string url)
         {
-            if (Driver.Url != Creator.GetBarracks())
+            if(Driver.Url != url)
             {
                 Sleep();
-                Driver.Navigate().GoToUrl(Creator.GetBarracks());
-            }
-        }
-
-        private void GoToMarket()
-        {
-            if (Driver.Url != Creator.GetMarketModeSend())
-            {
-                Sleep();
-                Driver.Navigate().GoToUrl(Creator.GetMarketModeSend());
+                Driver.Navigate().GoToUrl(url);
             }
         }
 
@@ -316,6 +324,7 @@ namespace SQLiteApplication.Web
             
         }
 
+        //Missing Incomings
         public void UpdateTroupMovement()
         {
             Driver.Navigate().GoToUrl(Creator.GetPlace());
@@ -359,46 +368,9 @@ namespace SQLiteApplication.Web
             }
         }
 
-        public IList<string> GetNotAttackedVillages()
-        {
-            var villages = Config.FarmingVillages;
-            var movements = Config.Village.OutcomingTroops;
-            List<string> targets = new List<string>();
-
-
-
-            if (villages != null)
-            {
-                if(movements != null)
-                {
-                    var aggregate = movements.Select(x => x.TargetId).ToList();
-                    if (movements.Count > 0 && villages.Length > 0)
-                    {
-                        foreach(var target in villages)
-                        {
-                            
-                            if (!aggregate.Contains(target))
-                            {
-                                targets.Add(target);
-                            }
-
-                        }
-
-                    }
-                }
-                else
-                {
-                    return villages;
-                }
-
-            }
-
-            return targets;
-        }
-
         public void UpdateBuildingQueue()
         {
-            GoToMain();
+            GoTo(Creator.GetMain());
             try
             {
                 var firstElement = Driver.FindElement(By.XPath("//tr[contains(@class, 'lit nodrag buildorder_')]"));
@@ -434,7 +406,7 @@ namespace SQLiteApplication.Web
 
         public void UpdateMarket()
         {
-            GoToMarket();
+            GoTo(Creator.GetMarketModeSend());
             Sleep();
             Config.Village.HaendlerCount = int.Parse(Driver.FindElement(By.Id("market_merchant_available_count")).Text);
    
@@ -443,7 +415,7 @@ namespace SQLiteApplication.Web
 
         public void SendRessource(int wood, int stone, int iron, string targetId)
         {
-            GoToMarket();
+            GoTo(Creator.GetMarketModeSend());
 
             var woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
             var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
@@ -461,30 +433,140 @@ namespace SQLiteApplication.Web
 
         public void TrainUnits(Dictionary<string, double> units)
         {
-            GoToBarracks();
-            
-            var spearsInput = Driver.FindElementByXPath("//input[@id='spear_0']");
-            var swordInput = Driver.FindElementByXPath("//input[@id='sword_0']");
-            var axeInput = Driver.FindElementByXPath("//input[@id='axe_0']");
-            var trainBtn = Driver.FindElementByXPath(".btn.btn-recruit");
+
+            if (units.ContainsKey("spears") || units.ContainsKey("sword") || units.ContainsKey("axe"))
+            {
+                TrainUnitsInBarracks(units);
+            }
+
+            if(units.ContainsKey("spy") || units.ContainsKey("light") || units.ContainsKey("heavy"))
+            {
+                TrainUnitsInStable(units);
+            }
+
+
+
+        }
+
+        private void TrainUnitsInBarracks(Dictionary<string, double> units)
+        {
+            GoTo(Creator.GetBarracks());
+
+            IWebElement spearsInput = null;
+            IWebElement swordInput = null;
+            IWebElement axeInput = null;
+
+            try
+            {
+                spearsInput = Driver.FindElementByXPath("//input[@id='spear_0']");
+                swordInput = Driver.FindElementByXPath("//input[@id='sword_0']");
+                axeInput = Driver.FindElementByXPath("//input[@id='axe_0']");
+            }
+            catch
+            {
+
+            }
+            var trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
+
 
             if (units.ContainsKey("spears"))
             {
-                spearsInput.SendKeys(units["spears"].ToString());
+                var count = units["spears"];
+                if (IsTrainable(count, "spears") && spearsInput != null)
+                {
+                    spearsInput.SendKeys(count.ToString());
+                }
+
             }
             if (units.ContainsKey("sword"))
             {
-                spearsInput.SendKeys(units["sword"].ToString());
+                var count = units["sword"];
+                if (IsTrainable(count, "sword") && swordInput != null)
+                {
+
+                    swordInput.SendKeys(units["sword"].ToString());
+                }
+
             }
             if (units.ContainsKey("axe"))
             {
-                spearsInput.SendKeys(units["axe"].ToString());
+                {
+                    var count = units["axe"];
+                    if (IsTrainable(count, "axe") && axeInput != null)
+                    {
+
+                        axeInput.SendKeys(units["axe"].ToString());
+                    }
+                }
             }
 
             trainBtn.Click();
             Sleep();
+        }
+
+        private void TrainUnitsInStable(Dictionary<string, double> units)
+        {
+            GoTo(Creator.GetStable());
+            IWebElement spysInput = null;
+            IWebElement lightInput = null;
+            IWebElement heavyInput = null;
 
 
+            try
+            {
+                spysInput = Driver.FindElementByXPath("//input[@id='spy_0']");
+                lightInput = Driver.FindElementByXPath("//input[@id='light_0']");
+                heavyInput = Driver.FindElementByXPath("//input[@id='heavy_0']");
+
+            }
+            catch
+            {
+
+            }
+            var trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
+
+
+            if (units.ContainsKey("spy"))
+            {
+                var count = units["spy"];
+                if (IsTrainable(count, "spy") && spysInput != null)
+                {
+                    spysInput.SendKeys(count.ToString());
+                }
+
+            }
+            if (units.ContainsKey("light"))
+            {
+                var count = units["light"];
+                if (IsTrainable(count, "light") && lightInput != null)
+                {
+
+                    lightInput.SendKeys(units["light"].ToString());
+                }
+
+            }
+            if (units.ContainsKey("heavy"))
+            {
+                {
+                    var count = units["axe"];
+                    if (IsTrainable(count, "axe") && heavyInput != null)
+                    {
+
+                        heavyInput.SendKeys(units["axe"].ToString());
+                    }
+                }
+            }
+            trainBtn.Click();
+            Sleep();
+
+        }
+
+        private bool IsTrainable(double count, string name)
+        {
+            return (Config.Village.Wood > (Config.Village.Unit_Prices[name]["wood"] * count)
+                && Config.Village.Wood > (Config.Village.Unit_Prices[name]["iron"] * count)
+                && Config.Village.Wood > (Config.Village.Unit_Prices[name]["stone"] * count));
+            
         }
     }
 }
