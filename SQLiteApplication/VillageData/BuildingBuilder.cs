@@ -73,11 +73,11 @@ namespace SQLiteApplication
             return instance;
         }
 
-        public BuildingBuilder WithBuildingTime(DateTime? dateTime)
+        public BuildingBuilder WithBuildingTime(TimeSpan? dateTime)
         {
             if (dateTime.HasValue)
             {
-                instance.BuildingTime = dateTime.Value;
+                instance.TimeToCanBuild = dateTime.Value;
 
             }
             return this;

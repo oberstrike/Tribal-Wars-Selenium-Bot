@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    class PathCreator
+    public class PathCreator
     {
         public string ServerId { get; set; }
         public string VillageId { get; set; }

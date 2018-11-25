@@ -23,7 +23,7 @@ namespace SQLiteApplication
         public static void Sleep()
         {
 //            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
-            Thread.Sleep((new Random().Next(1, 3) * 1000) + 245);
+            Thread.Sleep((new Random().Next(1, 2) * 1000) + 245);
 
         }
 
@@ -60,14 +60,25 @@ namespace SQLiteApplication
                     Console.WriteLine(configuration);
 
 
-                    DateTime? targetTime = new DateTime?();
+                    TimeSpan? targetTime = new TimeSpan?();
                     client.Login();
-                    Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + configuration.Village);
-                    Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + village.BuildingsInQueue.Key + " " + village.BuildingsInQueue.Value.ToString("HH:mm:ss"));
+                    
+                    foreach(var building in village.Buildings)
+                {
+                    Console.WriteLine(building.TimeToCanBuild);
+                }
+
+                return;
+                Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + configuration.Village);
                     Console.WriteLine(village.Technologies["heavy"]);
+                    
+                foreach(var kvp in village.BuildingsInQueue)
+                {
+                    Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + kvp.Key + " " + kvp.Value);
+                }
 
 
-                    return;
+    
                     string[] ressis = { "iron", "wood", "stone" };
                     foreach (var building in village.Buildings)
                     {
@@ -84,13 +95,13 @@ namespace SQLiteApplication
                             {
                                 if (!targetTime.HasValue)
                                 {
-                                    targetTime = building.BuildingTime;
+                                    targetTime = building.TimeToCanBuild;
                                 }
                                 else
                                 {
-                                    if (building.BuildingTime < targetTime)
+                                    if (building.TimeToCanBuild < targetTime)
                                     {
-                                        targetTime = building.BuildingTime;
+                                        targetTime = building.TimeToCanBuild;
                                     }
                                 }
                             }
@@ -103,7 +114,7 @@ namespace SQLiteApplication
                     double diff = 0;
                     if (targetTime.HasValue)
                     {
-                        diff = (targetTime.Value - DateTime.Now).TotalSeconds;
+                 //       diff = (targetTime.Value - DateTime.Now).TotalSeconds;
                         if (diff > 1000 || diff < 0)
                         {
                             diff = 100 + new Random().Next(400, 1000);

@@ -84,7 +84,7 @@ namespace SQLiteApplication.Web
                
                 Executor = (IJavaScriptExecutor)Driver;
       
-                Farmmanager = new Farmmanager() { Templates = Config.Templates };
+                
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -168,7 +168,6 @@ namespace SQLiteApplication.Web
                                 .WithMaxLevel((Int64)dictionary["max_level"])
                                 .WithTargetLevel(Config.Village.MaxBuildings[key])
                                 .WithBuildeable(text == null)
-                                .WithBuildingTime(dateTime)
                                 .Build());
 
                 }catch
@@ -179,6 +178,8 @@ namespace SQLiteApplication.Web
 
 
             }
+            newBuildings.ForEach(x => x.TimeToCanBuild = Config.Village.GetTimeToBuild(x));
+
             return newBuildings;
         }
         public void Logout()
@@ -196,16 +197,16 @@ namespace SQLiteApplication.Web
         {
             Sleep();
             RefreshRessis();
-            Sleep();
-            UpdateTroupMovement();
-            Sleep();
             UpdateBuildingQueue();
-            Sleep();
-            UpdateMarket();
-            Sleep();
-            UpdateTroops();
-            Sleep();
-            UpdateTechs();
+       //     Sleep();
+       //     UpdateTroupMovement();
+    //        Sleep();
+      //      UpdateMarket();
+       //     Sleep();
+       //     UpdateTroops();
+       //     Sleep();
+       //     UpdateTechs();
+           
         }
 
         private void UpdateTechs()
@@ -240,15 +241,18 @@ namespace SQLiteApplication.Web
             }
             
         }
+        #region Properties
         public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
         public bool IsConnected { get => _isConnected; set => _isConnected = value; }
         public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
-        internal PathCreator Creator { get => _creator; set => _creator = value; }
+        protected PathCreator Creator { get => _creator; set => _creator = value; }
         public string Csrf { get => _csrf; set => _csrf = value; }
         public Configuration Config { get; set; }
         public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
+        #endregion
 
-        protected void Attack(Dictionary<string, double> units, string target)
+
+        public void Attack(Dictionary<string, double> units, string target)
         {
             Driver.Navigate().GoToUrl(Creator.GetAttackLink(target));
             foreach (var kvp in units)
@@ -261,7 +265,6 @@ namespace SQLiteApplication.Web
             Driver.FindElement(By.Id("troop_confirm_go")).Click();
 
         }
-
         protected void RefreshRessis()
         {
             double id = 0;
@@ -277,7 +280,7 @@ namespace SQLiteApplication.Web
             }
             GoTo(Creator.GetMain());
             Sleep();
-            Config.Village.Buildings = GetBuildings((Dictionary<string, object>)Executor.ExecuteScript("return BuildingMain.buildings"));
+
             Config.Village.Id = id;
             Config.Village.Wood = (Int64)villageData["wood"];
             Config.Village.Iron = (Int64)villageData["iron"];
@@ -288,11 +291,9 @@ namespace SQLiteApplication.Web
             Config.Village.StorageMax = (Int64)villageData["storage_max"];
             Config.Village.Population = (Int64)villageData["pop"];
             Config.Village.MaxPopulation = (Int64)villageData["pop_max"];
-
+            Config.Village.Buildings = GetBuildings((Dictionary<string, object>)Executor.ExecuteScript("return BuildingMain.buildings"));
             Csrf = (string)Executor.ExecuteScript("return csrf_token");
         }
-
-
         private void GoTo(string url)
         {
             if(Driver.Url != url)
@@ -301,7 +302,6 @@ namespace SQLiteApplication.Web
                 Driver.Navigate().GoToUrl(url);
             }
         }
-
         public double GetVillageId()
         {
             double id = 0;
@@ -323,7 +323,6 @@ namespace SQLiteApplication.Web
             return id;
             
         }
-
         //Missing Incomings
         public void UpdateTroupMovement()
         {
@@ -367,43 +366,29 @@ namespace SQLiteApplication.Web
                 
             }
         }
-
         public void UpdateBuildingQueue()
         {
             GoTo(Creator.GetMain());
-            try
+
+            var timeElements = Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
+
+            var nameElements = Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
+
+            Console.WriteLine(timeElements.Count());
+            
+            Config.Village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
+            
+            for(int i = 0; i < timeElements.Count(); i++)
             {
-                var firstElement = Driver.FindElement(By.XPath("//tr[contains(@class, 'lit nodrag buildorder_')]"));
-                var nextElements = Driver.FindElements(By.XPath("//tr[contains(@id, 'buildorder_')]"));
-
-                if (firstElement != null)
-                {
-                    var currentQueue = firstElement.FindElement(By.XPath("//img[@class='bmain_list_img']")).GetAttribute("title");
-                    var currentTime = DateTime.Parse(Driver.FindElement(By.XPath("//tbody[@id='buildqueue']//td[contains(@class, 'nowrap')]")).Text);
-                    Config.Village.BuildingsInQueue = new KeyValuePair<string, DateTime>(currentQueue, currentTime);
-
-
-                    /*
-                     * Experimantal
-                     *
-                     */
-
-                    var web = Driver.FindElements(By.XPath("//tr[contains(@id, 'buildorder')]"));
-                    foreach (var element in web)
-                    {
-                        var innerElement = element.FindElement(By.XPath("//img[contains(@class, 'bmain_list_img')]"));
-                        string title = innerElement.GetAttribute("title");
-    
-
-                    }
-                }
-            }
-            catch
-            {
+                Config.Village.BuildingsInQueue.Add(new KeyValuePair<string, TimeSpan>(nameElements.ElementAt(i), timeElements.ElementAt(i)));
 
             }
+
+
+
+
+
         }
-
         public void UpdateMarket()
         {
             GoTo(Creator.GetMarketModeSend());
@@ -428,6 +413,32 @@ namespace SQLiteApplication.Web
             targetInput.SendKeys(targetId);
            
             UpdateMarket();
+
+        }
+
+        public void ResearchTech(string techName)
+        {
+            GoTo(Creator.GetSmith());
+            var tech = (Dictionary<string, object>)Config.Village.Technologies[techName];
+            double wood = (Int64) tech["wood"];
+            double stone = (Int64)tech["stone"];
+            double iron = (Int64)tech["iron"];
+            if (Config.Village.CanConsume(wood, stone, iron, 0))
+            {
+                try
+                {
+                   var t = (bool) tech["can_research"];
+                    if (t)
+                    {
+                        Executor.ExecuteScript("BuildingSmith.research('" + techName + "');");
+                    }
+                }
+                catch
+                {
+
+                }
+
+            }
 
         }
 
@@ -562,11 +573,11 @@ namespace SQLiteApplication.Web
         }
 
         private bool IsTrainable(double count, string name)
-        {
-            return (Config.Village.Wood > (Config.Village.Unit_Prices[name]["wood"] * count)
-                && Config.Village.Wood > (Config.Village.Unit_Prices[name]["iron"] * count)
-                && Config.Village.Wood > (Config.Village.Unit_Prices[name]["stone"] * count));
+        { 
+            return Config.Village.CanConsume(Village.unit_Prices[name]["wood"] * count, Village.unit_Prices[name]["iron"] * count , Village.unit_Prices[name]["stone"] * count, Village.unit_Prices[name]["population"] * count);
             
         }
+
+       
     }
 }

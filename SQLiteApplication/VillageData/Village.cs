@@ -20,9 +20,6 @@ namespace SQLiteApplication
          *  wood_prod 0.171
          *  
          *  present_wood + wood_prod * 60 * x = 10000 - present_wood - wood_prod 
-         * 
-         * 
-         * 
          */ 
 
         private Dictionary<string, double> _units = new Dictionary<string, double>();
@@ -39,10 +36,10 @@ namespace SQLiteApplication
         public double StoneProduction { get; set; }
         public double StorageMax { get; set; }
         public double Population { get; set; }
-
+       
         public double MaxPopulation { get; set; }
 
-        public KeyValuePair<String,DateTime> BuildingsInQueue { get; set; }
+        public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
 
         public int HaendlerCount { get; set; }
 
@@ -53,15 +50,26 @@ namespace SQLiteApplication
 
         public ICollection<TroupMovement> IncomingTroops { get; set; }
 
-        public Dictionary<string, Dictionary<string, double>> Unit_Prices => _unit_Prices;
+        public bool CanConsume(double wood, double stone, double iron, double population)
+        {
+            if (wood > Wood || stone > Stone || iron > Iron || Population + population > MaxPopulation)
+            {
+                return false;
+            }
+            Wood -= wood;
+            Stone -= stone;
+            Iron -= iron;
+            return true;
+        }
 
-        private readonly Dictionary<string, Dictionary<string,double>> _unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
-            "'spy':{'wood':50,'stone':50,'iron':20}," +
-            "'light':{'wood':125,'stone':100,'iron':250}," +
-            "'heavy':{'wood':200,'stone':150,'iron':600} ," +
-            "'spears':{'wood':50,'stone':30,'iron':10}," +
-            "'sword':{'wood':30,'stone':30,'iron':70}," +
-            "'axe':{'wood':60,'stone':30,'iron':40}}");
+        public static readonly Dictionary<string, Dictionary<string,double>> unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
+            "'spy':{'wood':50,'stone':50,'iron':20, 'population': 2} ," +
+            "'light':{'wood':125,'stone':100,'iron':250, 'population': 4}," +
+            "'heavy':{'wood':200,'stone':150,'iron':600, 'population': 6} ," +
+            "'spears':{'wood':50,'stone':30,'iron':10, 'population': 1}," +
+            "'sword':{'wood':30,'stone':30,'iron':70, 'population': 1}," +
+            "'axe':{'wood':60,'stone':30,'iron':40, 'population': 1}}");
+
         public Dictionary<string, object> Technologies { get; set; }
 
         public Dictionary<string, double> GetUnits()
@@ -88,6 +96,21 @@ namespace SQLiteApplication
         }
 
         public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
+
+        public TimeSpan GetTimeToBuild(Building building)
+        {
+            double wood = (building.Wood - Wood ) / WoodProduction;
+            double stone = (building.Stone - Stone ) / StoneProduction;
+            double iron = (building.Iron - Iron ) / IronProduction;
+
+            double max = new double[] { wood, stone, iron }.Max();
+
+            if (double.IsInfinity(max) || max < 0)
+            {
+                return new TimeSpan();
+            }
+            return new TimeSpan(Convert.ToInt32(Math.Floor(max)),Convert.ToInt32((max - Math.Floor(max))*60), 59);
+        }
 
     }
 }

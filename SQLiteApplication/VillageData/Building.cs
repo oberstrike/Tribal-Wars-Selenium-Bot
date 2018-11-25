@@ -17,7 +17,8 @@ namespace SQLiteApplication
         public double TargetLevel { get; set; }
         public Boolean IsBuildeable { get; set; }
         public double MaxLevel { get; set; }
-        public DateTime BuildingTime { get; set; }
+        public TimeSpan TimeToCanBuild { get; set; }
+
 
         public Building()
         {
@@ -26,7 +27,7 @@ namespace SQLiteApplication
 
         public override string ToString()
         {
-            return $"{Name}, Wood: {Wood}, Stone: {Stone}, Iron: {Iron}, Level: {Level}, Population: {NeededPopulation}, TargetLevel: {TargetLevel}, MaxLevel: {MaxLevel}, IsBuildeable: {IsBuildeable}, {BuildingTime}";
+            return $"{Name}, Wood: {Wood}, Stone: {Stone}, Iron: {Iron}, Level: {Level}, Population: {NeededPopulation}, TargetLevel: {TargetLevel}, MaxLevel: {MaxLevel}, IsBuildeable: {IsBuildeable}, {TimeToCanBuild}";
         }
 
     }
