@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using OpenQA.Selenium.Support.UI;
+using SQLiteApplication.Tools;
 using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using System;
@@ -14,12 +15,17 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    public class Client
+    public class Client : Updater
     {
         public static void Sleep()
         {
             Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
         }
+
+        private readonly List<Updater> _updaters = new List<Updater>()
+        {
+            new MainUpdater(), new MarketUpdater(), new MovementUpdater(), new SmithUpdater(), new TroopUpdater()
+        };
 
         private IJavaScriptExecutor _executor;
         private Farmmanager _farmmanager;
@@ -30,6 +36,13 @@ namespace SQLiteApplication.Web
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
         public Process TorProcess { get; set; }
         private FirefoxOptions options;
+        public List<Updater> Updaters
+        {
+            get
+            {
+                return _updaters;
+            }
+        }
 
         public FirefoxDriver Driver { get; set; }
 
@@ -78,13 +91,9 @@ namespace SQLiteApplication.Web
             try
             {
                 options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
-                Driver = new FirefoxDriver(options);
-                
+                Driver = new FirefoxDriver(options);            
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-               
                 Executor = (IJavaScriptExecutor)Driver;
-      
-                
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -117,7 +126,9 @@ namespace SQLiteApplication.Web
                     Sleep();
                     if (Driver.Url != urls[0])
                     {
-                        UpdateVillage();
+                        WebDriverWait driverWait = new WebDriverWait(Driver, TimeSpan.FromSeconds(5));
+                        Config.Village.Id = GetVillageId();
+                        Update(this);
                     }
                     IsLoggedIn = true;
                 
@@ -193,62 +204,29 @@ namespace SQLiteApplication.Web
             Driver.Close();
         }
 
-        protected virtual void UpdateVillage()
-        {
-            Sleep();
-            RefreshRessis();
-            UpdateBuildingQueue();
-       //     Sleep();
-       //     UpdateTroupMovement();
-    //        Sleep();
-      //      UpdateMarket();
-       //     Sleep();
-       //     UpdateTroops();
-       //     Sleep();
-       //     UpdateTechs();
-           
-        }
 
-        private void UpdateTechs()
-        {
-            GoTo(Creator.GetSmith());
-
-            Config.Village.Technologies = (Dictionary<string, object>) Executor.ExecuteScript("return BuildingSmith.techs.available");
-            Sleep();
-        }
-
-        public virtual void UpdateTroops()
-        {
-            Driver.Navigate().GoToUrl(Creator.GetPlace());
-            foreach (var unit in Farmmanager.Units)
-            {
-                var count = double.Parse(Regex.Match(Driver.FindElements(By.Id($"units_entry_all_{unit}")).First().Text, @"\d+").Value);
-                Config.Village.GetUnits()[unit] = count;
-
-            }
-        }
-
-        public void Build(string buildingName)
+        public void Build(Building building)
         {
             if (IsConnected && IsLoggedIn)
             {
                 Sleep();
                 GoTo(Creator.GetMain());
-                Executor.ExecuteScript($"BuildingMain.build(\"{buildingName}\")");
-                Sleep();
-                RefreshRessis();
-                return;
+                if (Config.Village.CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation))
+                {
+                    Executor.ExecuteScript($"BuildingMain.build(\"{building.Name}\")");
+                    Sleep();
+                }
             }
-            
         }
         #region Properties
         public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
         public bool IsConnected { get => _isConnected; set => _isConnected = value; }
         public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
-        protected PathCreator Creator { get => _creator; set => _creator = value; }
+        public PathCreator Creator { get => _creator; set => _creator = value; }
         public string Csrf { get => _csrf; set => _csrf = value; }
         public Configuration Config { get; set; }
         public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
+    
         #endregion
 
 
@@ -265,36 +243,8 @@ namespace SQLiteApplication.Web
             Driver.FindElement(By.Id("troop_confirm_go")).Click();
 
         }
-        protected void RefreshRessis()
-        {
-            double id = 0;
-            var villageData = (Dictionary<string, object>)Executor.ExecuteScript("return TribalWars.getGameData().village");
-            id = GetVillageId();
 
-            if (Config.Village.Id != 0)
-            {
-            }
-            else
-            {
-                id = Config.Village.Id;
-            }
-            GoTo(Creator.GetMain());
-            Sleep();
-
-            Config.Village.Id = id;
-            Config.Village.Wood = (Int64)villageData["wood"];
-            Config.Village.Iron = (Int64)villageData["iron"];
-            Config.Village.Stone = (Int64)villageData["stone"];
-            Config.Village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
-            Config.Village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
-            Config.Village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
-            Config.Village.StorageMax = (Int64)villageData["storage_max"];
-            Config.Village.Population = (Int64)villageData["pop"];
-            Config.Village.MaxPopulation = (Int64)villageData["pop_max"];
-            Config.Village.Buildings = GetBuildings((Dictionary<string, object>)Executor.ExecuteScript("return BuildingMain.buildings"));
-            Csrf = (string)Executor.ExecuteScript("return csrf_token");
-        }
-        private void GoTo(string url)
+        public void GoTo(string url)
         {
             if(Driver.Url != url)
             {
@@ -324,80 +274,10 @@ namespace SQLiteApplication.Web
             
         }
         //Missing Incomings
-        public void UpdateTroupMovement()
-        {
-            Driver.Navigate().GoToUrl(Creator.GetPlace());
-            string tr_Class = "command-row";
-            Sleep();
-            try
-            {
-                var rows = Driver.FindElement(By.Id("commands_outgoings")).FindElements(By.ClassName(tr_Class));
-                ICollection<TroupMovement> movements = new List<TroupMovement>();
-
-                foreach (var row in rows)
-                {
-                    var attackType = (string)row.FindElement(By.ClassName("command_hover_details")).GetAttribute("data-command-type");
-                    var targetElement = row.FindElement(By.ClassName("quickedit-out"));
-                    var movementId = targetElement.GetAttribute("data-id");
-
-                    movements.Add(new TroupMovement() { Type = attackType, MovementId = movementId });
-
-                    Sleep();
-                }
-
-                foreach (var movement in movements)
-                {
-                    var d = Driver.FindElement(By.CssSelector($".quickedit-out[data-id='{movement.MovementId}']"));
+     
 
 
-                    if (movements.Where(move => move.MovementId == d.GetAttribute("")).Count() == 0)
-                    {
-                        d.Click();
-                        var id = Driver.FindElements(By.XPath("//*[@data-player]")).ToArray()[1].GetAttribute("data -id");
-                        movement.TargetId = id;
-                        Sleep();
-                        Driver.Navigate().GoToUrl(Creator.GetPlace());
-                    }
-                }
-                Config.Village.OutcomingTroops = movements;
-            }
-            catch
-            {
-                
-            }
-        }
-        public void UpdateBuildingQueue()
-        {
-            GoTo(Creator.GetMain());
-
-            var timeElements = Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
-
-            var nameElements = Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
-
-            Console.WriteLine(timeElements.Count());
-            
-            Config.Village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
-            
-            for(int i = 0; i < timeElements.Count(); i++)
-            {
-                Config.Village.BuildingsInQueue.Add(new KeyValuePair<string, TimeSpan>(nameElements.ElementAt(i), timeElements.ElementAt(i)));
-
-            }
-
-
-
-
-
-        }
-        public void UpdateMarket()
-        {
-            GoTo(Creator.GetMarketModeSend());
-            Sleep();
-            Config.Village.HaendlerCount = int.Parse(Driver.FindElement(By.Id("market_merchant_available_count")).Text);
-   
-
-        }
-
+      
         public void SendRessource(int wood, int stone, int iron, string targetId)
         {
             GoTo(Creator.GetMarketModeSend());
@@ -407,13 +287,13 @@ namespace SQLiteApplication.Web
             var ironInput = Driver.FindElement(By.XPath("//input[@name='iron']"));
             var targetInput = Driver.FindElement(By.XPath("//input[@placeholder='123|456']"));
 
-            woodInput.SendKeys(wood.ToString());
-            stoneInput.SendKeys(stone.ToString());
-            ironInput.SendKeys(iron.ToString());
-            targetInput.SendKeys(targetId);
-           
-            UpdateMarket();
-
+            if (Config.Village.CanConsume(wood, stone, iron, 0))
+            {
+                woodInput.SendKeys(wood.ToString());
+                stoneInput.SendKeys(stone.ToString());
+                ironInput.SendKeys(iron.ToString());
+                targetInput.SendKeys(targetId);
+            }
         }
 
         public void ResearchTech(string techName)
@@ -578,6 +458,13 @@ namespace SQLiteApplication.Web
             
         }
 
-       
+        public virtual void Update(Client client)
+        {
+            foreach(Updater updater in Updaters)
+            {
+                updater.Update(this);
+                Sleep();
+            }
+        }
     }
 }

@@ -7,20 +7,15 @@ using Newtonsoft.Json;
 
 namespace SQLiteApplication
 {
-    public class Village
+    public sealed class Village
     {
-        /*  Neue Anforderungen:
-         *  - neue daten: 
-         *  wood_prod
-         *  stone_prod
-         *  iron_prod
-         *  
-         *  target_wood 10000
-         *  present_wood 1000
-         *  wood_prod 0.171
-         *  
-         *  present_wood + wood_prod * 60 * x = 10000 - present_wood - wood_prod 
-         */ 
+        public static readonly Dictionary<string, Dictionary<string, double>> unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
+                                    "'spy':{'wood':50,'stone':50,'iron':20, 'population': 2} ," +
+                                    "'light':{'wood':125,'stone':100,'iron':250, 'population': 4}," +
+                                    "'heavy':{'wood':200,'stone':150,'iron':600, 'population': 6} ," +
+                                    "'spears':{'wood':50,'stone':30,'iron':10, 'population': 1}," +
+                                    "'sword':{'wood':30,'stone':30,'iron':70, 'population': 1}," +
+                                    "'axe':{'wood':60,'stone':30,'iron':40, 'population': 1}}");
 
         private Dictionary<string, double> _units = new Dictionary<string, double>();
 
@@ -61,14 +56,8 @@ namespace SQLiteApplication
             Iron -= iron;
             return true;
         }
+        
 
-        public static readonly Dictionary<string, Dictionary<string,double>> unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
-            "'spy':{'wood':50,'stone':50,'iron':20, 'population': 2} ," +
-            "'light':{'wood':125,'stone':100,'iron':250, 'population': 4}," +
-            "'heavy':{'wood':200,'stone':150,'iron':600, 'population': 6} ," +
-            "'spears':{'wood':50,'stone':30,'iron':10, 'population': 1}," +
-            "'sword':{'wood':30,'stone':30,'iron':70, 'population': 1}," +
-            "'axe':{'wood':60,'stone':30,'iron':40, 'population': 1}}");
 
         public Dictionary<string, object> Technologies { get; set; }
 

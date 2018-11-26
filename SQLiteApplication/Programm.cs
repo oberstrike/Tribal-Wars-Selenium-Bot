@@ -88,7 +88,7 @@ namespace SQLiteApplication
                             Console.WriteLine($"{DateTime.Now.ToString("HH:mm: ")}: {building}");
                             if (building.IsBuildeable)
                             {
-                                client.Build(building.Name);
+                                client.Build(building);
                                 Console.WriteLine(DateTime.Now.ToString("HH:mm: ") + "Baue " + building.Name + " aus");
                             }
                             else
