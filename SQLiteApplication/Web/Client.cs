@@ -127,6 +127,11 @@ namespace SQLiteApplication.Web
                     if (Driver.Url != urls[0])
                     {
                         WebDriverWait driverWait = new WebDriverWait(Driver, TimeSpan.FromSeconds(5));
+                        
+                        //Muss angepasst werden in der neuen Version:
+                        /*
+                            Config.User.Villages = GetVillages();
+                        */
                         Config.Village.Id = GetVillageId();
                         Update(this);
                     }
