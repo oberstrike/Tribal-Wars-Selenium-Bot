@@ -15,8 +15,11 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    public class Client : Updater
+    public class Client
     {
+        
+        #region STATIC
+        
         public static void Sleep()
         {
             Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
@@ -26,7 +29,8 @@ namespace SQLiteApplication.Web
         {
             new MainUpdater(), new MarketUpdater(), new MovementUpdater(), new SmithUpdater(), new TroopUpdater()
         };
-
+        #endregion
+        
         private IJavaScriptExecutor _executor;
         private Farmmanager _farmmanager;
         private bool _isConnected;
@@ -34,8 +38,17 @@ namespace SQLiteApplication.Web
         private PathCreator _creator;
         private string _csrf;
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
-        public Process TorProcess { get; set; }
         private FirefoxOptions options;
+        
+        #region Properties
+        public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
+        public bool IsConnected { get => _isConnected; set => _isConnected = value; }
+        public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
+        public PathCreator Creator { get => _creator; set => _creator = value; }
+        public string Csrf { get => _csrf; set => _csrf = value; }
+        public Configuration Config { get; set; }
+        public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
+        public Process TorProcess { get; set; }
         public List<Updater> Updaters
         {
             get
@@ -43,21 +56,21 @@ namespace SQLiteApplication.Web
                 return _updaters;
             }
         }
-
         public FirefoxDriver Driver { get; set; }
+        #endregion
+        
+       
+
+     
 
         public Client( Configuration configuration)
         {
             Config = configuration;
             options = new FirefoxOptions();
 
-            #if DEBUG
-
-            #else
-            options.AddArgument("--headless");
-
-            #endif
-
+            #if (!DEBUG)
+                options.AddArgument("--headless");
+            
             if (configuration.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -223,16 +236,7 @@ namespace SQLiteApplication.Web
                 }
             }
         }
-        #region Properties
-        public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
-        public bool IsConnected { get => _isConnected; set => _isConnected = value; }
-        public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
-        public PathCreator Creator { get => _creator; set => _creator = value; }
-        public string Csrf { get => _csrf; set => _csrf = value; }
-        public Configuration Config { get; set; }
-        public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
-    
-        #endregion
+
 
 
         public void Attack(Dictionary<string, double> units, string target)
@@ -463,7 +467,7 @@ namespace SQLiteApplication.Web
             
         }
 
-        public virtual void Update(Client client)
+        public void Update(Client client)
         {
             foreach(Updater updater in Updaters)
             {
