@@ -12,7 +12,7 @@ namespace SQLiteApplication.Web
         public string VillageId { get; set; }
 
         private string GetBasePath(){
-           return $"https://de{ServerId}.die-staemme.de/game.php?";
+           return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}";
         }
         
 
@@ -25,22 +25,22 @@ namespace SQLiteApplication.Web
 
         public string GetMain()
         {
-            return $"{GetBasePath()}village={ServerId}&screen=main";
+            return $"{GetBasePath()}&screen=main";
         }
 
         public string GetPlace()
         {
-            return $"{GetBasePath()}village={VillageId}&screen=place&mode=command";
+            return $"{GetBasePath()}&screen=place&mode=command";
         }
 
         public string GetLogout(string csrf)
         {
-            return $"{GetBasePath()}village={VillageId}&screen=&action=logout&h={csrf}";
+            return $"{GetBasePath()}&screen=&action=logout&h={csrf}";
         }
 
         public string GetAttackLink(string target)
         {
-            return $"{GetBasePath()}village={VillageId}&screen=place&target={target}";
+            return $"{GetBasePath()}&screen=place&target={target}";
         }
 
         public string GetFarmAssist()
@@ -65,12 +65,12 @@ namespace SQLiteApplication.Web
 
         internal string GetStable()
         {
-            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=stable";
+            return $"{GetBasePath()}&screen=stable";
         }
 
         internal string GetSmith()
         {
-            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}&screen=smith";
+            return $"{GetBasePath()}&screen=smith";
 
         }
     }
