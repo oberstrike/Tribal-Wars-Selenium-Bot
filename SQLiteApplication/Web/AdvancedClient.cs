@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium;
+using SQLiteApplication.Tools;
 using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using System;
@@ -13,19 +14,18 @@ namespace SQLiteApplication.Web
 {
     public class AdvancedClient : Client
     {
-
-
         public AdvancedClient(Configuration configuration) : base(configuration)
         {
-            
+            Updaters.RemoveAll(x => x is TroopUpdater);
+            Updaters.Add(new AdvancedTroopUpdater());
         }
         
-        protected override void UpdateVillage()
+        public override void Update(Client client)
         {
             var hasFarmmanager = (bool) Executor.ExecuteScript("return TribalWars.getGameData().features.FarmAssistent.active");
             if (hasFarmmanager)
             {
-                base.UpdateVillage();
+                base.Update(client);
             }
             else
             {
@@ -35,21 +35,23 @@ namespace SQLiteApplication.Web
 
         }
 
-       
-        public override void UpdateTroops()
+        internal class AdvancedTroopUpdater : Updater
         {
-            Sleep();
-            Driver.Navigate().GoToUrl(Creator.GetFarmAssist());
-            var units = (Dictionary<string,object>) Executor.ExecuteScript("return Accountmanager.farm.current_units");
-            Dictionary<string, double> nUnits = new Dictionary<string, double>();
-            foreach (var values in units)
+            public void Update(Client client)
             {
-       
-                nUnits.Add(values.Key, double.Parse((string)values.Value));
+                Sleep();
+                client.Driver.Navigate().GoToUrl(client.Creator.GetFarmAssist());
+                var units = (Dictionary<string, object>)client.Executor.ExecuteScript("return Accountmanager.farm.current_units");
+                Dictionary<string, double> nUnits = new Dictionary<string, double>();
+                foreach (var values in units)
+                {
+
+                    nUnits.Add(values.Key, double.Parse((string)values.Value));
+                }
+                client.Config.Village.SetUnits(nUnits);
+
             }
-            Config.Village.SetUnits(nUnits);
-            
         }
-        
+  
     }
 }
