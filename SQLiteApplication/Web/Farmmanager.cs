@@ -15,7 +15,7 @@ namespace SQLiteApplication.VillageData
     */
     public class Farmmanager
     {
-        public string[] Units { get; } = { "spear", "sword", "axe", "spy", "light", "heavy", "ram", "catapult", "snob"};
+        public static string[] Units { get; } = { "spear", "sword", "axe", "spy", "light", "heavy", "ram", "catapult", "snob"};
 
         public List<Dictionary<string, double>> Templates { get; set; }
 
