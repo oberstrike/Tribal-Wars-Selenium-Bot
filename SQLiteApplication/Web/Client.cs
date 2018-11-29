@@ -8,12 +8,18 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    public class Client : Updater
+    public class Client
     {
+        
+        #region STATIC
+        
         public static void Sleep()
         {
             Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
@@ -23,7 +29,8 @@ namespace SQLiteApplication.Web
         {
             new MainUpdater(), new MarketUpdater(), new MovementUpdater(), new SmithUpdater(), new TroopUpdater()
         };
-
+        #endregion
+        
         private IJavaScriptExecutor _executor;
         private Farmmanager _farmmanager;
         private bool _isConnected;
@@ -31,24 +38,39 @@ namespace SQLiteApplication.Web
         private PathCreator _creator;
         private string _csrf;
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
-        public Process TorProcess { get; set; }
         private FirefoxOptions options;
-        public List<Updater> Updaters => _updaters;
-
+        
+        #region Properties
+        public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
+        public bool IsConnected { get => _isConnected; set => _isConnected = value; }
+        public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
+        public PathCreator Creator { get => _creator; set => _creator = value; }
+        public string Csrf { get => _csrf; set => _csrf = value; }
+        public Configuration Config { get; set; }
+        public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
+        public Process TorProcess { get; set; }
+        public List<Updater> Updaters
+        {
+            get
+            {
+                return _updaters;
+            }
+        }
         public FirefoxDriver Driver { get; set; }
+        #endregion
+        
+       
 
-        public Client(Configuration configuration)
+     
+
+        public Client( Configuration configuration)
         {
             Config = configuration;
             options = new FirefoxOptions();
 
-#if DEBUG
-
-#else
-            options.AddArgument("--headless");
-
-#endif
-
+            #if (!DEBUG)
+                options.AddArgument("--headless");
+            
             if (configuration.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -58,7 +80,7 @@ namespace SQLiteApplication.Web
 
         private void ConfigureAdvancedBrowser()
         {
-            Process[] localIds = Process.GetProcessesByName("tor");
+            var localIds = Process.GetProcessesByName("tor");
 
             if (localIds.Length == 0)
             {
@@ -82,9 +104,9 @@ namespace SQLiteApplication.Web
             try
             {
                 options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
-                Driver = new FirefoxDriver(options);
+                Driver = new FirefoxDriver(options);            
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
-                Executor = Driver;
+                Executor = (IJavaScriptExecutor)Driver;
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -103,7 +125,7 @@ namespace SQLiteApplication.Web
                 {
                     Driver.Navigate().GoToUrl(urls[0]);
                 }
-                bool contains = Driver.PageSource.Contains(Config.User.Name);
+                var contains = Driver.PageSource.Contains(Config.User.Name);
                 if (!contains)
                 {
                     Driver.FindElement(By.Id("user")).SendKeys(Config.User.Name);
@@ -113,16 +135,21 @@ namespace SQLiteApplication.Web
                 }
 
 
-                Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
-                Sleep();
-                if (Driver.Url != urls[0])
-                {
-                    WebDriverWait driverWait = new WebDriverWait(Driver, TimeSpan.FromSeconds(5));
-                    Config.Village.Id = GetVillageId();
-                    Update(this);
-                }
-                IsLoggedIn = true;
-
+                    Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
+                    Sleep();
+                    if (Driver.Url != urls[0])
+                    {
+                        WebDriverWait driverWait = new WebDriverWait(Driver, TimeSpan.FromSeconds(5));
+                        
+                        //Muss angepasst werden in der neuen Version:
+                        /*
+                            Config.User.Villages = GetVillages();
+                        */
+                        Config.Village.Id = GetVillageId();
+                        Update(this);
+                    }
+                    IsLoggedIn = true;
+                
 
             }
 
@@ -130,11 +157,11 @@ namespace SQLiteApplication.Web
 
         public List<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
-
+      
             List<Building> newBuildings = new List<Building>();
-            foreach (string key in keyValuePairs.Keys)
-            {
-                Dictionary<string, object> dictionary = (Dictionary<string, object>)keyValuePairs[key];
+            foreach (var key in keyValuePairs.Keys)
+            {            
+                var dictionary = (Dictionary<string, object>)keyValuePairs[key];
 
                 string text = null;
                 DateTime? dateTime = null;
@@ -145,10 +172,10 @@ namespace SQLiteApplication.Web
                     {
                         if (text.Length > 1 && text.Contains("Genug") && text.Contains("um"))
                         {
-                            string date = text.Split(' ')[4];
+                            var date = text.Split(' ')[4];
 
                             dateTime = DateTime.Parse(date);
-                            DateTime nowTime = DateTime.Now;
+                            var nowTime = DateTime.Now;
 
                             if (dateTime.Value.Ticks < nowTime.Ticks)
                             {
@@ -162,20 +189,19 @@ namespace SQLiteApplication.Web
                 {
                     newBuildings.Add(new BuildingBuilder()
                                 .WithName(key)
-                                .WithWood((long)dictionary["wood"])
-                                .WithStone((long)dictionary["stone"])
-                                .WithIron((long)dictionary["iron"])
+                                .WithWood((Int64)dictionary["wood"])
+                                .WithStone((Int64)dictionary["stone"])
+                                .WithIron((Int64)dictionary["iron"])
                                 .WithLevel(double.Parse((string)dictionary["level"]))
-                                .WithPopulation((long)dictionary["pop"])
-                                .WithMaxLevel((long)dictionary["max_level"])
+                                .WithPopulation((Int64)dictionary["pop"])
+                                .WithMaxLevel((Int64)dictionary["max_level"])
                                 .WithTargetLevel(Config.Village.MaxBuildings[key])
                                 .WithBuildeable(text == null)
                                 .Build());
 
-                }
-                catch
+                }catch
                 {
-                    Console.WriteLine(key + " wurde nicht gefunden"); Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
+                    Console.WriteLine(key + " wurde nicht gefunden");Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
                 }
 
 
@@ -210,22 +236,13 @@ namespace SQLiteApplication.Web
                 }
             }
         }
-        #region Properties
-        public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
-        public bool IsConnected { get => _isConnected; set => _isConnected = value; }
-        public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
-        public PathCreator Creator { get => _creator; set => _creator = value; }
-        public string Csrf { get => _csrf; set => _csrf = value; }
-        public Configuration Config { get; set; }
-        public IJavaScriptExecutor Executor { get => _executor; set => _executor = value; }
 
-        #endregion
 
 
         public void Attack(Dictionary<string, double> units, string target)
         {
             Driver.Navigate().GoToUrl(Creator.GetAttackLink(target));
-            foreach (KeyValuePair<string, double> kvp in units)
+            foreach (var kvp in units)
             {
                 Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
                 Sleep();
@@ -238,7 +255,7 @@ namespace SQLiteApplication.Web
 
         public void GoTo(string url)
         {
-            if (Driver.Url != url)
+            if(Driver.Url != url)
             {
                 Sleep();
                 Driver.Navigate().GoToUrl(url);
@@ -250,7 +267,7 @@ namespace SQLiteApplication.Web
             if (IsLoggedIn && IsConnected)
             {
                 Sleep();
-                object output = (Executor.ExecuteScript("return TribalWars.getGameData().village.id"));
+                var output = (Executor.ExecuteScript("return TribalWars.getGameData().village.id"));
 
                 if (typeof(string).Equals(output.GetType()))
                 {
@@ -258,26 +275,26 @@ namespace SQLiteApplication.Web
                 }
                 else
                 {
-                    id = (long)output;
+                    id = (Int64)output;
                 }
             }
             Creator = new PathCreator(Config.User.Server.ToString(), id.ToString());
             return id;
-
+            
         }
         //Missing Incomings
+     
 
 
-
-
+      
         public void SendRessource(int wood, int stone, int iron, string targetId)
         {
             GoTo(Creator.GetMarketModeSend());
 
-            IWebElement woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
-            IWebElement stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
-            IWebElement ironInput = Driver.FindElement(By.XPath("//input[@name='iron']"));
-            IWebElement targetInput = Driver.FindElement(By.XPath("//input[@placeholder='123|456']"));
+            var woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
+            var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
+            var ironInput = Driver.FindElement(By.XPath("//input[@name='iron']"));
+            var targetInput = Driver.FindElement(By.XPath("//input[@placeholder='123|456']"));
 
             if (Config.Village.CanConsume(wood, stone, iron, 0))
             {
@@ -291,15 +308,15 @@ namespace SQLiteApplication.Web
         public void ResearchTech(string techName)
         {
             GoTo(Creator.GetSmith());
-            Dictionary<string, object> tech = (Dictionary<string, object>)Config.Village.Technologies[techName];
-            double wood = (long)tech["wood"];
-            double stone = (long)tech["stone"];
-            double iron = (long)tech["iron"];
+            var tech = (Dictionary<string, object>)Config.Village.Technologies[techName];
+            double wood = (Int64) tech["wood"];
+            double stone = (Int64)tech["stone"];
+            double iron = (Int64)tech["iron"];
             if (Config.Village.CanConsume(wood, stone, iron, 0))
             {
                 try
                 {
-                    bool t = (bool)tech["can_research"];
+                   var t = (bool) tech["can_research"];
                     if (t)
                     {
                         Executor.ExecuteScript("BuildingSmith.research('" + techName + "');");
@@ -322,7 +339,7 @@ namespace SQLiteApplication.Web
                 TrainUnitsInBarracks(units);
             }
 
-            if (units.ContainsKey("spy") || units.ContainsKey("light") || units.ContainsKey("heavy"))
+            if(units.ContainsKey("spy") || units.ContainsKey("light") || units.ContainsKey("heavy"))
             {
                 TrainUnitsInStable(units);
             }
@@ -349,12 +366,12 @@ namespace SQLiteApplication.Web
             {
 
             }
-            IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
+            var trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
 
 
             if (units.ContainsKey("spears"))
             {
-                double count = units["spears"];
+                var count = units["spears"];
                 if (IsTrainable(count, "spears") && spearsInput != null)
                 {
                     spearsInput.SendKeys(count.ToString());
@@ -363,7 +380,7 @@ namespace SQLiteApplication.Web
             }
             if (units.ContainsKey("sword"))
             {
-                double count = units["sword"];
+                var count = units["sword"];
                 if (IsTrainable(count, "sword") && swordInput != null)
                 {
 
@@ -374,7 +391,7 @@ namespace SQLiteApplication.Web
             if (units.ContainsKey("axe"))
             {
                 {
-                    double count = units["axe"];
+                    var count = units["axe"];
                     if (IsTrainable(count, "axe") && axeInput != null)
                     {
 
@@ -406,12 +423,12 @@ namespace SQLiteApplication.Web
             {
 
             }
-            IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
+            var trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
 
 
             if (units.ContainsKey("spy"))
             {
-                double count = units["spy"];
+                var count = units["spy"];
                 if (IsTrainable(count, "spy") && spysInput != null)
                 {
                     spysInput.SendKeys(count.ToString());
@@ -420,7 +437,7 @@ namespace SQLiteApplication.Web
             }
             if (units.ContainsKey("light"))
             {
-                double count = units["light"];
+                var count = units["light"];
                 if (IsTrainable(count, "light") && lightInput != null)
                 {
 
@@ -431,7 +448,7 @@ namespace SQLiteApplication.Web
             if (units.ContainsKey("heavy"))
             {
                 {
-                    double count = units["axe"];
+                    var count = units["axe"];
                     if (IsTrainable(count, "axe") && heavyInput != null)
                     {
 
@@ -445,14 +462,14 @@ namespace SQLiteApplication.Web
         }
 
         private bool IsTrainable(double count, string name)
-        {
-            return Config.Village.CanConsume(Village.unit_Prices[name]["wood"] * count, Village.unit_Prices[name]["iron"] * count, Village.unit_Prices[name]["stone"] * count, Village.unit_Prices[name]["population"] * count);
-
+        { 
+            return Config.Village.CanConsume(Village.unit_Prices[name]["wood"] * count, Village.unit_Prices[name]["iron"] * count , Village.unit_Prices[name]["stone"] * count, Village.unit_Prices[name]["population"] * count);
+            
         }
 
-        public virtual void Update(Client client)
+        public void Update(Client client)
         {
-            foreach (Updater updater in Updaters)
+            foreach(Updater updater in Updaters)
             {
                 updater.Update(this);
                 Sleep();

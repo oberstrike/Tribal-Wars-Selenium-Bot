@@ -36,6 +36,11 @@ namespace SQLiteApplication.UserData
                     where village.Id == id
                     select village).First();
         }
+        
+        Vielleicht benötigt:
+        public Village GetVillage(double id){
+            return GetVillage(Convert.ToInt32(id));
+        }
         */
 
     }
