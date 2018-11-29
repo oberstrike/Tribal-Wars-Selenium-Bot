@@ -63,12 +63,12 @@ namespace SQLiteApplication.Web
             return $"{GetBasePath()}&screen=barracks";
         }
 
-        internal string GetStable()
+        public string GetStable()
         {
             return $"{GetBasePath()}&screen=stable";
         }
 
-        internal string GetSmith()
+        public string GetSmith()
         {
             return $"{GetBasePath()}&screen=smith";
 
