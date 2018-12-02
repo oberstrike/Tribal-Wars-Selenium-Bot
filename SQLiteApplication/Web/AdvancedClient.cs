@@ -12,20 +12,21 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Web
 {
-    public class AdvancedClient : Client
-    {
+    [Obsolete("Veraltet")]
+    public class AdvancedClient : Client { 
+
         public AdvancedClient(Configuration configuration) : base(configuration)
         {
-            Updaters.RemoveAll(x => x is TroopUpdater);
-            Updaters.Add(new AdvancedTroopUpdater());
+            //Updaters.RemoveAll(x => x is TroopUpdater);
+         //   Updaters.Add(new AdvancedTroopUpdater());
         }
         
-        public override void Update(Client client)
+        public void Update(Client client)
         {
-            var hasFarmmanager = (bool) Executor.ExecuteScript("return TribalWars.getGameData().features.FarmAssistent.active");
+            var hasFarmmanager = (bool) Driver.ExecuteScript("return TribalWars.getGameData().features.FarmAssistent.active");
             if (hasFarmmanager)
             {
-                base.Update(client);
+       //         base.Update(client);
             }
             else
             {
@@ -35,20 +36,18 @@ namespace SQLiteApplication.Web
 
         }
 
-        internal class AdvancedTroopUpdater : Updater
+        internal class AdvancedTroopUpdater
         {
             public void Update(Client client)
             {
                 Sleep();
-                client.Driver.Navigate().GoToUrl(client.Creator.GetFarmAssist());
-                var units = (Dictionary<string, object>)client.Executor.ExecuteScript("return Accountmanager.farm.current_units");
+                var units = (Dictionary<string, object>)client.Driver.ExecuteScript("return Accountmanager.farm.current_units");
                 Dictionary<string, double> nUnits = new Dictionary<string, double>();
                 foreach (var values in units)
                 {
 
                     nUnits.Add(values.Key, double.Parse((string)values.Value));
                 }
-                client.Config.Village.SetUnits(nUnits);
 
             }
         }

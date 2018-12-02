@@ -9,9 +9,7 @@ namespace SQLiteApplication.UserData
 {
     public class Configuration
     {
-        public Village Village { get; set; } //Entfällt in der neuen Version
-        
-        
+       
         public bool IsGreedyOnRessources { get; set; }
         public string[] FarmingVillages { get; set; }
         public List<Dictionary<string, double>> Templates { get; set; }

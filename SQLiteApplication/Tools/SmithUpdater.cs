@@ -3,17 +3,19 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
     class SmithUpdater : Updater
     {
-        public void Update(Client client)
+        public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
         {
-            client.GoTo(client.Creator.GetSmith());
-            client.Config.Village.Technologies = (Dictionary<string, object>)client.Executor.ExecuteScript("return BuildingSmith.techs.available");
-            Client.Sleep();
-        }
+            village.Technologies = (Dictionary<string, object>)driver.ExecuteScript("return BuildingSmith.techs.available");
+            
+        };
+
+      
     }
 }

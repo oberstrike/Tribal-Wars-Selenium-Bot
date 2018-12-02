@@ -18,13 +18,10 @@ namespace SQLiteApplication
         public Boolean IsBuildeable { get; set; }
         public double MaxLevel { get; set; }
         public TimeSpan TimeToCanBuild { get; set; }
-
-
         public Building()
         {
 
         }
-
         public override string ToString()
         {
             return $"{Name}, Wood: {Wood}, Stone: {Stone}, Iron: {Iron}, Level: {Level}, Population: {NeededPopulation}, TargetLevel: {TargetLevel}, MaxLevel: {MaxLevel}, IsBuildeable: {IsBuildeable}, {TimeToCanBuild}";

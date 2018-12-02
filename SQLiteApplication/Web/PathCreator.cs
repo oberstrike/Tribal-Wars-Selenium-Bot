@@ -14,7 +14,12 @@ namespace SQLiteApplication.Web
         private string GetBasePath(){
            return $"https://de{ServerId}.die-staemme.de/game.php?village={VillageId}";
         }
-        
+
+        public PathCreator(Village village)
+        {
+            ServerId = village.ServerId.ToString();
+            VillageId = village.Id.ToString();
+        }
 
         public PathCreator(string pServerId, string pVillageId)
         {

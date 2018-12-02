@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json;
+using SQLiteApplication.Web;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -6,42 +8,35 @@ namespace SQLiteApplication.UserData
 {
     public class User
     {
+        private IList<Village> _villages = new List<Village>();
+
         public string Name { get; set; }
         public string Password { get; set; }
         public int Server { get; set; }
-
         public bool HasFarmmanager { get; set; }
+        public IList<Village> Villages { get => _villages; set => _villages = value; }
+
+        public User()
+        {
+
+        }
 
         public override string ToString()
         {
             return $"Name: {Name}, Server: {Server}";
         }
 
-        /*
-        private ICollection<Village> villages = new List<Village>();
         
-        public ICollection<Village> GetVillages()
+        public Village GetVillage(string id)
         {
-            return villages;
-        }
-
-        public void SetVillages(ICollection<Village> value)
-        {
-            villages = value;
-        }
-
-        public Village GetVillage(int id)
-        {
-            return (from village in GetVillages()
+            return (from village in Villages
                     where village.Id == id
                     select village).First();
         }
-        
-        Vielleicht benötigt:
-        public Village GetVillage(double id){
-            return GetVillage(Convert.ToInt32(id));
-        }
-        */
 
+        public Village GetVillage(object id)
+        {
+            return GetVillage(id.ToString());
+        }
     }
 }

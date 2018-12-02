@@ -5,6 +5,7 @@ using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
@@ -12,15 +13,20 @@ namespace SQLiteApplication.Tools
 {
     class TroopUpdater : Updater
     {
-        public void Update(Client client)
+        public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
         {
-            client.Driver.Navigate().GoToUrl(client.Creator.GetPlace());
-            foreach (var unit in Farmmanager.Units)
-            {
-                var count = double.Parse(Regex.Match(client.Driver.FindElements(By.Id($"units_entry_all_{unit}")).First().Text, @"\d+").Value);
-                client.Config.Village.GetUnits()[unit] = count;
+            var unitElements = driver.FindElements(By.XPath("//tr[contains(@class, 'row_')]//td[3]"));
 
+            foreach(var element in unitElements)
+            {
+                string content = element.Text;
+                string[] sArray = content.Split('/');
+                int value = int.Parse(sArray[1]);
+                Console.WriteLine(value);
             }
-        }
+
+        };
     }
 }
+
+

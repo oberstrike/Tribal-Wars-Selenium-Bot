@@ -1,4 +1,5 @@
-﻿using SQLiteApplication.Web;
+﻿using OpenQA.Selenium.Firefox;
+using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -7,8 +8,12 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Tools
 {
-    public interface Updater
+    public abstract class Updater
     {
-        void Update(Client client );
+        public abstract Action<FirefoxDriver, Village> UpdateAction { get; }
+        public void Update(Village village, FirefoxDriver driver)
+        {
+            UpdateAction(driver,village);
+        }
     }
 }
