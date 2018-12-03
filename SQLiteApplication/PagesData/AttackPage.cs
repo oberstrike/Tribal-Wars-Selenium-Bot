@@ -17,18 +17,18 @@ namespace SQLiteApplication.PagesData
 
         public override List<Updater> Updaters => throw new NotImplementedException();
 
-        public void Attack(FirefoxDriver client, Dictionary<string, double> units, string target, int villageId)
+        public void Attack(Dictionary<string, double> units, string target, int villageId)
         {
-            GoTo(client, target);
+            GoTo(driver, target);
 
             foreach (KeyValuePair<string, double> kvp in units)
             {
-                client.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
+                driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
                 Program.Sleep();
             }
-            client.FindElement(By.Id("target_attack")).Click();
+            driver.FindElement(By.Id("target_attack")).Click();
             Program.Sleep();
-            client.FindElement(By.Id("troop_confirm_go")).Click();
+            driver.FindElement(By.Id("troop_confirm_go")).Click();
 
         }
 
