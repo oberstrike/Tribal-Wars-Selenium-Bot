@@ -25,7 +25,7 @@ namespace SQLiteApplication.PagesData
             return base.Url() + "&screen=barracks";
         }
 
-        public void TrainUnits(FirefoxDriver driver,Dictionary<string, double> units, int villageId)
+        public void TrainUnits(Dictionary<string, double> units, int villageId)
         {
 
             if (units.ContainsKey("spears") || units.ContainsKey("sword") || units.ContainsKey("axe"))
