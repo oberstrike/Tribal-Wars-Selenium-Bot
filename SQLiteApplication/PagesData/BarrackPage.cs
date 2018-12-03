@@ -92,7 +92,7 @@ namespace SQLiteApplication.PagesData
                 }
             }
             trainBtn.Click();
-            Program.Sleep();
+            Client.Sleep();
 
         }
 
@@ -147,7 +147,7 @@ namespace SQLiteApplication.PagesData
             }
 
             trainBtn.Click();
-            Program.Sleep();
+            Client.Sleep();
         }
 
 

@@ -42,7 +42,6 @@ namespace SQLiteApplication.PagesData
         protected void GoTo(FirefoxDriver client, string extension)
         {
             string url = Url() + extension;
-            Console.WriteLine(url);
 
             if (client.Url != url)
             {
@@ -59,7 +58,7 @@ namespace SQLiteApplication.PagesData
                 updater.Update(PageVillage, Driver);
                 
             }
-            Program.Sleep();
+            Client.Sleep();
         }
     }
 

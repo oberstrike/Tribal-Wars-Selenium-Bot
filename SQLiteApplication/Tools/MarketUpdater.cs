@@ -15,7 +15,7 @@ namespace SQLiteApplication.Tools
         public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
         {
             village.HaendlerCount = int.Parse(driver.FindElement(By.Id("market_merchant_available_count")).Text);
-            Program.Sleep();
+            Client.Sleep();
         };
 
       

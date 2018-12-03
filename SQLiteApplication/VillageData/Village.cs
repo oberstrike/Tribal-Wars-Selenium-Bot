@@ -176,7 +176,7 @@ namespace SQLiteApplication
             foreach(var page in Pages)
             {
                 page.Update();
-                Program.Sleep();
+                Client.Sleep();
             }
         }
 

@@ -17,11 +17,7 @@ namespace SQLiteApplication
     internal class Program
     {
 
-        public static void Sleep()
-        {
-            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
-
-        }
+  
 
         public static void Main(string[] args)
         {
@@ -39,9 +35,13 @@ namespace SQLiteApplication
             client.Update();
 
             var village = configuration.User.Villages.First();
-             
+            
+            foreach(var building in village.Buildings)
+            {
+                Console.WriteLine(building);
+            } 
 
-
+            
 
             client.Logout();
 

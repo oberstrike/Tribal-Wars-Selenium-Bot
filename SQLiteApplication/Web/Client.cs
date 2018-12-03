@@ -57,9 +57,9 @@ namespace SQLiteApplication.Web
             Config = configuration;
             options = new FirefoxOptions();
 
-#if (!DEBUG)
+            #if (!DEBUG)
                 options.AddArgument("--headless");
-#endif
+            #endif
             if (configuration.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -92,10 +92,18 @@ namespace SQLiteApplication.Web
             {
                 options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
 
+                Timer timer = new Timer(new TimerCallback(obj =>
+                {
+                    Driver = new FirefoxDriver(options);
+                    Console.WriteLine("Wiederhole");
+                } ), null, 5000, 10000);
+                
                 Driver = new FirefoxDriver(options);
-                Thread.Sleep(500);
                 Driver.Navigate().GoToUrl(urls[0]);
-                if(Driver.Url != urls[0])
+                timer.Dispose();
+                timer.Dispose();
+
+                if (Driver.Url != urls[0])
                 {
                     throw new Exception("Fatal Error");
                 }
@@ -162,7 +170,7 @@ namespace SQLiteApplication.Web
                 Console.WriteLine(id);
                 Village village = new Village(id, Config.User.Server, Driver);
                 village.Creator = new PathCreator(village);
-                village.Csrf = (string) Driver.ExecuteScript("return Tribalwars.getGameData().csrf");
+                village.Csrf = (string) Driver.ExecuteScript("return TribalWars.getGameData().csrf");
                 Config.User.Villages.Add(village);
 
             }

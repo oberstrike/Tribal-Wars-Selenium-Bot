@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
 {
@@ -24,10 +25,10 @@ namespace SQLiteApplication.PagesData
             foreach (KeyValuePair<string, double> kvp in units)
             {
                 client.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
-                Program.Sleep();
+                Client.Sleep();
             }
             client.FindElement(By.Id("target_attack")).Click();
-            Program.Sleep();
+            Client.Sleep();
             client.FindElement(By.Id("troop_confirm_go")).Click();
 
         }

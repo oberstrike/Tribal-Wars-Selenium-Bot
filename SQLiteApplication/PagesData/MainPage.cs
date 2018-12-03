@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SQLiteApplication.Tools;
+using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
 {
@@ -28,7 +29,7 @@ namespace SQLiteApplication.PagesData
         {
             Console.WriteLine("URL:" + Url());
             GoTo();
-            Program.Sleep();
+            Client.Sleep();
             Driver.ExecuteScript($"BuildingMain.build(\"{building.Name}\")");
         }
     }
