@@ -16,6 +16,7 @@ namespace SQLiteApplication.UserData
         public User User { get; set; }
         public String TorBrowserPath { get; set; }
 
+        public static List<string> BuildingList = new List<string>() { "main","smith","wood","stone", "iron", "wall", "market", "stable", "storage", "statue", "garage", "barracks" };
         public Configuration()
         {
 

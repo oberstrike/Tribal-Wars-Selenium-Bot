@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
 {
@@ -19,16 +20,16 @@ namespace SQLiteApplication.PagesData
 
         public void Attack(Dictionary<string, double> units, string target, int villageId)
         {
-            GoTo(driver, target);
+            GoTo(Driver, target);
 
             foreach (KeyValuePair<string, double> kvp in units)
             {
-                driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
-                Program.Sleep();
+                Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
+                Client.Sleep();
             }
-            driver.FindElement(By.Id("target_attack")).Click();
-            Program.Sleep();
-            driver.FindElement(By.Id("troop_confirm_go")).Click();
+            Driver.FindElement(By.Id("target_attack")).Click();
+            Client.Sleep();
+            Driver.FindElement(By.Id("troop_confirm_go")).Click();
 
         }
 

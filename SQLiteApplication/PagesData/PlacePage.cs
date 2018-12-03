@@ -16,7 +16,7 @@ namespace SQLiteApplication.PagesData
 
         }
 
-        public override List<Updater> Updaters => new List<Updater>() { new MovementUpdater() };
+        public override List<Updater> Updaters => new List<Updater>() { };
 
         public override string Url()
         {

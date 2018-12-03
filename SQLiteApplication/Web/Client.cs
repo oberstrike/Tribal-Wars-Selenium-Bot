@@ -92,17 +92,10 @@ namespace SQLiteApplication.Web
             {
                 options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
 
-                Timer timer = new Timer(new TimerCallback(obj =>
-                {
-                    Driver = new FirefoxDriver(options);
-                    Console.WriteLine("Wiederhole");
-                } ), null, 5000, 10000);
-                
-                Driver = new FirefoxDriver(options);
+                FirefoxDriverService service = FirefoxDriverService.CreateDefaultService();
+                Driver = new FirefoxDriver(service, options, TimeSpan.FromSeconds(10));
                 Driver.Navigate().GoToUrl(urls[0]);
-                timer.Dispose();
-                timer.Dispose();
-
+                
                 if (Driver.Url != urls[0])
                 {
                     throw new Exception("Fatal Error");
