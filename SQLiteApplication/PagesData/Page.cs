@@ -39,7 +39,7 @@ namespace SQLiteApplication.PagesData
             }
         }
 
-        protected void GoTo(FirefoxDriver client, string extension)
+        protected void GoTo(string extension)
         {
             string url = Url() + extension;
 
