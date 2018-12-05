@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
 using SQLiteApplication.Web;
 using System;
@@ -36,6 +37,27 @@ namespace SQLiteApplication.PagesData
             if (Driver.Url != url)
             {
                 Driver.Navigate().GoToUrl(url);
+
+                try
+                {
+                    var element = Driver.FindElement(By.XPath(".//div[contains(@class, 'quest opened finished')]"));
+                    if (element != null)
+                    {
+
+                        element.Click();
+                        var quest = Driver.FindElement(By.XPath(".//a[contains(@onclick, 'Quests.getQuest(')]"));
+                        if (quest != null)
+                        {
+                            quest.Click();
+                        }
+                    }
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    return;
+                }
+             
             }
         }
 
@@ -55,8 +77,15 @@ namespace SQLiteApplication.PagesData
         
             foreach(var updater in Updaters)
             {
-                updater.Update(PageVillage, Driver);
-                
+                try
+                {
+                    updater.Update(PageVillage, Driver);
+                }catch(Exception e)
+                {
+                    Console.WriteLine(this.GetType().Name + " konnte nicht aktualisiert werden.");
+                }
+
+
             }
             Client.Sleep();
         }

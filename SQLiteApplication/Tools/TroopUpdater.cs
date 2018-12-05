@@ -24,6 +24,7 @@ namespace SQLiteApplication.Tools
                 int value = int.Parse(sArray[1]);
                 Console.WriteLine(value);
             }
+            
 
         };
     }

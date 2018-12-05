@@ -21,12 +21,12 @@ namespace SQLiteApplication
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starte test 6v" );
+            Console.WriteLine("Starte test 6z" );
             string configPath = @"Config.json";
             Task task = null;
             BuildOrder = new List<string>();
             BuildOrder.Add("wood");
-            BuildOrder.Add("iron");
+    //        BuildOrder.Add("iron");
             BuildOrder.Add("stone");
             int botCounter = 0;
 
@@ -45,48 +45,22 @@ namespace SQLiteApplication
                     client.Update();
                     Console.WriteLine("Update abgeschlossen");
                 }
-                catch
+                catch(Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     botCounter++;
+                    continue;
                 }
-                
+
                 var village = configuration.User.Villages.First();
 
-                TimeSpan? timeSpan = null;
-
-                if (BuildOrder.Count > 0)
-                {
-                    foreach (var building in village.Buildings)
-                    {
-                        if (BuildOrder.Contains(building.Name))
-                        {
-                            Console.WriteLine(building);
-                            if (building.IsBuildeable)
-                            {
-                                village.Build(building);
-                                break;
-                            }
-                            else
-                            {
-                                if (!timeSpan.HasValue)
-                                {
-                                    timeSpan = building.TimeToCanBuild.Add(new TimeSpan(0, 1, 0));
-                                }
-                                else if(timeSpan.Value.CompareTo(building.TimeToCanBuild) == 1 ) 
-                                {
-                                    timeSpan = building.TimeToCanBuild;
-                                }
-                         
-                            }
-
-                        }
-                    }
-                }
+                TimeSpan? timeSpan = GetBestTime(village);
+                
                 if (!timeSpan.HasValue)
                 {
-                    timeSpan = new TimeSpan(new Random().Next(1,4), 0, 0);
+                    timeSpan = new TimeSpan(new Random().Next(1, 4), 0, 0);
                 }
-                
+
                 client.Logout();
                 client.Close();
 
@@ -98,12 +72,31 @@ namespace SQLiteApplication
                 Thread.Sleep(timeSpan.Value);
                 task.Dispose();
 
-                
+
             }
             Console.WriteLine("Botschutz detected");
             
          
         }
+
+        private static TimeSpan? GetBestTime(Village village)
+        {
+            TimeSpan? timeSpan = null;
+            
+            if (BuildOrder.Count > 0)
+            {
+                var buildings = village.Buildings.Where(each => each.IsBuildeable && BuildOrder.Contains(each.Name)).Select(each => each);
+                while(buildings.Count() > 0)
+                {
+                    village.Build(buildings.First());
+                    buildings = village.Buildings.Where(each => each.IsBuildeable && BuildOrder.Contains(each.Name));
+
+                }
+            }
+
+            return timeSpan;
+        }
+
         public static void Event()
         {
             while (true)

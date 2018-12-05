@@ -30,16 +30,16 @@ namespace SQLiteApplication.PagesData
 
             if (units.ContainsKey("spears") || units.ContainsKey("sword") || units.ContainsKey("axe"))
             {
-                TrainUnitsInBarracks(units, PageVillage);
+                TrainUnitsInBarracks(units);
             }
 
             if (units.ContainsKey("spy") || units.ContainsKey("light") || units.ContainsKey("heavy"))
             {
-                TrainUnitsInStable(units, PageVillage);
+                TrainUnitsInStable(units);
             }
         }
 
-        private void TrainUnitsInStable(Dictionary<string, double> units, Village village)
+        private void TrainUnitsInStable(Dictionary<string, double> units)
         {
             GoTo();
             IWebElement spysInput = null;
@@ -61,42 +61,16 @@ namespace SQLiteApplication.PagesData
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
 
 
-            if (units.ContainsKey("spy"))
-            {
-                double count = units["spy"];
-                if (village.IsTrainable(count, "spy") && spysInput != null)
-                {
-                    spysInput.SendKeys(count.ToString());
-                }
-
-            }
-            if (units.ContainsKey("light"))
-            {
-                double count = units["light"];
-                if (village.IsTrainable(count, "light") && lightInput != null)
-                {
-
-                    lightInput.SendKeys(units["light"].ToString());
-                }
-
-            }
-            if (units.ContainsKey("heavy"))
-            {
-                {
-                    double count = units["axe"];
-                    if (village.IsTrainable(count, "axe") && heavyInput != null)
-                    {
-
-                        heavyInput.SendKeys(units["axe"].ToString());
-                    }
-                }
-            }
+            FillForm(units, spysInput, "spy");
+            FillForm(units, lightInput, "light");
+            FillForm(units, heavyInput, "heavy");
+           
             trainBtn.Click();
             Client.Sleep();
 
         }
 
-        private void TrainUnitsInBarracks(Dictionary<string, double> units, Village village)
+        private void TrainUnitsInBarracks(Dictionary<string, double> units)
         {
             IWebElement spearsInput = null;
             IWebElement swordInput = null;
@@ -114,42 +88,25 @@ namespace SQLiteApplication.PagesData
             }
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
 
-
-            if (units.ContainsKey("spears"))
-            {
-                double count = units["spears"];
-                if (village.IsTrainable(count, "spears") && spearsInput != null)
-                {
-                    spearsInput.SendKeys(count.ToString());
-                }
-
-            }
-            if (units.ContainsKey("sword"))
-            {
-                double count = units["sword"];
-                if (village.IsTrainable(count, "sword") && swordInput != null)
-                {
-
-                    swordInput.SendKeys(units["sword"].ToString());
-                }
-
-            }
-            if (units.ContainsKey("axe"))
-            {
-                {
-                    double count = units["axe"];
-                    if (village.IsTrainable(count, "axe") && axeInput != null)
-                    {
-
-                        axeInput.SendKeys(units["axe"].ToString());
-                    }
-                }
-            }
+            FillForm(units, spearsInput, "spears");
+            FillForm(units, swordInput, "sword");
+            FillForm(units, axeInput, "axe");
 
             trainBtn.Click();
             Client.Sleep();
         }
 
+        private void FillForm(Dictionary<string, double> units, IWebElement input, string unit)
+        {
+            if (units.ContainsKey(unit))
+            {
+                double count = units[unit];
+                if (PageVillage.IsTrainable(count, unit) && input != null)
+                {
+                    input.SendKeys(count.ToString());
+                }
 
+            }
+        }
     }
 }

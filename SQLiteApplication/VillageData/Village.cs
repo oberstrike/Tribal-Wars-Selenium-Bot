@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.PagesData;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication
@@ -138,6 +139,17 @@ namespace SQLiteApplication
             return true;
         }
         
+        public bool CanConsume(Building building)
+        {
+            return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
+        }
+
+        public bool CanConsume(Unit unit, int count)
+        {
+            UnitAttribute attribute = unit.GetAttribute();
+            return CanConsume(attribute.Wood * count, attribute.Stone * count, attribute.Iron * count, attribute.NeededPopulation * count);
+        }
+   
         public Building GetBuilding(string name)
         {
             return (from building in Buildings
@@ -180,13 +192,16 @@ namespace SQLiteApplication
             }
         }
 
-        public void Build(Building building)
+        public bool Build(Building building)
         {
             if (CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation))
             {
-                Pages.Where(each => each is MainPage).Select(each => (MainPage)each).First().Build(building);
+                MainPage mainPage = Pages.Where(each => each is MainPage).Select(each => (MainPage)each).First();
+                mainPage.Build(building);
+                mainPage.Update();
+                return true;
             }
-           
+            return false;
         }
 
         public void Build(string buildingName)
