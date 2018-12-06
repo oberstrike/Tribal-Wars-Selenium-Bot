@@ -28,6 +28,19 @@ namespace SQLiteApplication.VillageData
         public static int GetWood(this Unit unit){
             return unit.GetAttribute().Wood;
         }
+        
+        public static int GetStone(this Unit unit){
+            return unit.GetAttribute().Stone;
+        }
+        
+        
+        public static int GetIron(this Unit unit){
+            return unit.GetAttribute().Iron;
+        }
+        
+        public static string GetName(this Unit unit){
+            return unit.GetAttribute().Name;
+        }
     }         
 
     
