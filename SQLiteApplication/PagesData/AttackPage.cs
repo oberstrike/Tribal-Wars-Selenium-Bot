@@ -18,13 +18,13 @@ namespace SQLiteApplication.PagesData
 
         public override List<Updater> Updaters => throw new NotImplementedException();
 
-        public void Attack(Dictionary<string, double> units, string target, int villageId)
+        public void Attack(Dictionary<Unit, double> units, string target, int villageId)
         {
             GoTo(target);
 
-            foreach (KeyValuePair<string, double> kvp in units)
+            foreach (KeyValuePair<Unit, double> kvp in units)
             {
-                Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
+                Driver.FindElement(By.Id("unit_input_" + kvp.Key.GetName())).SendKeys(kvp.Value.ToString());
                 Client.Sleep();
             }
             Driver.FindElement(By.Id("target_attack")).Click();
