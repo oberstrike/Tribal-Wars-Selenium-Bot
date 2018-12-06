@@ -65,9 +65,9 @@ namespace SQLiteApplication.PagesData
         {
             string url = Url() + extension;
 
-            if (client.Url != url)
+            if (Driver.Url != url)
             {
-                client.Navigate().GoToUrl(url);
+                Driver.Navigate().GoToUrl(url);
             }
         }
 

@@ -36,6 +36,7 @@ namespace SQLiteApplication
 
             while (botCounter < 2)
             {
+                CancellationToken token = new CancellationToken();
                 Client client = null;
                 try
                 {
@@ -64,13 +65,13 @@ namespace SQLiteApplication
                 client.Logout();
                 client.Close();
 
-                task = new Task(Program.Event);
+                task = new Task(() => Program.Event(token));
                 task.Start();
 
                 Console.WriteLine("Schlafe für " + timeSpan);
                 Console.WriteLine("Bis: " + DateTime.Now.Add(timeSpan.Value));
                 Thread.Sleep(timeSpan.Value);
-                task.Dispose();
+               
 
 
             }
@@ -97,7 +98,7 @@ namespace SQLiteApplication
             return timeSpan;
         }
 
-        public static void Event()
+        public static void Event(CancellationToken token)
         {
             while (true)
             {

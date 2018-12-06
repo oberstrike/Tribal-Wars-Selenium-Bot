@@ -3,6 +3,7 @@ using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
 using SQLiteApplication.Web;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -72,13 +73,13 @@ namespace SQLiteApplication.PagesData
 
         private void TrainUnitsInBarracks(Dictionary<string, double> units)
         {
-            IWebElement spearsInput = null;
+            KeyValuePair<string, IWebElement> spearsInput = new KeyValuePair<string, IWebElement>();
             IWebElement swordInput = null;
             IWebElement axeInput = null;
 
             try
             {
-                spearsInput = Driver.FindElementByXPath("//input[@id='spear_0']");
+                spearsInput = new KeyValuePair<string, IWebElement>("spears", Driver.FindElementByXPath("//input[@id='spear_0']")); ;
                 swordInput = Driver.FindElementByXPath("//input[@id='sword_0']");
                 axeInput = Driver.FindElementByXPath("//input[@id='axe_0']");
             }
@@ -87,8 +88,10 @@ namespace SQLiteApplication.PagesData
 
             }
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
+           
 
-            FillForm(units, spearsInput, "spears");
+
+            FillForm(units, spearsInput.Value, "spears");
             FillForm(units, swordInput, "sword");
             FillForm(units, axeInput, "axe");
 

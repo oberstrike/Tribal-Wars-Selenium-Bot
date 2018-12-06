@@ -20,7 +20,7 @@ namespace SQLiteApplication.PagesData
 
         public void Attack(Dictionary<string, double> units, string target, int villageId)
         {
-            GoTo(Driver, target);
+            GoTo(target);
 
             foreach (KeyValuePair<string, double> kvp in units)
             {
