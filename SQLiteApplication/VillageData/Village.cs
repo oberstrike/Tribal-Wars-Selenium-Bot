@@ -20,7 +20,7 @@ namespace SQLiteApplication
             Id = villageId;
             ServerId = serverId;
             Pages = new List<Page>() { new BarrackPage(this, driver), new MainPage(this, driver), new MarketPage(this, driver),
-                new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver) };
+                new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver), new AttackPage(this,driver) };
             
         }
 
@@ -209,6 +209,12 @@ namespace SQLiteApplication
             {
                 Pages.Where(each => each is MarketPage).Select(each => (MarketPage)each).First().SendRessource( wood, stone, iron, targetId);
             }
+        }
+        
+        public void Attack(Dictionary<Unit, double> units, string targetId){
+            AttackPage page = Pages.Where(each => each is AttackPage).Select(each => (AttackPage)each).First();
+            page.Attack(units, targetId);
+            
         }
 
 
