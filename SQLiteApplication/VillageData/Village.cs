@@ -143,12 +143,6 @@ namespace SQLiteApplication
         {
             return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
         }
-
-        public bool CanConsume(Unit unit, int count)
-        {
-            UnitAttribute attribute = unit.GetAttribute();
-            return CanConsume(attribute.Wood * count, attribute.Stone * count, attribute.Iron * count, attribute.NeededPopulation * count);
-        }
    
         public Building GetBuilding(string name)
         {
