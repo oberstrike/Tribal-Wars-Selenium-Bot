@@ -39,6 +39,9 @@ namespace SQLiteApplication.PagesData
             }
         }
 
+/*
+Soll in StablePage verschoben werden.
+
         private void TrainUnitsInStable(Dictionary<string, double> units)
         {
             GoTo();
@@ -69,8 +72,8 @@ namespace SQLiteApplication.PagesData
             Client.Sleep();
 
         }
-
-        private void TrainUnitsInBarracks(Dictionary<string, double> units)
+*/
+        private void TrainUnitsInBarracks(Dictionary<Unit, double> units)
         {
             IWebElement spearsInput = null;
             IWebElement swordInput = null;
@@ -96,7 +99,7 @@ namespace SQLiteApplication.PagesData
             Client.Sleep();
         }
 
-        private void FillForm(Dictionary<string, double> units, IWebElement input, string unit)
+        private void FillForm(Dictionary<Unit, double> units, IWebElement input, string unit)
         {
             if (units.ContainsKey(unit))
             {
