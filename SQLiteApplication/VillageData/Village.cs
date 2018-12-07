@@ -44,7 +44,7 @@ namespace SQLiteApplication
 
         #region PROPERTIES    
         public ICollection<Building> Buildings { get; set; }
-
+        public Dictionary<Unit, double> Units { get; set; }
        
         public List<Page> Pages { get; set; }
         public PathCreator Creator { get => _creator; set => _creator = value; }
@@ -56,6 +56,7 @@ namespace SQLiteApplication
         public double WoodProduction { get; set; }
         public double IronProduction { get; set; }
         public User Owner{get; set;}
+        
         
         public ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
