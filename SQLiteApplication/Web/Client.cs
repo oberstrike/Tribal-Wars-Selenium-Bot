@@ -161,7 +161,7 @@ namespace SQLiteApplication.Web
             foreach (double id in ids)
             {
                 Console.WriteLine(id);
-                Village village = new Village(id, Config.User.Server, Driver);
+                Village village = new Village(id, Config.User.Server, Driver, Config.User);
                 village.Creator = new PathCreator(village);
                 village.Csrf = (string) Driver.ExecuteScript("return TribalWars.getGameData().csrf");
                 Config.User.Villages.Add(village);
