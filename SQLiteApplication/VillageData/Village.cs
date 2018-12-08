@@ -8,18 +8,20 @@ using Newtonsoft.Json;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.PagesData;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication
 {
     public sealed class Village
     {
-        public Village(string villageId, string serverId, FirefoxDriver driver)
+        public Village(string villageId, string serverId, FirefoxDriver driver, User owner)
         {
             Id = villageId;
             ServerId = serverId;
+            Owner = owner;
             Pages = new List<Page>() { new BarrackPage(this, driver), new MainPage(this, driver), new MarketPage(this, driver),
-                new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver) };
+                new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver), new AttackPage(this,driver) };
             
         }
 
@@ -42,7 +44,7 @@ namespace SQLiteApplication
 
         #region PROPERTIES    
         public ICollection<Building> Buildings { get; set; }
-
+        public Dictionary<Unit, double> Units { get; set; }
        
         public List<Page> Pages { get; set; }
         public PathCreator Creator { get => _creator; set => _creator = value; }
@@ -53,7 +55,9 @@ namespace SQLiteApplication
         public double Iron { get; set; }
         public double WoodProduction { get; set; }
         public double IronProduction { get; set; }
-
+        public User Owner{get; set;}
+        
+        
         public ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
             List<Building> newBuildings = new List<Building>();
@@ -138,6 +142,11 @@ namespace SQLiteApplication
             return true;
         }
         
+        public bool CanConsume(Building building)
+        {
+            return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
+        }
+   
         public Building GetBuilding(string name)
         {
             return (from building in Buildings
@@ -179,14 +188,19 @@ namespace SQLiteApplication
                 Client.Sleep();
             }
         }
+        
 
-        public void Build(Building building)
+        public bool Build(Building building)
         {
             if (CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation))
             {
-                Pages.Where(each => each is MainPage).Select(each => (MainPage)each).First().Build(building);
+                MainPage mainPage = Pages.Where(each => each is MainPage).Select(each => (MainPage)each).First();
+                mainPage.Build(building);
+                Client.Sleep();
+                mainPage.Update();
+                return true;
             }
-           
+            return false;
         }
 
         public void Build(string buildingName)
@@ -200,6 +214,12 @@ namespace SQLiteApplication
             {
                 Pages.Where(each => each is MarketPage).Select(each => (MarketPage)each).First().SendRessource( wood, stone, iron, targetId);
             }
+        }
+        
+        public void Attack(Dictionary<Unit, double> units, string targetId){
+            AttackPage page = Pages.Where(each => each is AttackPage).Select(each => (AttackPage)each).First();
+            page.Attack(units, targetId);
+            
         }
 
 

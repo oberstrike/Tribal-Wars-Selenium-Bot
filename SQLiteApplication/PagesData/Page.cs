@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
 using SQLiteApplication.Web;
 using System;
@@ -31,21 +32,40 @@ namespace SQLiteApplication.PagesData
         protected void GoTo()
         {
             string url = Url();
-            Console.WriteLine(url);
 
             if (Driver.Url != url)
             {
                 Driver.Navigate().GoToUrl(url);
+
+                try
+                {
+                    var element = Driver.FindElement(By.XPath(".//div[contains(@class, 'quest opened finished')]"));
+                    if (element != null)
+                    {
+
+                        element.Click();
+                        var quest = Driver.FindElement(By.XPath(".//a[contains(@onclick, 'Quests.getQuest(')]"));
+                        if (quest != null)
+                        {
+                            quest.Click();
+                        }
+                    }
+                }
+                catch
+                {
+                    return;
+                }
+             
             }
         }
 
-        protected void GoTo(FirefoxDriver client, string extension)
+        protected void GoTo(string extension)
         {
             string url = Url() + extension;
 
-            if (client.Url != url)
+            if (Driver.Url != url)
             {
-                client.Navigate().GoToUrl(url);
+                Driver.Navigate().GoToUrl(url);
             }
         }
 
@@ -55,8 +75,15 @@ namespace SQLiteApplication.PagesData
         
             foreach(var updater in Updaters)
             {
-                updater.Update(PageVillage, Driver);
-                
+                try
+                {
+                    updater.Update(PageVillage, Driver);
+                }catch(Exception e)
+                {
+                    Console.WriteLine(this.GetType().Name + " konnte nicht aktualisiert werden.");
+                }
+
+
             }
             Client.Sleep();
         }

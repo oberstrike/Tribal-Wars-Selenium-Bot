@@ -9,8 +9,7 @@ namespace SQLiteApplication.UserData
 {
     public class Configuration
     {
-       
-        public bool IsGreedyOnRessources { get; set; }
+      
         public string[] FarmingVillages { get; set; }
         public List<Dictionary<string, double>> Templates { get; set; }
         public User User { get; set; }
