@@ -32,7 +32,6 @@ namespace SQLiteApplication.PagesData
         protected void GoTo()
         {
             string url = Url();
-            Console.WriteLine(url);
 
             if (Driver.Url != url)
             {
@@ -52,9 +51,8 @@ namespace SQLiteApplication.PagesData
                         }
                     }
                 }
-                catch(Exception e)
+                catch
                 {
-                    Console.WriteLine(e.Message);
                     return;
                 }
              

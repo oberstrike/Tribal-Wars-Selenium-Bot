@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
@@ -16,11 +17,11 @@ namespace SQLiteApplication.PagesData
         {
         }
 
-        public override List<Updater> Updaters => throw new NotImplementedException();
+        public override List<Updater> Updaters => new List<Updater>();
 
-        public void Attack(Dictionary<Unit, double> units, string target, int villageId)
+        public void Attack(Dictionary<Unit, double> units, string targetVIllage)
         {
-            GoTo(target);
+            GoTo(targetVIllage);
 
             foreach (KeyValuePair<Unit, double> kvp in units)
             {

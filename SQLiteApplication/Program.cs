@@ -1,9 +1,7 @@
 ﻿
 using OpenQA.Selenium;
-using OpenQA.Selenium.Appium;
-using OpenQA.Selenium.Appium.Android;
-using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Remote;
+using SQLiteApplication.PagesData;
 using SQLiteApplication.UserData;
 using SQLiteApplication.Web;
 using System;
@@ -21,9 +19,9 @@ namespace SQLiteApplication
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starte test 6z" );
+            Console.WriteLine("Starte test 7´c" );
             string configPath = @"Config.json";
-            Task task = null;
+          
             BuildOrder = new List<string>();
             BuildOrder.Add("wood");
     //        BuildOrder.Add("iron");
@@ -36,23 +34,22 @@ namespace SQLiteApplication
 
             while (botCounter < 2)
             {
-                CancellationToken token = new CancellationToken();
                 Client client = null;
-                try
-                {
+       //       try
+         //       {
                     client = new Client(configuration);
                     client.Connect();
                     client.Login();
                     client.Update();
                     Console.WriteLine("Update abgeschlossen");
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                    botCounter++;
-                    continue;
-                }
-
+     //           }
+    //            catch(Exception e)
+  //              {
+   //                 Console.WriteLine(e.Message);
+  //                  botCounter++;
+    //                continue;
+//                }
+                
                 var village = configuration.User.Villages.First();
 
                 TimeSpan? timeSpan = GetBestTime(village);
@@ -64,16 +61,12 @@ namespace SQLiteApplication
 
                 client.Logout();
                 client.Close();
-
-                task = new Task(() => Program.Event(token));
-                task.Start();
+                
 
                 Console.WriteLine("Schlafe für " + timeSpan);
                 Console.WriteLine("Bis: " + DateTime.Now.Add(timeSpan.Value));
                 Thread.Sleep(timeSpan.Value);
-               
-
-
+            
             }
             Console.WriteLine("Botschutz detected");
             
@@ -82,8 +75,6 @@ namespace SQLiteApplication
 
         private static TimeSpan? GetBestTime(Village village)
         {
-            TimeSpan? timeSpan = null;
-            
             if (BuildOrder.Count > 0)
             {
                 var buildings = village.Buildings.Where(each => each.IsBuildeable && BuildOrder.Contains(each.Name)).Select(each => each);
@@ -95,35 +86,10 @@ namespace SQLiteApplication
                 }
             }
 
-            return timeSpan;
+            return village.Buildings.Select(each => each.TimeToCanBuild).Min();
         }
 
-        public static void Event(CancellationToken token)
-        {
-            while (true)
-            {
-                var input = Console.ReadLine();
-                if(Configuration.BuildingList.Contains(input))
-                {
-                    BuildOrder.Add(input);
-                }else if (input.Contains("remove"))
-                {
-                    var inputs = input.Split(' ');
-                    if(inputs.Length == 2)
-                    {
-                        string value = inputs[1];
-                        if (BuildOrder.Contains(inputs[1]))
-                        {
-                            int index = BuildOrder.LastIndexOf(value);
-                            BuildOrder.RemoveAt(index);
-                        }
-                    }
-                }
-                PrintBuildOrder();
-            }
-
-        
-        }
+       
 
         public static void PrintBuildOrder()
         {

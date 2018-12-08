@@ -185,6 +185,7 @@ namespace SQLiteApplication
                 Client.Sleep();
             }
         }
+        
 
         public bool Build(Building building)
         {
@@ -192,6 +193,7 @@ namespace SQLiteApplication
             {
                 MainPage mainPage = Pages.Where(each => each is MainPage).Select(each => (MainPage)each).First();
                 mainPage.Build(building);
+                Client.Sleep();
                 mainPage.Update();
                 return true;
             }

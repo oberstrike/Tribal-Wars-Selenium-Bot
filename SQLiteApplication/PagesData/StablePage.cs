@@ -1,4 +1,12 @@
 
+using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
+using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
+using SQLiteApplication.Web;
+using System;
+using System.Collections.Generic;
+
 namespace SQLiteApplication.PagesData
 {
     public class StablePage : Page
@@ -29,7 +37,7 @@ namespace SQLiteApplication.PagesData
             }
             catch(Exception e)
             {
-              Console.Writeline(e.Message);
+              Console.WriteLine(e.Message);
             
             }
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
@@ -43,14 +51,14 @@ namespace SQLiteApplication.PagesData
         
         private void FillForm(Dictionary<Unit, double> units, IWebElement input, string unit)
         {
-            if (units.ContainsKey(unit))
+            foreach (var kvp in units)
             {
-                double count = units[unit];
+                string name = kvp.Key.GetName();
+                double count = kvp.Value;
                 if (PageVillage.IsTrainable(count, unit) && input != null)
                 {
                     input.SendKeys(count.ToString());
                 }
-
             }
         }
     }

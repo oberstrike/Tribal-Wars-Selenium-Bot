@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
 using System.Collections;
@@ -26,54 +27,7 @@ namespace SQLiteApplication.PagesData
             return base.Url() + "&screen=barracks";
         }
 
-        public void TrainUnits(Dictionary<string, double> units, int villageId)
-        {
 
-            if (units.ContainsKey("spears") || units.ContainsKey("sword") || units.ContainsKey("axe"))
-            {
-                TrainUnitsInBarracks(units);
-            }
-
-            if (units.ContainsKey("spy") || units.ContainsKey("light") || units.ContainsKey("heavy"))
-            {
-                TrainUnitsInStable(units);
-            }
-        }
-
-/*
-Soll in StablePage verschoben werden.
-
-        private void TrainUnitsInStable(Dictionary<string, double> units)
-        {
-            GoTo();
-            IWebElement spysInput = null;
-            IWebElement lightInput = null;
-            IWebElement heavyInput = null;
-
-
-            try
-            {
-                spysInput = Driver.FindElementByXPath("//input[@id='spy_0']");
-                lightInput = Driver.FindElementByXPath("//input[@id='light_0']");
-                heavyInput = Driver.FindElementByXPath("//input[@id='heavy_0']");
-
-            }
-            catch
-            {
-
-            }
-            IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
-
-
-            FillForm(units, spysInput, "spy");
-            FillForm(units, lightInput, "light");
-            FillForm(units, heavyInput, "heavy");
-           
-            trainBtn.Click();
-            Client.Sleep();
-
-        }
-*/
         private void TrainUnitsInBarracks(Dictionary<Unit, double> units)
         {
             KeyValuePair<string, IWebElement> spearsInput = new KeyValuePair<string, IWebElement>();
@@ -104,14 +58,14 @@ Soll in StablePage verschoben werden.
 
         private void FillForm(Dictionary<Unit, double> units, IWebElement input, string unit)
         {
-            if (units.ContainsKey(unit))
+            foreach(var kvp in units)
             {
-                double count = units[unit];
+                string name = kvp.Key.GetName();
+                double count = kvp.Value;
                 if (PageVillage.IsTrainable(count, unit) && input != null)
                 {
                     input.SendKeys(count.ToString());
                 }
-
             }
         }
     }
