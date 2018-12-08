@@ -15,10 +15,11 @@ namespace SQLiteApplication
 {
     public sealed class Village
     {
-        public Village(string villageId, string serverId, FirefoxDriver driver)
+        public Village(string villageId, string serverId, FirefoxDriver driver, User owner)
         {
             Id = villageId;
             ServerId = serverId;
+            Owner = owner;
             Pages = new List<Page>() { new BarrackPage(this, driver), new MainPage(this, driver), new MarketPage(this, driver),
                 new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver), new AttackPage(this,driver) };
             
@@ -43,7 +44,7 @@ namespace SQLiteApplication
 
         #region PROPERTIES    
         public ICollection<Building> Buildings { get; set; }
-
+        public Dictionary<Unit, double> Units { get; set; }
        
         public List<Page> Pages { get; set; }
         public PathCreator Creator { get => _creator; set => _creator = value; }
@@ -54,7 +55,9 @@ namespace SQLiteApplication
         public double Iron { get; set; }
         public double WoodProduction { get; set; }
         public double IronProduction { get; set; }
-
+        public User Owner{get; set;}
+        
+        
         public ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
             List<Building> newBuildings = new List<Building>();
