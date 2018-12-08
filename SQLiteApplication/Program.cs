@@ -1,8 +1,5 @@
 ﻿
 using OpenQA.Selenium;
-using OpenQA.Selenium.Appium;
-using OpenQA.Selenium.Appium.Android;
-using OpenQA.Selenium.Appium.Enums;
 using OpenQA.Selenium.Remote;
 using SQLiteApplication.UserData;
 using SQLiteApplication.Web;
@@ -48,6 +45,7 @@ namespace SQLiteApplication
                 catch
                 {
                     botCounter++;
+                    continue;
                 }
                 
                 var village = configuration.User.Villages.First();
@@ -72,7 +70,7 @@ namespace SQLiteApplication
                                 {
                                     timeSpan = building.TimeToCanBuild.Add(new TimeSpan(0, 1, 0));
                                 }
-                                else if(timeSpan.Value.CompareTo(building.TimeToCanBuild) == 1 ) 
+                                else if(timeSpan < building.TimeToCanBuild) 
                                 {
                                     timeSpan = building.TimeToCanBuild;
                                 }
