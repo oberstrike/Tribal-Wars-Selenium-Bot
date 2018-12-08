@@ -80,6 +80,7 @@ namespace SQLiteApplication.PagesData
                     updater.Update(PageVillage, Driver);
                 }catch(Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     Console.WriteLine(this.GetType().Name + " konnte nicht aktualisiert werden.");
                 }
 

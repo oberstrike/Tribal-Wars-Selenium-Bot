@@ -41,21 +41,21 @@ namespace SQLiteApplication.PagesData
             
             }
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");
-            FillForm(units, spysInput, "spy");
-            FillForm(units, lightInput, "light");
-            FillForm(units, heavyInput, "heavy");
+            FillForm(units, spysInput);
+            FillForm(units, lightInput);
+            FillForm(units, heavyInput);
            
             trainBtn.Click();
             Client.Sleep();
         }
         
-        private void FillForm(Dictionary<Unit, double> units, IWebElement input, string unit)
+        private void FillForm(Dictionary<Unit, double> units, IWebElement input)
         {
             foreach (var kvp in units)
             {
                 string name = kvp.Key.GetName();
                 double count = kvp.Value;
-                if (PageVillage.IsTrainable(count, unit) && input != null)
+                if (PageVillage.IsTrainable(count, kvp.Key) && input != null)
                 {
                     input.SendKeys(count.ToString());
                 }

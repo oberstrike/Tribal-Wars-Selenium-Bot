@@ -64,6 +64,7 @@
     <Compile Include="PagesData\AttackPage.cs" />
     <Compile Include="PagesData\BarrackPage.cs" />
     <Compile Include="PagesData\MainPage.cs" />
+    <Compile Include="PagesData\MapPage.cs" />
     <Compile Include="PagesData\MarketPage.cs" />
     <Compile Include="PagesData\OverviewPage.cs" />
     <Compile Include="PagesData\Page.cs" />
@@ -72,6 +73,7 @@
     <Compile Include="PagesData\StablePage.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Tools\MainUpdater.cs" />
+    <Compile Include="Tools\MapUpdater.cs" />
     <Compile Include="Tools\MarketUpdater.cs" />
     <Compile Include="Tools\MovementUpdater.cs" />
     <Compile Include="Tools\SmithUpdater.cs" />

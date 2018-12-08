@@ -25,8 +25,6 @@ namespace SQLiteApplication.VillageData
         {
             TWVillage village = Villages.Where(x => x.Id.Equals(id)).First();
             return Villages.Where(x => GetDistance(x.X, x.Y, village.X, village.Y) <= distance).ToList();
-
-
         }
 
         private double GetDistance(double x1, double y1, double x2, double y2)
@@ -36,7 +34,7 @@ namespace SQLiteApplication.VillageData
 
         public Farmmanager()
         {
-
+            Villages = new List<TWVillage>();
         }
     }
 

@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.PagesData;
 using SQLiteApplication.Tools;
+using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
@@ -20,32 +21,26 @@ namespace SQLiteApplication
             Id = villageId;
             ServerId = serverId;
             Owner = owner;
-            Pages = new List<Page>() { new BarrackPage(this, driver), new MainPage(this, driver), new MarketPage(this, driver),
-                new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver), new AttackPage(this,driver) };
+            FManager = new Farmmanager();
+            Pages = new List<Page>() { new MainPage(this, driver), new MapPage(this, driver) };
             
         }
 
-        public Village(object villageId, object serverId, FirefoxDriver driver) : this(villageId.ToString(), serverId.ToString(), driver)
+        public Village(object villageId, object serverId, FirefoxDriver driver) : this(villageId.ToString(), serverId.ToString(), driver, null)
         {
            
 
         }
 
-        #region ATTRIBUTES
-        public static readonly Dictionary<string, Dictionary<string, double>> unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
-                                    "'spy':{'wood':50,'stone':50,'iron':20, 'population': 2} ," +
-                                    "'light':{'wood':125,'stone':100,'iron':250, 'population': 4}," +
-                                    "'heavy':{'wood':200,'stone':150,'iron':600, 'population': 6} ," +
-                                    "'spears':{'wood':50,'stone':30,'iron':10, 'population': 1}," +
-                                    "'sword':{'wood':30,'stone':30,'iron':70, 'population': 1}," +
-                                    "'axe':{'wood':60,'stone':30,'iron':40, 'population': 1}}");        private Dictionary<string, double> _units = new Dictionary<string, double>();
+        #region Private_ATTRIBUTES
+        private Dictionary<string, double> _units = new Dictionary<string, double>();
         private PathCreator _creator;
         #endregion
 
         #region PROPERTIES    
         public ICollection<Building> Buildings { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
-       
+        public Farmmanager FManager { get; set; }
         public List<Page> Pages { get; set; }
         public PathCreator Creator { get => _creator; set => _creator = value; }
         public string Id { get; set; }
@@ -55,9 +50,24 @@ namespace SQLiteApplication
         public double Iron { get; set; }
         public double WoodProduction { get; set; }
         public double IronProduction { get; set; }
-        public User Owner{get; set;}
-        
-        
+        public User Owner{get; set;}     
+        public double StoneProduction { get; set; }
+        public double StorageMax { get; set; }
+        public double Population { get; set; }
+        public double MaxPopulation { get; set; }
+        public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
+        public int HaendlerCount { get; set; }
+        public void AddBuilding(Building building) => Buildings.Add(building);
+        public ICollection<TroupMovement> OutcomingTroops { get; set; }
+        public ICollection<TroupMovement> IncomingTroops { get; set; }
+        public Dictionary<string, object> Technologies { get; set; }
+        public string Csrf { get; internal set; }
+        public Dictionary<string, double> GetUnits() => _units;
+        public void SetUnits(Dictionary<string, double> value) => _units = value;
+        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
+        #endregion
+
+        #region METHODS
         public ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
             List<Building> newBuildings = new List<Building>();
@@ -113,23 +123,6 @@ namespace SQLiteApplication
 
             return newBuildings;
         }
-        public double StoneProduction { get; set; }
-        public double StorageMax { get; set; }
-        public double Population { get; set; }
-        public double MaxPopulation { get; set; }
-        public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
-        public int HaendlerCount { get; set; }
-        public void AddBuilding(Building building) => Buildings.Add(building);
-        public ICollection<TroupMovement> OutcomingTroops { get; set; }
-        public ICollection<TroupMovement> IncomingTroops { get; set; }
-        public Dictionary<string, object> Technologies { get; set; }
-        public string Csrf { get; internal set; }
-        public Dictionary<string, double> GetUnits() => _units;
-        public void SetUnits(Dictionary<string, double> value) => _units = value;
-        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();   
-        #endregion
-        
-        #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
             if (wood > Wood || stone > Stone || iron > Iron || Population + population > MaxPopulation)
@@ -140,13 +133,11 @@ namespace SQLiteApplication
             Stone -= stone;
             Iron -= iron;
             return true;
-        }
-        
+        }    
         public bool CanConsume(Building building)
         {
             return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
-        }
-   
+        } 
         public Building GetBuilding(string name)
         {
             return (from building in Buildings
@@ -158,7 +149,6 @@ namespace SQLiteApplication
             return $"Wood: {Wood}, Stone:  {Stone}, Iron: {Iron}, {Buildings} " +
                 $"\nWood Production: {WoodProduction}, Stone Production: {StoneProduction}, Iron Production: {IronProduction}";
         }
-
         public TimeSpan GetTimeToBuild(Building building)
         {
             double wood = (building.Wood - Wood ) / WoodProduction;
@@ -173,13 +163,11 @@ namespace SQLiteApplication
             }
             return new TimeSpan(Convert.ToInt32(Math.Floor(max)),Convert.ToInt32((max - Math.Floor(max))*60), 59);
         }
-
-        public bool IsTrainable(double count, string name)
+        public bool IsTrainable(double count, Unit unit)
         {
-            return CanConsume(Village.unit_Prices[name]["wood"] * count, Village.unit_Prices[name]["iron"] * count, Village.unit_Prices[name]["stone"] * count, Village.unit_Prices[name]["population"] * count);
+            return CanConsume(unit.GetWood() * count, unit.GetIron() * count, unit.GetStone() * count, unit.GetPopulation() * count);
 
         }
-
         public void Update()
         {
             foreach(var page in Pages)
@@ -187,9 +175,7 @@ namespace SQLiteApplication
                 page.Update();
                 Client.Sleep();
             }
-        }
-        
-
+        }  
         public bool Build(Building building)
         {
             if (CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation))
@@ -202,27 +188,22 @@ namespace SQLiteApplication
             }
             return false;
         }
-
         public void Build(string buildingName)
         {
             Build(Buildings.Where(x => x.Name == buildingName).First());
         }
-
         public void SendRessouce(int wood, int stone, int iron, string targetId)
         {
             if (CanConsume(wood, stone, iron, 0))
             {
                 Pages.Where(each => each is MarketPage).Select(each => (MarketPage)each).First().SendRessource( wood, stone, iron, targetId);
             }
-        }
-        
+        }       
         public void Attack(Dictionary<Unit, double> units, string targetId){
             AttackPage page = Pages.Where(each => each is AttackPage).Select(each => (AttackPage)each).First();
             page.Attack(units, targetId);
             
         }
-
-
         #endregion
     }
 }

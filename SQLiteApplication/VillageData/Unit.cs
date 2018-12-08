@@ -40,6 +40,11 @@ namespace SQLiteApplication.VillageData
         public static string GetName(this Unit unit){
             return unit.GetAttribute().Name;
         }
+
+        public static int GetPopulation(this Unit unit)
+        {
+            return unit.GetAttribute().NeededPopulation;
+        }
     }         
 
     

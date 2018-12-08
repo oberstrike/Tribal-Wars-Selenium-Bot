@@ -26,7 +26,6 @@ namespace SQLiteApplication.Web
         #endregion
 
         #region PRIVATE_ATTRIBUTES
-        private Farmmanager _farmmanager;
         private bool _isConnected;
         private bool _isLoggedIn;
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
@@ -34,7 +33,6 @@ namespace SQLiteApplication.Web
         #endregion
 
         #region Properties
-        public Farmmanager Farmmanager { get => _farmmanager; set => _farmmanager = value; }
         public bool IsConnected { get => _isConnected; set => _isConnected = value; }
 
         public void Update()
@@ -161,7 +159,7 @@ namespace SQLiteApplication.Web
             foreach (double id in ids)
             {
                 Console.WriteLine(id);
-                Village village = new Village(id, Config.User.Server, Driver, Config.User);
+                Village village = new Village(id.ToString(), Config.User.Server.ToString(), Driver, Config.User);
                 village.Creator = new PathCreator(village);
                 village.Csrf = (string) Driver.ExecuteScript("return TribalWars.getGameData().csrf");
                 Config.User.Villages.Add(village);

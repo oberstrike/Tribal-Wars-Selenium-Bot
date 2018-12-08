@@ -19,7 +19,7 @@ namespace SQLiteApplication
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starte test 7´c" );
+            Console.WriteLine("Starte test 7d" );
             string configPath = @"Config.json";
           
             BuildOrder = new List<string>();
