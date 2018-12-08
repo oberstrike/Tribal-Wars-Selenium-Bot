@@ -91,7 +91,6 @@
     <Compile Include="Web\Client.cs" />
     <Compile Include="Web\Farmmanager.cs" />
     <Compile Include="VillageData\Village.cs" />
-    <Compile Include="Web\PathCreator.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

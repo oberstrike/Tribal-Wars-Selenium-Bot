@@ -146,7 +146,7 @@ namespace SQLiteApplication.Web
         public void Logout()
         {
             Village village = Config.User.Villages[0];
-            Driver.Navigate().GoToUrl(village.Creator.GetLogout(village.Csrf));
+            Driver.Navigate().GoToUrl(village.GetLogout());
             IsLoggedIn = false;
         }
         private void GetVillages()
@@ -160,7 +160,6 @@ namespace SQLiteApplication.Web
             {
                 Console.WriteLine(id);
                 Village village = new Village(id.ToString(), Config.User.Server.ToString(), Driver, Config.User);
-                village.Creator = new PathCreator(village);
                 village.Csrf = (string) Driver.ExecuteScript("return TribalWars.getGameData().csrf");
                 Config.User.Villages.Add(village);
 

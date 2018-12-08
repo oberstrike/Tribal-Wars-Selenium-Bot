@@ -34,7 +34,7 @@ namespace SQLiteApplication
 
         #region Private_ATTRIBUTES
         private Dictionary<string, double> _units = new Dictionary<string, double>();
-        private PathCreator _creator;
+   
         #endregion
 
         #region PROPERTIES    
@@ -42,7 +42,6 @@ namespace SQLiteApplication
         public Dictionary<Unit, double> Units { get; set; }
         public Farmmanager FManager { get; set; }
         public List<Page> Pages { get; set; }
-        public PathCreator Creator { get => _creator; set => _creator = value; }
         public string Id { get; set; }
         public string ServerId { get; set; }
         public double Wood { get; set; }
@@ -68,6 +67,10 @@ namespace SQLiteApplication
         #endregion
 
         #region METHODS
+        public string GetLogout()
+        {
+            return $"https://de{ServerId}.die-staemme.de/game.php?village={Id}" + $"&screen=&action=logout&h={Csrf}";
+        }
         public ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
             List<Building> newBuildings = new List<Building>();
