@@ -47,9 +47,10 @@ namespace SQLiteApplication.Tools
                 }
                 village.OutcomingTroops = movements;
             }
-            catch
+            catch(Exception e)
             {
-
+                Console.WriteLine("Movement Error");
+                Console.WriteLine(e.Message);
             }
 
         };

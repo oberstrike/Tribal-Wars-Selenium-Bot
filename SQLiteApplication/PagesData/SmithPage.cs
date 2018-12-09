@@ -41,9 +41,10 @@ namespace SQLiteApplication.PagesData
                         Driver.ExecuteScript("BuildingSmith.research('" + techName + "');");
                     }
                 }
-                catch
+                catch(Exception e)
                 {
-
+                    Console.WriteLine("Smith Error");
+                    Console.WriteLine(e);
                 }
 
             }

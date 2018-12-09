@@ -77,7 +77,7 @@ namespace SQLiteApplication
                 }
             }
 
-            return village.Buildings.Select(each => each.TimeToCanBuild).Min();
+            return village.Buildings.Where(each => each.TimeToCanBuild != null && BuildOrder.Contains(each.Name)).Select(each => each.TimeToCanBuild).Min();
         }
 
        

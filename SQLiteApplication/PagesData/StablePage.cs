@@ -37,7 +37,8 @@ namespace SQLiteApplication.PagesData
             }
             catch(Exception e)
             {
-              Console.WriteLine(e.Message);
+                Console.WriteLine("Stable Error");
+                Console.WriteLine(e.Message);
             
             }
             IWebElement trainBtn = Driver.FindElementByCssSelector(".btn.btn-recruit");

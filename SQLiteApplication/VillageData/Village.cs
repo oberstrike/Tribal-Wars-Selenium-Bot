@@ -110,8 +110,9 @@ namespace SQLiteApplication
                                 .Build());
 
                 }
-                catch
+                catch(Exception e)
                 {
+                    Console.WriteLine(e.Message);
                     Console.WriteLine(key + " wurde nicht gefunden"); Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
                 }
             }

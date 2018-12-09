@@ -17,12 +17,19 @@ namespace SQLiteApplication.Tools
 
                 foreach (var lVillage in villages)
                 {
-                    TWVillage tvillage = new TWVillage((Dictionary<string, object>) lVillage.Value);
-                    village.FManager.Villages.Add(tvillage);
+                    var value = (Dictionary<string, object>)lVillage.Value;
+
+                    if(value.Count == 10)
+                    {
+                        TWVillage tvillage = new TWVillage(value);
+                        village.FManager.Villages.Add(tvillage);
+                    }
+
                 }
             }
             catch(Exception e)
             {
+                Console.WriteLine("Map Error");
                 Console.WriteLine(e.Message);
             }
        

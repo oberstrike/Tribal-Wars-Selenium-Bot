@@ -47,8 +47,8 @@ namespace SQLiteApplication.VillageData
             Points = (string) webElement["points"];
             Owner = (string) webElement["owner"];
             string xy = ((Int64)webElement["xy"]).ToString();
-            X = Double.Parse(xy.Substring(0, 2));
-            Y = Double.Parse(xy.Substring(3, 5));
+            X = Double.Parse(xy.Substring(0, 3));
+            Y = Double.Parse(xy.Substring(3, 3));
         }
 
         public string Id { get; set; }
