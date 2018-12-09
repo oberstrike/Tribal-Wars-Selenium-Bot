@@ -19,7 +19,7 @@ namespace SQLiteApplication
 
         public static void Main(string[] args)
         {
-            Console.WriteLine("Starte test 7d" );
+            Console.WriteLine("Starte test 7e" );
             string configPath = @"Config.json";
           
             BuildOrder = new List<string>();
@@ -52,7 +52,11 @@ namespace SQLiteApplication
 
                 client.Logout();
                 client.Close();
-                
+                foreach(var name in village.Technologies.Keys)
+                {
+                    Console.WriteLine(name + " " +village.IsResearched(name));
+
+                }
 
                 Console.WriteLine("Schlafe für " + timeSpan);
                 Console.WriteLine("Bis: " + DateTime.Now.Add(timeSpan.Value));

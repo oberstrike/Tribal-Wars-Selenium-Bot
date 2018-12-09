@@ -23,7 +23,7 @@ namespace SQLiteApplication
             ServerId = serverId;
             Owner = owner;
             FManager = new Farmmanager();
-            Pages = new List<Page>() { new MainPage(this, driver), new MapPage(this, driver) };
+            Pages = new List<Page>() { new MainPage(this, driver), new MapPage(this, driver), new SmithPage(this,driver) };
             
         }
 
@@ -184,6 +184,18 @@ namespace SQLiteApplication
             AttackPage page = Pages.Where(each => each is AttackPage).Select(each => (AttackPage)each).First();
             page.Attack(units, targetId);
             
+        }
+
+        public bool IsResearched(string technology)
+        {
+            if(Technologies == null)
+            {
+                return false;
+            }
+            var tech = (Dictionary<string, object>) Technologies[technology];
+            var level = int.Parse((string)tech["level"]);
+
+            return level != 0;
         }
         #endregion
     }

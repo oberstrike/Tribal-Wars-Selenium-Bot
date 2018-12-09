@@ -88,7 +88,6 @@
     <Compile Include="VillageData\StringToBuildTimeConverter.cs" />
     <Compile Include="VillageData\TroupMovement.cs" />
     <Compile Include="VillageData\Unit.cs" />
-    <Compile Include="Web\AdvancedClient.cs" />
     <Compile Include="Web\Client.cs" />
     <Compile Include="Web\Farmmanager.cs" />
     <Compile Include="VillageData\Village.cs" />

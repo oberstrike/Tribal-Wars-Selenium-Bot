@@ -14,7 +14,7 @@ namespace SQLiteApplication.VillageData
         [Unit("light", 125, 100, 250, 4)] LIGHT,
         [Unit("heavy", 200, 150, 600, 6)] HEAVY,
         [Unit("ram", 300, 200, 200, 5)] RAM,
-        [Unit("kata", 320, 400, 10, 8)] KATA
+        [Unit("catapult", 320, 400, 10, 8)] CATAPULT
     }
 
     public static class UnitExtension
