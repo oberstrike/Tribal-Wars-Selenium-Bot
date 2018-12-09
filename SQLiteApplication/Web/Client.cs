@@ -191,15 +191,8 @@ namespace SQLiteApplication.Web
                 doubles.Add(id);
                
             }
+            Sleep();
             return doubles;
-        }
-        public void GoTo(string url)
-        {
-            if (Driver.Url != url)
-            {
-                Sleep();
-                Driver.Navigate().GoToUrl(url);
-            }
-        }     
+        }    
     }
 }

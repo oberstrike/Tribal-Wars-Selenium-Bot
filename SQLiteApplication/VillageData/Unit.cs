@@ -51,7 +51,6 @@ namespace SQLiteApplication.VillageData
     public class UnitAttribute : Attribute
     {
         public string Name { get; set; }
-
         public int Wood { get; set; }
         public int Stone { get; set; }
         public int Iron { get; set; }

@@ -16,6 +16,7 @@ namespace SQLiteApplication
 {
     public sealed class Village
     {
+        #region CONSTRUCTORS
         public Village(string villageId, string serverId, FirefoxDriver driver, User owner)
         {
             Id = villageId;
@@ -31,6 +32,7 @@ namespace SQLiteApplication
            
 
         }
+        #endregion
 
         #region Private_ATTRIBUTES
         private Dictionary<string, double> _units = new Dictionary<string, double>();
@@ -79,7 +81,7 @@ namespace SQLiteApplication
                 Dictionary<string, object> dictionary = (Dictionary<string, object>)keyValuePairs[key];
 
                 string text = null;
-                DateTime? dateTime = null;
+                TimeSpan? timeSpan = null;
                 if (dictionary.ContainsKey("error"))
                 {
                     text = (string)dictionary["error"];
@@ -87,15 +89,8 @@ namespace SQLiteApplication
                     {
                         if (text.Length > 1 && text.Contains("Genug") && text.Contains("um"))
                         {
-                            string date = text.Split(' ')[4];
 
-                            dateTime = DateTime.Parse(date);
-                            DateTime nowTime = DateTime.Now;
-
-                            if (dateTime.Value.Ticks < nowTime.Ticks)
-                            {
-                                dateTime = dateTime.Value.AddDays(1).AddMinutes(2);
-                            }
+                            timeSpan = StringToBuildTimeConverter.Convert(text);
                         }
                     }
 
@@ -111,6 +106,7 @@ namespace SQLiteApplication
                                 .WithPopulation((long)dictionary["pop"])
                                 .WithMaxLevel((long)dictionary["max_level"])
                                 .WithBuildeable(text == null)
+                                .WithBuildingTime(timeSpan)
                                 .Build());
 
                 }
@@ -118,12 +114,7 @@ namespace SQLiteApplication
                 {
                     Console.WriteLine(key + " wurde nicht gefunden"); Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
                 }
-
-
-
             }
-            newBuildings.ForEach(x => x.TimeToCanBuild = GetTimeToBuild(x));
-
             return newBuildings;
         }
         public bool CanConsume(double wood, double stone, double iron, double population)
@@ -151,20 +142,6 @@ namespace SQLiteApplication
         {
             return $"Wood: {Wood}, Stone:  {Stone}, Iron: {Iron}, {Buildings} " +
                 $"\nWood Production: {WoodProduction}, Stone Production: {StoneProduction}, Iron Production: {IronProduction}";
-        }
-        public TimeSpan GetTimeToBuild(Building building)
-        {
-            double wood = (building.Wood - Wood ) / WoodProduction;
-            double stone = (building.Stone - Stone ) / StoneProduction;
-            double iron = (building.Iron - Iron ) / IronProduction;
-
-            double max = new double[] { wood, stone, iron }.Max();
-
-            if (double.IsInfinity(max) || max < 0)
-            {
-                return new TimeSpan();
-            }
-            return new TimeSpan(Convert.ToInt32(Math.Floor(max)),Convert.ToInt32((max - Math.Floor(max))*60), 59);
         }
         public bool IsTrainable(double count, Unit unit)
         {
