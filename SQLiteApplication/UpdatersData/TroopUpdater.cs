@@ -11,10 +11,14 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    class TroopUpdater : Updater
+    class TroopUpdater : AbstractUpdater
     {
+        
+
+
         public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
         {
+
             var unitElements = driver.FindElements(By.XPath("//tr[contains(@class, 'row_')]//td[3]"));
 
             foreach(var element in unitElements)
@@ -27,6 +31,7 @@ namespace SQLiteApplication.Tools
             
 
         };
+        
     }
 }
 

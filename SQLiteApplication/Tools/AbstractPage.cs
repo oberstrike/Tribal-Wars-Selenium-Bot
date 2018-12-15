@@ -4,23 +4,24 @@ using SQLiteApplication.Tools;
 using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.Contracts;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.PagesData
+namespace SQLiteApplication.Tools
 {
-    public abstract class Page
+    public abstract class AbstractPage
     {
         public Village PageVillage { get; set; }
 
         public FirefoxDriver Driver { get; set; }
 
-        public abstract List<Updater> Updaters { get; }
+        public abstract List<AbstractUpdater> Updaters { get; }
 
-        public Page(Village village, FirefoxDriver driver)
+        public AbstractPage(Village v, FirefoxDriver driver)
         {
-            PageVillage = village;
+            PageVillage = v;
             Driver = driver;
         }
 
@@ -69,8 +70,8 @@ namespace SQLiteApplication.PagesData
             }
         }
 
-        public void Update()
-        {
+        public virtual void Update()
+        {            
             GoTo();
         
             foreach(var updater in Updaters)
@@ -81,9 +82,8 @@ namespace SQLiteApplication.PagesData
                 }catch(Exception e)
                 {
                     Console.WriteLine(this.GetType().Name + " konnte nicht aktualisiert werden.");
+                    Console.WriteLine(e.Message);
                 }
-
-
             }
             Client.Sleep();
         }

@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -9,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.PagesData
 {
-    public class MarketPage : Page
+    public class MarketPage : AbstractBuildingPage
     {
         public MarketPage(Village village, FirefoxDriver driver) : base(village, driver)
         {
@@ -17,7 +18,9 @@ namespace SQLiteApplication.PagesData
         }
 
 
-        public override List<Updater> Updaters => new List<Updater>() { new MarketUpdater() };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MarketUpdater() };
+
+        public override BuildingEnum MyBuilding => BuildingEnum.MARKET;
 
         public override string Url()
         {

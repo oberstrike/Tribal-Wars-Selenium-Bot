@@ -9,14 +9,14 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.PagesData
 {
-    public class PlacePage : Page
+    public class PlacePage : AbstractPage
     {
         public PlacePage(Village village, FirefoxDriver driver) : base(village, driver)
         {
 
         }
 
-        public override List<Updater> Updaters => new List<Updater>() { };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { };
 
         public override string Url()
         {

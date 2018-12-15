@@ -9,7 +9,7 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
 {
-    public class MainPage : Page
+    public class MainPage : AbstractPage
     {
 
 
@@ -18,7 +18,7 @@ namespace SQLiteApplication.PagesData
 
         }
 
-        public override List<Updater> Updaters => new List<Updater>() { new MainUpdater() };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MainUpdater() };
 
         public override string Url()
         {

@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,16 +9,17 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.PagesData
 {
-    public class SmithPage : Page
+    public class SmithPage : AbstractBuildingPage
     {
 
         public SmithPage(Village village, FirefoxDriver driver) : base(village, driver)
         {
 
         }
-    
 
-        public override List<Updater> Updaters => new List<Updater>() { new SmithUpdater() };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new SmithUpdater() };
+
+        public override BuildingEnum MyBuilding => BuildingEnum.SMITH;
 
         public override string Url()
         {

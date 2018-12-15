@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Tools
 {
-      public class MainUpdater : Updater
+      public class MainUpdater : AbstractUpdater
     {
   
 
@@ -17,8 +17,6 @@ namespace SQLiteApplication.Tools
             UpdateRessources(driver, village);
             UpdateBuildingQueue(driver, village);
         };
-
-
 
         private void UpdateBuildingQueue(FirefoxDriver driver, Village village)
         {

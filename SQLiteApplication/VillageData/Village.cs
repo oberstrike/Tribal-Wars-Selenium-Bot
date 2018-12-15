@@ -8,6 +8,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.PagesData;
 using SQLiteApplication.Tools;
+using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
@@ -20,12 +21,12 @@ namespace SQLiteApplication
             Id = villageId;
             ServerId = serverId;
             Owner = owner;
-            Pages = new List<Page>() { new BarrackPage(this, driver), new MainPage(this, driver), new MarketPage(this, driver),
+            Pages = new List<AbstractPage>() { new MainPage(this, driver), new BarrackPage(this, driver), new MarketPage(this, driver),
                 new OverviewPage(this, driver), new  PlacePage(this, driver),  new SmithPage(this, driver), new AttackPage(this,driver) };
             
         }
 
-        public Village(object villageId, object serverId, FirefoxDriver driver) : this(villageId.ToString(), serverId.ToString(), driver)
+        public Village(object villageId, object serverId, FirefoxDriver driver) : this(villageId.ToString(), serverId.ToString(), driver, null)
         {
            
 
@@ -46,7 +47,7 @@ namespace SQLiteApplication
         public ICollection<Building> Buildings { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
        
-        public List<Page> Pages { get; set; }
+        public List<AbstractPage> Pages { get; set; }
         public PathCreator Creator { get => _creator; set => _creator = value; }
         public string Id { get; set; }
         public string ServerId { get; set; }
@@ -149,9 +150,22 @@ namespace SQLiteApplication
    
         public Building GetBuilding(string name)
         {
-            return (from building in Buildings
-                    where building.Name.Equals(name)
-                    select building).First();
+            try
+            {
+                var values = (from building in Buildings
+                              where building.Name.Equals(name)
+                              select building);
+                return values.First();
+            }
+            catch(Exception e)
+            {
+#if DEBUG
+                Console.WriteLine(e.Message);
+#endif
+                return new Building() { Name = name, Level = 0 };
+            }
+ 
+     
         }
         public override string ToString()
         {
@@ -183,10 +197,11 @@ namespace SQLiteApplication
         public void Update()
         {
             foreach(var page in Pages)
-            {
+            { 
                 page.Update();
                 Client.Sleep();
             }
+            
         }
         
 

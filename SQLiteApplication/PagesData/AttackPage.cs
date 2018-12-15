@@ -11,13 +11,13 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.PagesData
 {
-    class AttackPage : Page
+    class AttackPage : AbstractPage
     {
         public AttackPage(Village village, FirefoxDriver driver) : base(village, driver)
         {
         }
 
-        public override List<Updater> Updaters => new List<Updater>();
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>();
 
         public void Attack(Dictionary<Unit, double> units, string targetVIllage)
         {

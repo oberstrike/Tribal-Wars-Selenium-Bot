@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.PagesData
 {
-    public class OverviewPage : Page
+    public class OverviewPage : AbstractPage
     {
-        public OverviewPage(Village village, FirefoxDriver driver) : base(village, driver)
+        public OverviewPage(Village village, FirefoxDriver driver ) : base(village, driver)
         {
 
         }
@@ -21,6 +21,6 @@ namespace SQLiteApplication.PagesData
             return base.Url() + "&screen=overview_villages";
         }
         
-        public override List<Updater> Updaters => new List<Updater>() { };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { };
     }
 }

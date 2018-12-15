@@ -4,8 +4,45 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.VillageData
+namespace SQLiteApplication.Tools
 {
+    public enum BuildingEnum
+    {
+        [EnumBuildingAttribute("barracks")] BARRACKS,
+        [EnumBuildingAttribute("stable")] STABLE,
+        [EnumBuildingAttribute("garage")] GARAGE,
+        [EnumBuildingAttribute("market")] MARKET,
+        [EnumBuildingAttribute("snob")] SNOB,
+        [EnumBuildingAttribute("smith")] SMITH
+    }
+
+    public class EnumBuildingAttribute : Attribute
+    {
+        public string Name { get; set; }
+
+        public EnumBuildingAttribute(string name)
+        {
+            Name = name;
+        }
+
+    }
+
+    public static class BuildingExtension
+    {
+
+        public static String GetName(this BuildingEnum building)
+        {
+            return building.GetAttribute().Name;
+        }
+   
+
+        public static EnumBuildingAttribute GetAttribute(this BuildingEnum building)
+        {
+            return (EnumBuildingAttribute)Attribute.GetCustomAttribute(typeof(Building).GetField(Enum.GetName(typeof(Building), building)), typeof(EnumBuildingAttribute));
+        }
+    }
+
+
     public enum Unit {
         [Unit("spears", 50, 30, 20, 1)] SPEARS,
         [Unit("sword", 30, 30, 70, 1)] SWORD,
@@ -40,9 +77,10 @@ namespace SQLiteApplication.VillageData
         public static string GetName(this Unit unit){
             return unit.GetAttribute().Name;
         }
-    }         
+    }
 
-    
+
+    [AttributeUsage(AttributeTargets.Field)]
     public class UnitAttribute : Attribute
     {
         public string Name { get; set; }

@@ -9,7 +9,7 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    class MovementUpdater : Updater
+    class MovementUpdater : AbstractUpdater
     {
         public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
         {

@@ -44,6 +44,7 @@ namespace SQLiteApplication.Web
                 village.Update();
                 Sleep();
             }
+            
         }
         public bool IsLoggedIn { get => _isLoggedIn; set => _isLoggedIn = value; }
         public Configuration Config { get; set; }
@@ -130,8 +131,16 @@ namespace SQLiteApplication.Web
                     Sleep();
                 }
 
+                try
+                {
 
-                Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
+                    Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
+                }
+                catch(Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    Thread.Sleep(2000);
+                }
                 Sleep();
                 if (Driver.Url != urls[0])
                 {
@@ -161,7 +170,7 @@ namespace SQLiteApplication.Web
             foreach (double id in ids)
             {
                 Console.WriteLine(id);
-                Village village = new Village(id, Config.User.Server, Driver, Config.User);
+                Village village = new Village(id.ToString(), Config.User.Server.ToString(), Driver, Config.User);
                 village.Creator = new PathCreator(village);
                 village.Csrf = (string) Driver.ExecuteScript("return TribalWars.getGameData().csrf");
                 Config.User.Villages.Add(village);
@@ -174,8 +183,10 @@ namespace SQLiteApplication.Web
         {
             string path1 = $"https://de{Config.User.Server}.die-staemme.de/game.php?screen=overview_villages&mode=combined";
             string xpath1 = "//tr[contains(@class,'nowrap selected  row_a')]";
+
             string xpath2 = "//span[@class='quickedit-vn']";
             Driver.Navigate().GoToUrl(path1);
+            Sleep();
             List<double> doubles = new List<double>();
 
             try
@@ -185,7 +196,7 @@ namespace SQLiteApplication.Web
                 foreach (IWebElement element in elements)
                 {
                     IWebElement span = Driver.FindElement(By.XPath(xpath2));
-                    doubles.Add(double.Parse(span.GetAttribute("data-id")));
+                    doubles.Add(double.Parse(element.GetAttribute("data-id")));
                 }
             }
             catch

@@ -9,14 +9,16 @@ using System.Collections.Generic;
 
 namespace SQLiteApplication.PagesData
 {
-    public class StablePage : Page
+    public class StablePage : AbstractBuildingPage
     {
-        public StablePage(Village village, FirefoxDriver driver) : base(village, driver)
+        public StablePage(Village village, FirefoxDriver driver ) : base(village, driver)
         {
 
         }
 
-        public override List<Updater> Updaters => new List<Updater>() { };
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { };
+
+        public override BuildingEnum MyBuilding => BuildingEnum.SMITH;
 
         public override string Url()
         {
@@ -61,5 +63,6 @@ namespace SQLiteApplication.PagesData
                 }
             }
         }
+
     }
 }

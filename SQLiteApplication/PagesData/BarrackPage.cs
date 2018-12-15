@@ -4,29 +4,28 @@ using SQLiteApplication.Tools;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
-using System.Collections;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
 
 namespace SQLiteApplication.PagesData
 {
-    public class BarrackPage : Page
+    public class BarrackPage : AbstractPage
     {
+        
+
         public BarrackPage(Village village, FirefoxDriver driver) : base(village, driver)
         {
 
         }
 
+        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new TroopUpdater() };
 
-        public override List<Updater> Updaters => new List<Updater>() { new TroopUpdater() };
+        public BuildingEnum MyBuilding => BuildingEnum.BARRACKS;
 
         public override string Url()
         {
             return base.Url() + "&screen=barracks";
         }
-
 
         private void TrainUnitsInBarracks(Dictionary<Unit, double> units)
         {
