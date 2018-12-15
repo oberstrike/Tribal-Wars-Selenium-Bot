@@ -8,10 +8,10 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Tools
 {
-    public abstract class AbstractUpdater
+    public abstract class Updater
     {
         public abstract Action<FirefoxDriver, Village> UpdateAction { get; }
-        public virtual void Update(Village village, FirefoxDriver driver)
+        public void Update(Village village, FirefoxDriver driver)
         {
             UpdateAction(driver,village);
         }

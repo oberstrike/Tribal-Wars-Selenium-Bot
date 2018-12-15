@@ -17,7 +17,7 @@ namespace SQLiteApplication
         public double TargetLevel { get; set; }
         public Boolean IsBuildeable { get; set; }
         public double MaxLevel { get; set; }
-        public TimeSpan TimeToCanBuild { get; set; }
+        public TimeSpan? TimeToCanBuild { get; set; }
         public Building()
         {
 

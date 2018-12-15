@@ -47,21 +47,21 @@ namespace SQLiteApplication.PagesData
            
 
 
-            FillForm(units, spearsInput.Value, "spears");
-            FillForm(units, swordInput, "sword");
-            FillForm(units, axeInput, "axe");
+            FillForm(units, spearsInput.Value);
+            FillForm(units, swordInput);
+            FillForm(units, axeInput);
 
             trainBtn.Click();
             Client.Sleep();
         }
 
-        private void FillForm(Dictionary<Unit, double> units, IWebElement input, string unit)
+        private void FillForm(Dictionary<Unit, double> units, IWebElement input)
         {
             foreach(var kvp in units)
             {
                 string name = kvp.Key.GetName();
                 double count = kvp.Value;
-                if (PageVillage.IsTrainable(count, unit) && input != null)
+                if (PageVillage.IsTrainable(count, kvp.Key) && input != null)
                 {
                     input.SendKeys(count.ToString());
                 }
