@@ -1,5 +1,4 @@
-﻿using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Web;
+﻿using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -8,51 +7,52 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Tools
 {
-      public class MainUpdater : Updater
+    public class MainUpdater : Updater
     {
-  
+        private Client client;
 
-        public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
+        public void Update(Client client)
         {
-            UpdateRessources(driver, village);
-            UpdateBuildingQueue(driver, village);
-        };
+            client.GoTo(client.Creator.GetMain());
+            this.client = client;
+            UpdateRessources();
+            UpdateBuildingQueue();
+            Client.Sleep();
 
+        }
 
-
-        private void UpdateBuildingQueue(FirefoxDriver driver, Village village)
+        private void UpdateBuildingQueue()
         {
   
-            var timeElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
-            var nameElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
+            var timeElements = client.Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
+            var nameElements = client.Driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
 
-            village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
+            client.Config.Village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
 
             for (int i = 0; i < timeElements.Count(); i++)
             {
-                village.BuildingsInQueue.Add(new KeyValuePair<string, TimeSpan>(nameElements.ElementAt(i), timeElements.ElementAt(i)));
+                client.Config.Village.BuildingsInQueue.Add(new KeyValuePair<string, TimeSpan>(nameElements.ElementAt(i), timeElements.ElementAt(i)));
 
             }
         }
 
-        private void UpdateRessources(FirefoxDriver driver, Village village)
+        private void UpdateRessources()
         {
-            var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
-            
-            village.Wood = (Int64)villageData["wood"];
-            village.Iron = (Int64)villageData["iron"];
-            village.Stone = (Int64)villageData["stone"];
-            village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
-            village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
-            village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
-            village.StorageMax = (Int64)villageData["storage_max"];
-            village.Population = (Int64)villageData["pop"];
-            village.MaxPopulation = (Int64)villageData["pop_max"];
-            village.Buildings = village.GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
-            village.Csrf = (string)driver.ExecuteScript("return csrf_token");
-            
+            var villageData = (Dictionary<string, object>)client.Executor.ExecuteScript("return TribalWars.getGameData().village");
+            UserData.Configuration config = client.Config;
+
+            config.Village.Wood = (Int64)villageData["wood"];
+            config.Village.Iron = (Int64)villageData["iron"];
+            config.Village.Stone = (Int64)villageData["stone"];
+            config.Village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
+            config.Village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
+            config.Village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
+            config.Village.StorageMax = (Int64)villageData["storage_max"];
+            config.Village.Population = (Int64)villageData["pop"];
+            config.Village.MaxPopulation = (Int64)villageData["pop_max"];
+            config.Village.Buildings = client.GetBuildings((Dictionary<string, object>)client.Executor.ExecuteScript("return BuildingMain.buildings"));
+            client.Csrf = (string)client.Executor.ExecuteScript("return csrf_token");
+
         }
-
     }
-
 }

@@ -4,22 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-
     class MarketUpdater : Updater
     {
-        public override Action<FirefoxDriver, Village> UpdateAction => (driver, village) =>
+        public void Update(Client client)
         {
-            village.HaendlerCount = int.Parse(driver.FindElement(By.Id("market_merchant_available_count")).Text);
+            client.GoTo(client.Creator.GetMarketModeSend());
+            client.Config.Village.HaendlerCount = int.Parse(client.Driver.FindElement(By.Id("market_merchant_available_count")).Text);
             Client.Sleep();
-        };
-
-      
-
-
+        }
     }
 }

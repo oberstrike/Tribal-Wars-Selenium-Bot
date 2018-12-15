@@ -25,6 +25,8 @@ namespace SQLiteApplication.VillageData
         {
             TWVillage village = Villages.Where(x => x.Id.Equals(id)).First();
             return Villages.Where(x => GetDistance(x.X, x.Y, village.X, village.Y) <= distance).ToList();
+
+
         }
 
         private double GetDistance(double x1, double y1, double x2, double y2)
@@ -34,7 +36,7 @@ namespace SQLiteApplication.VillageData
 
         public Farmmanager()
         {
-            Villages = new List<TWVillage>();
+
         }
     }
 
@@ -47,8 +49,8 @@ namespace SQLiteApplication.VillageData
             Points = (string) webElement["points"];
             Owner = (string) webElement["owner"];
             string xy = ((Int64)webElement["xy"]).ToString();
-            X = Double.Parse(xy.Substring(0, 3));
-            Y = Double.Parse(xy.Substring(3, 3));
+            X = Double.Parse(xy.Substring(0, 2));
+            Y = Double.Parse(xy.Substring(3, 5));
         }
 
         public string Id { get; set; }

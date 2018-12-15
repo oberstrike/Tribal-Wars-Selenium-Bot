@@ -9,13 +9,15 @@ namespace SQLiteApplication.UserData
 {
     public class Configuration
     {
-      
+        public Village Village { get; set; } //Entfällt in der neuen Version
+        
+        
+        public bool IsGreedyOnRessources { get; set; }
         public string[] FarmingVillages { get; set; }
         public List<Dictionary<string, double>> Templates { get; set; }
         public User User { get; set; }
         public String TorBrowserPath { get; set; }
 
-        public static List<string> BuildingList = new List<string>() { "main","smith","wood","stone", "iron", "wall", "market", "stable", "storage", "statue", "garage", "barracks" };
         public Configuration()
         {
 

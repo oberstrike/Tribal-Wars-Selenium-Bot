@@ -80,10 +80,6 @@ namespace SQLiteApplication
                 instance.TimeToCanBuild = dateTime.Value;
 
             }
-            else
-            {
-                instance.TimeToCanBuild = null;
-            }
             return this;
         }
     }
