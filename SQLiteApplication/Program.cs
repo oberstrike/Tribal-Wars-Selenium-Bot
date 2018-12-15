@@ -1,123 +1,125 @@
-﻿
+﻿using SQLiteApplication.UserData;
+using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
-using System.Collections.ObjectModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json.Linq;
-using Newtonsoft.Json;
-using OpenQA.Selenium;
-using OpenQA.Selenium.Firefox;
 using System.Threading;
-using System.IO;
-using SQLiteApplication.UserData;
-using SQLiteApplication.Web;
 
 namespace SQLiteApplication
 {
-    
-    class Program
+    internal class Program
     {
+        public static List<string> BuildOrder { get; set; }
 
-        public static void Sleep()
+
+        public static void Main(string[] args)
         {
-            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
-
-        }
-
-
-        static void Main(string[] args)
-        {
-
+            Console.WriteLine("Starte test 7e");
             string configPath = @"Config.json";
+            int counter = 0;
+
+            BuildOrder = new List<string>();
+            BuildOrder.Add("wood");
+            BuildOrder.Add("iron");
+            BuildOrder.Add("stone");
+            int botCounter = 0;
+
 
             ConfigurationManager manager = new ConfigurationManager(configPath);
             Configuration configuration = manager.Configuration;
 
-
-            Village village = new Village(configuration.Village.MaxBuildings);
-            configuration.Village = village;
-            Client client = null;
-
-            if (configuration.User.HasFarmmanager)
+            while (botCounter < 2)
             {
-                client = new AdvancedClient(@"", configuration);
-            }
-            else
-            {
-                client = new BasisClient(@"", configuration);
-            }
-
-
-            while (true)
-            {
-                client.Connect();
-
-                DateTime? targetTime = new DateTime?();
-                client.Login();
-                string[] ressis = { "main" };
-                foreach (var building in village.Buildings)
+                Client client = null;
+                try
                 {
-                    if (ressis.Contains(building.Name))
-                    {
-                        if (building.IsBuildeable)
-                        {
-                            client.Build(building.Name);
-                        }
-                        else
-                        {
-                            if (!targetTime.HasValue)
-                            {
-                                targetTime = building.BuildingTime;
-                            }
-                            else
-                            {
-                                if(building.BuildingTime < targetTime)
-                                {
-                                    targetTime = building.BuildingTime;
-                                }
-                            }
-                        }
-
-                    }
+                    client = new Client(configuration);
+                    client.Connect();
+                    client.Login();
+                    client.Update();
+                    Console.WriteLine("Update abgeschlossen");
+                }
+                catch (Exception e)
+                {
+                    Console.WriteLine(e.Message);
+                    botCounter++;
+                    continue;
                 }
 
+                TimeSpan? timeSpan = null;
+                foreach (var village in configuration.User.Villages)
+                {
+                    ComputeVillage(counter, ref timeSpan, village);
+                }
 
-                client.Farm();
-                Thread.Sleep(2500);
+                counter++;
                 client.Logout();
                 client.Close();
 
-                double diff = 0;
-                if (targetTime.HasValue)
+
+                Console.WriteLine("Schlafe für " + timeSpan);
+                Console.WriteLine("Bis: " + DateTime.Now.Add(timeSpan.Value));
+                Thread.Sleep(timeSpan.Value);
+
+            }
+            Console.WriteLine("Botschutz detected");
+
+
+        }
+
+        private static void ComputeVillage(int counter, ref TimeSpan? timeSpan, Village village)
+        {
+            TimeSpan? localTimeSpan = GetBestTime(village);
+            if (!localTimeSpan.HasValue)
+            {
+                localTimeSpan = new TimeSpan(0, 0, 30);
+            }
+            else
+            {
+                double value = localTimeSpan.Value.Ticks * 0.75D;
+                long v = (long)value;
+                if (counter % 2 == 0)
+                    timeSpan = new TimeSpan(v);
+            }
+            if (!timeSpan.HasValue)
+            {
+                if (localTimeSpan < timeSpan)
+                    timeSpan = localTimeSpan;
+            }
+        }
+
+        private static TimeSpan? GetBestTime(Village village)
+        {
+            if (BuildOrder.Count > 0)
+            {
+                IEnumerable<Building> buildings = village.Buildings.Where(each => each.IsBuildeable && BuildOrder.Contains(each.Name)).Select(each => each);
+                while (buildings.Count() > 0)
                 {
-                    diff = (targetTime.Value - DateTime.Now).TotalSeconds;
-                    if (diff > 600 || diff < 0)
-                    {
-                        diff = 100 + new Random().Next(300, 700);
-                    }
+                    village.Build(buildings.First());
+                    buildings = village.Buildings.Where(each => each.IsBuildeable && BuildOrder.Contains(each.Name));
 
                 }
-                else
-                {
-                    diff = 100 + new Random().Next(300, 700);
-                }
-
-
-
-
-                Console.WriteLine(DateTime.Now + " Warte: " + diff + " Sekunden");
-
-
-
-                Thread.Sleep(System.Convert.ToInt32(diff)* 1000);
             }
 
-
-        
-
-            
+            return village.Buildings.Where(each => each.TimeToCanBuild != TimeSpan.Zero && BuildOrder.Contains(each.Name)).Select(each => each.TimeToCanBuild).Min();
         }
+
+
+
+        public static void PrintBuildOrder()
+        {
+            Console.WriteLine("BuildOrder: ");
+            Console.Write("\n[ ");
+            foreach (string build in BuildOrder)
+            {
+                Console.Write(build + " ");
+            }
+            Console.WriteLine("]\n");
+        }
+
     }
+
+
+
+
 }
