@@ -33,10 +33,7 @@ namespace SQLiteApplication.Web
             return $"{GetBasePath()}&screen=place&mode=command";
         }
 
-        public string GetLogout(string csrf)
-        {
-            return $"{GetBasePath()}&screen=&action=logout&h={csrf}";
-        }
+ 
 
         public string GetAttackLink(string target)
         {
@@ -72,6 +69,16 @@ namespace SQLiteApplication.Web
         {
             return $"{GetBasePath()}&screen=smith";
 
+        }
+
+        public static string GetOverview(string serverId)
+        {
+            return $"https://de{serverId}.die-staemme.de/game.php?screen=overview_villages";
+        }
+
+        public static string GetLogout(string serverId)
+        {
+            return $"https://de{serverId}.die-staemme.de/game.php?&action=logout";
         }
     }
 }

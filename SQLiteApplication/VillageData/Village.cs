@@ -4,43 +4,31 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
+using OpenQA.Selenium.Firefox;
+using SQLiteApplication.Page;
+using SQLiteApplication.Tools;
+using SQLiteApplication.Web;
 
 namespace SQLiteApplication
 {
     public sealed class Village
     {
-        
-        /*
-            Man muss überlegen ob man nicht hier die ganzen Methoden reinschreibt also:
-                1. Updater
-                2. Attack
-                3. Training
-                etc.
-            Dann ruft man im client folgendes auf:
-                Config.User.GetVillage(id).Attack(targetId, units);
-            Dazu braucht Village aber zugriff auf den Driver von Client...
-            Warum Villages in User stecken?
-                - dadurch kann ein Bot in Zukunft mehrere Benutzer steuern:
-                    Markus V2 und oberstriker parallel
-            Dadurch kann man einen Driver nutzen um sequenziell Aufgaben zu steuern.
-        
-        
-        */
-        #region STATIC ATTRIBUTES
-        public static readonly Dictionary<string, Dictionary<string, double>> unit_Prices = JsonConvert.DeserializeObject<Dictionary<string, Dictionary<string, double>>>("{" +
-                                    "'spy':{'wood':50,'stone':50,'iron':20, 'population': 2} ," +
-                                    "'light':{'wood':125,'stone':100,'iron':250, 'population': 4}," +
-                                    "'heavy':{'wood':200,'stone':150,'iron':600, 'population': 6} ," +
-                                    "'spears':{'wood':50,'stone':30,'iron':10, 'population': 1}," +
-                                    "'sword':{'wood':30,'stone':30,'iron':70, 'population': 1}," +
-                                    "'axe':{'wood':60,'stone':30,'iron':40, 'population': 1}}");        private Dictionary<string, double> _units = new Dictionary<string, double>();
-        #endregion
-            
-        #region PROPERTIES    
-        public ICollection<Building> Buildings { get; set; }
-        public Dictionary<string, int> MaxBuildings { get; set; }
+        public Village(double id, double serverId, FirefoxDriver driver)
+        {
+            Id = id;
+            ServerId = serverId;
+            pathCreator = new PathCreator(serverId.ToString(), id.ToString());
+            Driver = driver;
+        }
 
+
+        #region PROPERTIES    
+        public List<AbstractPage> Pages { get => new List<AbstractPage>() { new MainPage(Driver, this) }; }
+        public ICollection<Building> Buildings { get; set; }
+        public FirefoxDriver Driver { get; set; }
+        public Dictionary<string, int> MaxBuildings { get; set; }
         public double Id { get; set; }
+        public double ServerId { get; set; }
         public double Wood { get; set; }
         public double Stone { get; set; }
         public double Iron { get; set; }
@@ -55,13 +43,14 @@ namespace SQLiteApplication
         public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
         public void AddBuilding(Building building) => Buildings.Add(building);
         public ICollection<TroupMovement> OutcomingTroops { get; set; }
-        public ICollection<TroupMovement> IncomingTroops { get; set; }
         public Dictionary<string, object> Technologies { get; set; }
-        public Dictionary<string, double> GetUnits() => _units;
-        public void SetUnits(Dictionary<string, double> value) => _units = value;
-        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();   
+        public Dictionary<Unit, double> Units { get; set; }
+        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
+        public PathCreator pathCreator { get; set; }
+        public string Csrf { get; internal set; }
+        public double Traders { get; internal set; }
         #endregion
-        
+
         #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
@@ -74,12 +63,28 @@ namespace SQLiteApplication
             Iron -= iron;
             return true;
         }
-        
+        public bool CanConsume(Unit unit)
+        {
+            return CanConsume(unit.GetWood(), unit.GetStone(), unit.GetIron(), unit.GetNeededPopulation());
+        }
+        public bool CanConsume(Building building)
+        {
+            return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
+        }
         public Building GetBuilding(string name)
         {
             return (from building in Buildings
                     where building.Name.Equals(name)
                     select building).First();
+        }
+
+        public void Update()
+        {
+            foreach(var page in Pages)
+            {
+                page.Update();
+                Client.Sleep();
+            }
         }
 
         public override string ToString()
@@ -88,20 +93,15 @@ namespace SQLiteApplication
                 $"\nWood Production: {WoodProduction}, Stone Production: {StoneProduction}, Iron Production: {IronProduction}";
         }
 
-
-        public TimeSpan GetTimeToBuild(Building building)
+        public void Build(string name)
         {
-            double wood = (building.Wood - Wood ) / WoodProduction;
-            double stone = (building.Stone - Stone ) / StoneProduction;
-            double iron = (building.Iron - Iron ) / IronProduction;
+            Build(GetBuilding(name));
+        }
+        public void Build(Building building)
+        {
+            var page = Pages.Where(each => each is MainPage).First() as MainPage;
+            page.Build(building);
 
-            double max = new double[] { wood, stone, iron }.Max();
-
-            if (double.IsInfinity(max) || max < 0)
-            {
-                return new TimeSpan();
-            }
-            return new TimeSpan(Convert.ToInt32(Math.Floor(max)),Convert.ToInt32((max - Math.Floor(max))*60), 59);
         }
 
         #endregion

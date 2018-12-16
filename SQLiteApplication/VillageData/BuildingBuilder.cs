@@ -78,7 +78,6 @@ namespace SQLiteApplication
             if (dateTime.HasValue)
             {
                 instance.TimeToCanBuild = dateTime.Value;
-
             }
             return this;
         }

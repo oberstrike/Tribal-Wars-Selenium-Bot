@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 
@@ -17,31 +18,18 @@ namespace SQLiteApplication.UserData
             return $"Name: {Name}, Server: {Server}";
         }
 
-        /*
-        private ICollection<Village> villages = new List<Village>();
-        
-        public ICollection<Village> GetVillages()
-        {
-            return villages;
-        }
-
-        public void SetVillages(ICollection<Village> value)
-        {
-            villages = value;
-        }
+        public List<Village> Villages { get; set; } = new List<Village>();
 
         public Village GetVillage(int id)
         {
-            return (from village in GetVillages()
+            return (from village in Villages
                     where village.Id == id
                     select village).First();
         }
-        
-        Vielleicht benötigt:
+
         public Village GetVillage(double id){
             return GetVillage(Convert.ToInt32(id));
         }
-        */
 
     }
 }
