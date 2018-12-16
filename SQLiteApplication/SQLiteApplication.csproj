@@ -58,6 +58,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Page\BarracksPage.cs" />
     <Compile Include="Page\MainPage.cs" />
     <Compile Include="Page\MarketPage.cs" />
     <Compile Include="Page\PlacePage.cs" />

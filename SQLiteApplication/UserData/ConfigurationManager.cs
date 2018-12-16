@@ -32,8 +32,6 @@ namespace SQLiteApplication.UserData
                     {
                         JObject o2 = (JObject)JToken.ReadFrom(reader);
                         Configuration = JsonConvert.DeserializeObject<Configuration>(o2.ToString());
-
-                        Console.WriteLine(reader.Path);
                     }
 
                 }

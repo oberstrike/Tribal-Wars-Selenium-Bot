@@ -17,11 +17,10 @@ namespace SQLiteApplication.Web
 
         public static void Sleep()
         {
-            Thread.Sleep((new Random().Next(1, 5) * 1000) + 245);
+            Thread.Sleep((new Random().Next(1, 3) * 1000) + 245);
         }
         #endregion
 
-        private bool _isLoggedIn;
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
         private FirefoxOptions options;
 
@@ -33,8 +32,6 @@ namespace SQLiteApplication.Web
 
         public FirefoxDriver Driver { get; set; }
         #endregion
-
-
         public Client(Configuration configuration)
         {
             Config = configuration;
@@ -69,13 +66,14 @@ namespace SQLiteApplication.Web
             profile.SetPreference("network.proxy.socks", "127.0.0.1");
             profile.SetPreference("network.proxy.socks_port", 9150);
             options.Profile = profile;
+            Console.WriteLine("Starte versteckten Client.");
+            
         }
 
         public void Connect()
         {
             try
             {
-                options.SetLoggingPreference(LogType.Driver, LogLevel.Debug);
                 Driver = new FirefoxDriver(options);
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
                 Driver.Navigate().GoToUrl(urls[0]);
@@ -136,6 +134,7 @@ namespace SQLiteApplication.Web
                 villages.Add(village);
 
             }
+            Sleep();
             return villages;
         }
 

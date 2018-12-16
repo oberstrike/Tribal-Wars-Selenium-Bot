@@ -23,6 +23,8 @@ namespace SQLiteApplication.Tools
             if (building != null)
                 if (building.Level == 0)
                     return;
+            if (Updaters.Count == 0)
+                return;
 
             base.Update();
         }

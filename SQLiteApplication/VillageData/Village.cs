@@ -23,7 +23,7 @@ namespace SQLiteApplication
 
 
         #region PROPERTIES    
-        public List<AbstractPage> Pages { get => new List<AbstractPage>() { new MainPage(Driver, this) }; }
+        public List<AbstractPage> Pages { get => new List<AbstractPage>() { new MainPage(Driver, this), new BarracksPage(Driver, this)}; }
         public ICollection<Building> Buildings { get; set; }
         public FirefoxDriver Driver { get; set; }
         public Dictionary<string, int> MaxBuildings { get; set; }
@@ -102,6 +102,19 @@ namespace SQLiteApplication
             var page = Pages.Where(each => each is MainPage).First() as MainPage;
             page.Build(building);
 
+        }
+
+        public void Train(Dictionary<Unit, double> units)
+        {
+            var page = (BarracksPage) Pages.Where(each => each is BarracksPage).First();
+
+            foreach (var kvp in units)
+            {
+                var name = ((Unit)kvp.Key).GetName();
+                page.Train(kvp.Key, kvp.Value);
+                    
+
+            }
         }
 
         #endregion

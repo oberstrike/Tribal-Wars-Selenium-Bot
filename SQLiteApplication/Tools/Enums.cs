@@ -4,8 +4,6 @@ namespace SQLiteApplication.Tools
 {
     public enum Unit
     {
-
-
         [Unit(50, 30, 10)] SPEAR,
         [Unit(30, 30, 70)] SWORD,
         [Unit(60, 30, 40)] AXE,
