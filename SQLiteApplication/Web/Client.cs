@@ -165,11 +165,7 @@ namespace SQLiteApplication.Web
 
         public void GoTo(string url)
         {
-            if (Driver.Url != url)
-            {
-                Sleep();
-                Driver.Navigate().GoToUrl(url);
-            }
+           Driver.GoTo(url);
         }
        
     }
