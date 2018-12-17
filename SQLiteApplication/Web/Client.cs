@@ -65,6 +65,8 @@ namespace SQLiteApplication.Web
             profile.SetPreference("network.proxy.type", 1);
             profile.SetPreference("network.proxy.socks", "127.0.0.1");
             profile.SetPreference("network.proxy.socks_port", 9150);
+             profile.setPreference("general.useragent.override",
+                                   "Mozilla/5.0 (Linux; Android 6.0; HTC One M9 Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.98 Mobile Safari/537.36"); 
             options.Profile = profile;
             Console.WriteLine("Starte versteckten Client.");
             
@@ -165,11 +167,7 @@ namespace SQLiteApplication.Web
 
         public void GoTo(string url)
         {
-            if (Driver.Url != url)
-            {
-                Sleep();
-                Driver.Navigate().GoToUrl(url);
-            }
+           Driver.GoTo(url);
         }
        
     }

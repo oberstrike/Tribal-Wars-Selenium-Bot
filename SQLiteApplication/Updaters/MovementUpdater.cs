@@ -9,11 +9,10 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    class MovementUpdater : AbstractUpdater
+    class MovementUpdater : IUpdater
     {
-        public override Action<FirefoxDriver, Village> UpdateAction => this.MovementUpdate;
 
-        public void MovementUpdate(FirefoxDriver driver, Village village)
+        public void Update(FirefoxDriver driver, Village village)
         {
             string tr_Class = "command-row";
             Client.Sleep();

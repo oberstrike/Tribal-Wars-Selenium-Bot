@@ -10,11 +10,9 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    class TroopUpdater : AbstractUpdater
+    class TroopUpdater : IUpdater
     {
-        public override Action<FirefoxDriver, Village> UpdateAction => throw new NotImplementedException();
-
-        public void TroopUpdate(FirefoxDriver driver, Village village)
+        public void Update(FirefoxDriver driver, Village village)
         {
             foreach (Unit unit in Enum.GetValues(typeof(Unit)))
             {

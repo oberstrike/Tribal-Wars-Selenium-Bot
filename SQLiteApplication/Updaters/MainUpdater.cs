@@ -8,14 +8,12 @@ using System.Threading.Tasks;
 
 namespace SQLiteApplication.Tools
 {
-    public class MainUpdater : AbstractUpdater
+    public class MainUpdater : IUpdater
     {
         private Village village;
         private FirefoxDriver driver;
 
-        public override Action<FirefoxDriver, Village> UpdateAction { get => this.MainUpdate; }
-
-        public void MainUpdate( FirefoxDriver driver, Village village)
+        public void Update( FirefoxDriver driver, Village village)
         {
             this.village = village;
             this.driver = driver;
