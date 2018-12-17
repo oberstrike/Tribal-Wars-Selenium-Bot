@@ -17,19 +17,7 @@ namespace SQLiteApplication.Tools
         public Village Village { get; set; }
 
         public abstract string URL { get; }
-        public void GoTo()
-        {
-            GoTo("");
-        }
 
-        public void GoTo(string extension)
-        {
-            if (Driver.Url != URL + extension)
-            {
-                Driver.Navigate().GoToUrl(URL);
-                Client.Sleep();
-            }
-        }
 
         public AbstractPage(FirefoxDriver driver, Village village) {
             Driver = driver;
@@ -38,7 +26,7 @@ namespace SQLiteApplication.Tools
 
         public virtual void Update()
         {
-            GoTo();
+            Driver.GoTo(URL);
 
             foreach(var updater in Updaters)
             {
