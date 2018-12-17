@@ -25,6 +25,11 @@ namespace SQLiteApplication
                     Client client = new Client(config);
                     client.Connect();
                     client.Login();
+                    /*
+                    client.Update();
+                    client.UpgradeBuilding();
+                    client.Update();
+                    */
 
                     UpdateVillages(config);
                     UpgradeBuilding(config.User.Villages);
