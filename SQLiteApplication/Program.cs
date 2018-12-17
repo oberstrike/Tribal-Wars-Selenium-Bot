@@ -13,7 +13,7 @@ namespace SQLiteApplication
 
         private static void Main(string[] args)
         {
-            Console.WriteLine("Starte Test um " + DateTime.Now);
+            Console.WriteLine("Starte Testa um " + DateTime.Now);
             Configuration config = new ConfigurationManager("Config.json").Configuration;
             int errorCount = 0;
            
@@ -32,7 +32,7 @@ namespace SQLiteApplication
                     TimeSpan? timeSpan = GetBestTime(config.User.Villages);
 
                     client.Logout();
-
+                    client.Close();
                     if (!timeSpan.HasValue)
                     {
                         timeSpan = new TimeSpan(new Random().Next(2, 3), new Random().Next(1, 20), new Random().Next(1, 20));
@@ -58,6 +58,7 @@ namespace SQLiteApplication
                 village.Update();
 
             }
+            config.User.Villages.Reverse();
         }
 
         private static void UpgradeBuilding(List<Village> villages)
@@ -70,6 +71,7 @@ namespace SQLiteApplication
                     {
                         if (building.IsBuildeable && building.Level != building.MaxLevel)
                         {
+                            Console.WriteLine(DateTime.Now + " ich starte bauen von: " + building.Name);
                             village.Build(building);
                             break;
                         }

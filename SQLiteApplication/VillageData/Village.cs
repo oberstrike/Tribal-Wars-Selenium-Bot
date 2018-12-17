@@ -99,8 +99,12 @@ namespace SQLiteApplication
         }
         public void Build(Building building)
         {
+
             var page = Pages.Where(each => each is MainPage).First() as MainPage;
+            page.GoTo();
             page.Build(building);
+            Client.Sleep();
+            
 
         }
 
