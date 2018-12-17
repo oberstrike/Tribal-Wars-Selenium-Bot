@@ -8,11 +8,10 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    class SmithUpdater : AbstractUpdater
+    class SmithUpdater : IUpdater
     {
-        public override Action<FirefoxDriver, Village> UpdateAction => this.SmithUpdate;
 
-        public void SmithUpdate(FirefoxDriver driver, Village village)
+        public void Update(FirefoxDriver driver, Village village)
         {
 
             village.Technologies = (Dictionary<string, object>)driver.ExecuteScript("return BuildingSmith.techs.available");
