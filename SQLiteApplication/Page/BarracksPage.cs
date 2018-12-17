@@ -26,7 +26,7 @@ namespace SQLiteApplication.Page
 
         public void Train(Unit unit, double count)
         {
-            GoTo();
+            Driver.GoTo(URL);
             var element = Driver.FindElementByXPath($"//input[@id='{unit.GetName()}_0']");
             element.SendKeys(count.ToString());
             var button = Driver.FindElementByXPath("//input[@class='btn btn-recruit']");
