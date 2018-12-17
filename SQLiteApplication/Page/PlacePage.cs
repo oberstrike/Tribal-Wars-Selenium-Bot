@@ -23,7 +23,7 @@ namespace SQLiteApplication.Page
 
         public void Attack(Dictionary<string, double> units, string target)
         {
-            GoTo("&target=" +  target);
+            Driver.GoTo("&target=" +  target);
             foreach (var kvp in units)
             {
                 Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
