@@ -14,7 +14,7 @@ namespace SQLiteApplication.Tools
         [Unit(320, 400, 100, 8)] CATAPULT,
         [Unit(0, 0, 0, 100)] SNOB
     }
-    public static class UnitExtensions
+    public static class ExtensionClass
     {
         public static UnitAttribute GetAttribute(this Unit unit)
         {
@@ -47,6 +47,15 @@ namespace SQLiteApplication.Tools
         public static int GetNeededPopulation(this Unit unit)
         {
             return unit.GetAttribute().NeededPopulation;
+        }
+        
+        public static void GoTo(this FirefoxDriver driver, string url)
+        {
+            if(driver.URL != url)
+            {
+                driver.Navigate().GotoUrl(url);
+                Client.Sleep();
+            }
         }
     }
     public class UnitAttribute : Attribute

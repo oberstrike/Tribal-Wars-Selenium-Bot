@@ -9,11 +9,9 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    public class MarketUpdater : AbstractUpdater
-    {
-        public override Action<FirefoxDriver, Village> UpdateAction => throw new NotImplementedException();
-
-        public void MarketUpdate(FirefoxDriver driver, Village village)
+    public class MarketUpdater : IUpdater
+    
+        public void Update(FirefoxDriver driver, Village village)
         {
             var available = driver.FindElement(By.Id("market_merchant_available_count")).Text;
             village.Traders = double.Parse(available);
