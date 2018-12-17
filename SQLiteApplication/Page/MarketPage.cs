@@ -25,7 +25,7 @@ namespace SQLiteApplication.Page
 
         public void SendRessource(int wood, int stone, int iron, string targetId)
         {
-            GoTo();
+            Driver.GoTo(URL);
 
             var woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
             var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
