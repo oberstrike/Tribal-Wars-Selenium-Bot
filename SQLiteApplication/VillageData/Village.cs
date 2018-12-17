@@ -101,7 +101,7 @@ namespace SQLiteApplication
         {
 
             var page = Pages.Where(each => each is MainPage).First() as MainPage;
-            page.GoTo();
+            Driver.GoTo(page.URL);
             page.Build(building);
             Client.Sleep();
             

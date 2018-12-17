@@ -10,7 +10,7 @@ namespace SQLiteApplication.Tools
 {
     public abstract class AbstractPage
     {
-        public abstract List<AbstractUpdater> Updaters { get; } 
+        public abstract List<IUpdater> Updaters { get; } 
 
         public FirefoxDriver Driver { get; set; }
 

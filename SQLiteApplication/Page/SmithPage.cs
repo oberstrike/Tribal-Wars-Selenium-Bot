@@ -17,7 +17,7 @@ namespace SQLiteApplication.Page
 
         public override string BUILDING => "smith";
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new SmithUpdater() };
+        public override List<IUpdater> Updaters => new List<IUpdater>() { new SmithUpdater() };
 
         public override string URL => "smith";
     }

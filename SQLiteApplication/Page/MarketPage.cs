@@ -19,7 +19,7 @@ namespace SQLiteApplication.Page
 
         public override string BUILDING => "market";
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MarketUpdater() };
+        public override List<IUpdater> Updaters => new List<IUpdater>() { new MarketUpdater() };
 
         public override string URL => Village.pathCreator.GetMarketModeSend();
 

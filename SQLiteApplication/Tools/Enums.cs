@@ -1,4 +1,6 @@
-﻿using System;
+﻿using OpenQA.Selenium.Firefox;
+using SQLiteApplication.Web;
+using System;
 
 namespace SQLiteApplication.Tools
 {
@@ -51,9 +53,9 @@ namespace SQLiteApplication.Tools
         
         public static void GoTo(this FirefoxDriver driver, string url)
         {
-            if(driver.URL != url)
+            if(driver.Url != url)
             {
-                driver.Navigate().GotoUrl(url);
+                driver.Navigate().GoToUrl(url);
                 Client.Sleep();
             }
         }

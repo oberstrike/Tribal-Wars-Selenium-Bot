@@ -18,7 +18,7 @@ namespace SQLiteApplication.Page
         }
 
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MovementUpdater(), new TroopUpdater() };
+        public override List<IUpdater> Updaters => new List<IUpdater>() { new MovementUpdater(), new TroopUpdater() };
         public override string URL => Village.pathCreator.GetPlace();
 
         public void Attack(Dictionary<string, double> units, string target)

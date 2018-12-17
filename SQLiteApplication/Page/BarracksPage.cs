@@ -20,7 +20,7 @@ namespace SQLiteApplication.Page
 
         public override string BUILDING => "barracks";
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>();
+        public override List<IUpdater> Updaters => new List<IUpdater>();
 
         public override string URL => Village.pathCreator.GetBarracks();
 

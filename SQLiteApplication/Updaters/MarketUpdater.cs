@@ -9,7 +9,7 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    public class MarketUpdater : IUpdater
+    public class MarketUpdater : IUpdater { 
     
         public void Update(FirefoxDriver driver, Village village)
         {

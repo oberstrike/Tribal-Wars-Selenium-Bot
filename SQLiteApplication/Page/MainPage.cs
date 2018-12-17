@@ -19,7 +19,7 @@ namespace SQLiteApplication.Page
         public override string URL => Village.pathCreator.GetMain();
 
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MainUpdater() };
+        public override List<IUpdater> Updaters => new List<IUpdater>() { new MainUpdater() };
 
         public void Build(Building building)
         {

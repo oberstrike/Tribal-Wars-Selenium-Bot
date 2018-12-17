@@ -67,12 +67,12 @@
     <Compile Include="Tools\AbstractBuildingPage.cs" />
     <Compile Include="Tools\AbstractPage.cs" />
     <Compile Include="Tools\Enums.cs" />
+    <Compile Include="Tools\IUpdater.cs" />
     <Compile Include="Updaters\MainUpdater.cs" />
     <Compile Include="Updaters\MarketUpdater.cs" />
     <Compile Include="Updaters\MovementUpdater.cs" />
     <Compile Include="Updaters\SmithUpdater.cs" />
     <Compile Include="Updaters\TroopUpdater.cs" />
-    <Compile Include="Tools\AbstractUpdater.cs" />
     <Compile Include="UserData\ConfigurationManager.cs" />
     <Compile Include="UserData\User.cs" />
     <Compile Include="VillageData\Building.cs" />
