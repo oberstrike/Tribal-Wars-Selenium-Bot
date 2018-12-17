@@ -114,6 +114,9 @@ namespace SQLiteApplication.Tools
                 if (text.Contains("morgen"))
                 {
                     dateTime = dateTime.AddDays(1);
+                } else if (text.Contains("am"))
+                {
+                    var b = text.Split(' ')[7];
                 }
                 timeSpan = dateTime - nowTime;
             }
