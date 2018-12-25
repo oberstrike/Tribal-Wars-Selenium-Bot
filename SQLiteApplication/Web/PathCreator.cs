@@ -45,9 +45,9 @@ namespace SQLiteApplication.Web
             return $"{GetBasePath()}&screen=am_farm";
         }
 
-        public string GetBuildingOverview()
+        public string GetOverview()
         {
-            return $"{GetBasePath()}&screen=overview_villages";
+            return $"{GetBasePath()}&screen=overview_villages&mode=combined";
         }
 
         public string GetMarketModeSend()

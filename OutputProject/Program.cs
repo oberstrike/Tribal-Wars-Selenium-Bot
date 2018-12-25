@@ -24,7 +24,7 @@ namespace OutputProject
                 client.Login();
 
                 client.Update();
-
+                client.MoveResources();
 
                 TimeSpan? timeSpan = client.GetBestTime();
 

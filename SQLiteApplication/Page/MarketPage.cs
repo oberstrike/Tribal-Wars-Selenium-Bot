@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +24,7 @@ namespace SQLiteApplication.Page
 
         public override string URL => Village.pathCreator.GetMarketModeSend();
 
-        public void SendRessource(int wood, int stone, int iron, string targetId)
+        public void SendRessource(double wood, double stone, double iron, string targetCoordinates)
         {
             Driver.GoTo(URL);
 
@@ -31,15 +32,20 @@ namespace SQLiteApplication.Page
             var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
             var ironInput = Driver.FindElement(By.XPath("//input[@name='iron']"));
             var targetInput = Driver.FindElement(By.XPath("//input[@placeholder='123|456']"));
+            var btn = Driver.FindElement(By.XPath("//input[@value='OK']"));
 
             if (Village.CanConsume(wood, stone, iron, 0))
             {
                 woodInput.SendKeys(wood.ToString());
                 stoneInput.SendKeys(stone.ToString());
                 ironInput.SendKeys(iron.ToString());
-                targetInput.SendKeys(targetId);
+                targetInput.SendKeys(targetCoordinates);
             }
+            Client.Sleep();
+            btn.Click();
+            Client.Sleep();
         }
 
+       
     }
 }

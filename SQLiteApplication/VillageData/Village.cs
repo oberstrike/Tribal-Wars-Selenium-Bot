@@ -1,14 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
-using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SQLiteApplication
 {
@@ -21,45 +18,39 @@ namespace SQLiteApplication
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
         }
-
-
         #region PROPERTIES    
-        public List<AbstractPage> Pages { get => new List<AbstractPage>() { new MainPage(Driver, this), new BarracksPage(Driver, this)}; }
+        public List<AbstractPage> Pages => new List<AbstractPage>() { new MainPage(Driver, this), new MarketPage(Driver, this) };
         public ICollection<Building> Buildings { get; set; }
         public FirefoxDriver Driver { get; set; }
         public Dictionary<string, int> MaxBuildings { get; set; }
         public double Id { get; set; }
         public double ServerId { get; set; }
-        public ResourcesManager Manager { get; set; }
-        public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
-        public int HaendlerCount { get; set; }
-        public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
-        public void AddBuilding(Building building) => Buildings.Add(building);
+        public ResourcesManager RManager { get; set; }
+        public TradeManager TManager { get; set; } = new TradeManager();
+        public IList<KeyValuePair<string, TimeSpan>> BuildingsInQueue { get; set; }
         public ICollection<TroupMovement> OutcomingTroops { get; set; }
         public Dictionary<string, object> Technologies { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
-        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
+        public IList<string> GetAttackedVillages()
+        {
+            return OutcomingTroops.Select(x => x.TargetId).ToList();
+        }
         public PathCreator pathCreator { get; set; }
         public string Csrf { get; internal set; }
-        public double Traders { get; internal set; }
+        public string Coordinates { get; set; }
         #endregion
 
         #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
-            if (wood > Manager.Wood || stone > Manager.Stone || iron > Manager.Iron || Manager.Population + population > Manager.MaxPopulation)
-            {
-                return false;
-            }
-            Manager.Wood -= wood;
-            Manager.Stone -= stone;
-            Manager.Iron -= iron;
-            return true;
+            return RManager.CanConsume(wood, stone, iron, population);
         }
+
         public bool CanConsume(Unit unit)
         {
             return CanConsume(unit.GetWood(), unit.GetStone(), unit.GetIron(), unit.GetNeededPopulation());
         }
+
         public bool CanConsume(Building building)
         {
             return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
@@ -73,17 +64,11 @@ namespace SQLiteApplication
 
         public void Update()
         {
-            foreach(var page in Pages)
+            foreach (AbstractPage page in Pages)
             {
                 page.Update();
                 Client.Sleep();
             }
-        }
-
-        public override string ToString()
-        {
-            return $"Wood: {Manager.Wood}, Stone:  {Manager.Stone}, Iron: {Manager.Iron}, {Buildings} " +
-                $"\nWood Production: {Manager.WoodProduction}, Stone Production: {Manager.StoneProduction}, Iron Production: {Manager.IronProduction}";
         }
 
         public void Build(string name)
@@ -92,72 +77,67 @@ namespace SQLiteApplication
         }
         public void Build(Building building)
         {
-
-            var page = Pages.Where(each => each is MainPage).First() as MainPage;
+            MainPage page = Pages.Where(each => each is MainPage).First() as MainPage;
             Driver.GoTo(page.URL);
             page.Build(building);
             Client.Sleep();
-            
-
         }
 
         public void Train(Dictionary<Unit, double> units)
         {
-            var page = (BarracksPage) Pages.Where(each => each is BarracksPage).First();
+            BarracksPage page = (BarracksPage)Pages.Where(each => each is BarracksPage).First();
 
-            foreach (var kvp in units)
+            foreach (KeyValuePair<Unit, double> kvp in units)
             {
-                var name = ((Unit)kvp.Key).GetName();
+                string name = kvp.Key.GetName();
                 page.Train(kvp.Key, kvp.Value);
-                    
-
             }
         }
 
+        public void SendRessourceToVillage(Dictionary<string, double> resources, Village village)
+        {
+            MarketPage page = Pages.Select(each => each as MarketPage).First();
+            var wood = resources["Wood"];
+            var stone = resources["Stone"];
+            var iron = resources["Iron"];
+            var traders = Math.Round((wood + stone + iron)/1000 + 0.5);
+
+            if(wood < RManager.Wood && stone < RManager.Stone && iron < RManager.Iron && TManager.AvailableTraders >= traders)
+            {
+                page.SendRessource(resources["Wood"], resources["Stone"], resources["Iron"], village.Coordinates);
+                page.Update();
+            }
+
+        }
+        #endregion
+
+        #region OPERATORS
         public override bool Equals(object obj)
         {
-            var village = obj as Village;
-            if(village != null)  
+            Village village = obj as Village;
+            if (village != null)
                 return village.Id == this.Id;
-            
+
             return false;
         }
-
-        public Dictionary<string, double> GetMissingRessourcesForBuilding(Building building)
+        public override string ToString()
         {
-            string[] ressis = { "Wood", "Stone", "Iron" };
-            Dictionary<string, double> resDictionary = new Dictionary<string, double>();
-
-            foreach(var res in ressis)
-            {
-                double buildingValue = (double) building.GetType().GetProperty(res).GetValue(building);
-                double villageValue = (double)this.GetType().GetProperty(res).GetValue(this);
-                double diff = buildingValue - villageValue;
-                if (diff > 0)
-                    resDictionary.Add(res, diff);
-            }
-            return resDictionary;
-
-
+            return $"Wood: {RManager.Wood}, Stone:  {RManager.Stone}, Iron: {RManager.Iron}, {Buildings} " +
+                $"\nWood Production: {RManager.WoodProduction}, Stone Production: {RManager.StoneProduction}, Iron Production: {RManager.IronProduction}";
         }
-
         public override int GetHashCode()
         {
             return 2108858624 + Id.GetHashCode();
         }
-
         public static bool operator ==(Village village1, Village village2)
         {
             return EqualityComparer<Village>.Default.Equals(village1, village2);
         }
-
         public static bool operator !=(Village village1, Village village2)
         {
             return !(village1 == village2);
         }
-
-
-
         #endregion
+
     }
 }

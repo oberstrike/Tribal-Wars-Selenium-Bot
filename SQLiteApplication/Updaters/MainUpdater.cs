@@ -42,7 +42,7 @@ namespace SQLiteApplication.Tools
         private void UpdateRessources()
         {
             var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
-            ResourcesManager manager = new ResourcesManager();
+            ResourcesManager manager = new ResourcesManager(village);
 
             manager.Wood = (Int64)villageData["wood"];
             manager.Iron = (Int64)villageData["iron"];
@@ -55,7 +55,13 @@ namespace SQLiteApplication.Tools
             manager.MaxPopulation = (Int64)villageData["pop_max"];
             village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
-            village.Manager = manager;
+            village.RManager = manager;
+            village.Coordinates = (string) villageData["coord"];
+
+            foreach(var building in village.Buildings)
+            {
+                village.RManager.GetMissingRessourcesForBuilding(building);
+            }
         }
 
         private ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)

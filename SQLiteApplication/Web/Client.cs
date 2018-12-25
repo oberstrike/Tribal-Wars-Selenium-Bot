@@ -3,6 +3,7 @@ using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
 using SQLiteApplication.UserData;
+using SQLiteApplication.VillageData;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -16,12 +17,14 @@ namespace SQLiteApplication.Web
 
         #region STATIC
 
+  
         public static void Sleep()
         {
-            Thread.Sleep((new Random().Next(1, 2) * 1000) + new Random().Next(1, 10) * 10);
+            Thread.Sleep((new Random().Next(2, 3) * 1000) + new Random().Next(1, 10) * 10);
         }
         #endregion
 
+        #region Properties
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
 
         private FirefoxOptions options;
@@ -30,13 +33,15 @@ namespace SQLiteApplication.Web
         public bool IsConnected { get; set; }
         public bool IsLoggedIn { get; set; }
         public Configuration Config { get; set; }
+        #endregion
+
         public void Update()
         {
             foreach (Village village in Config.User.Villages)
             {
                 Update(village);
             }
-
+            MoveResources();
         }
 
         public Building GetBuildingWithShortestTimeToBuild(List<Building> buildings)
@@ -66,13 +71,46 @@ namespace SQLiteApplication.Web
 
         }
 
+        public void MoveResources()
+        {
+            var managers = Config.User.Villages.Select(each => each.RManager);
+
+            string[] ressis = { "Wood", "Iron", "Stone" };
+
+            foreach(var res in ressis)
+            {
+
+                List<ResourcesManager> managersWithMore = new List<ResourcesManager>();
+                List<ResourcesManager> managersWithLess = new List<ResourcesManager>();
+
+                foreach (var manager in managers)
+                {
+                    var value = (double) manager.GetType().GetProperty("Unused" + res).GetValue(manager);
+
+                    if (value > 0)
+                        managersWithMore.Add(manager);
+                    else
+                        managersWithLess.Add(manager);
+                }
+
+                if(managersWithMore.Count > 0)
+                {
+                    foreach(var manager in managersWithMore)
+                    {
+                        Console.WriteLine(DateTime.Now + " Es gibt einen überschuss " 
+                            + (double) manager.GetType().GetProperty("Unused" + res).GetValue(manager)
+                            + " von " + res + " in " 
+                            + manager.MyVillage.Id);
+                    }
+                }
+            }
+        }
 
         public TimeSpan? GetBestTime()
         {
             return GetBuildeableBuildings().Select(each => each.TimeToCanBuild).Min();
         }
         public Process TorProcess { get; set; }
-        public Timer MyTimer { get; set; }
 
         public void Update(Village village)
         {
@@ -101,7 +139,7 @@ namespace SQLiteApplication.Web
                     mainPage.Update();
                     break;
                 }
-            } while (buildingsToUpgrade != default(IEnumerable<Building>) && buildingsToUpgrade.Count() > 0d);
+            } while (buildingsToUpgrade != default(IEnumerable<Building>) && buildingsToUpgrade.Count() > 0);
 
 
 
@@ -156,9 +194,6 @@ namespace SQLiteApplication.Web
                 Driver = new FirefoxDriver(options);
                 Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(25);
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-
-                Console.WriteLine("Starte Timer");
-
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -182,6 +217,7 @@ namespace SQLiteApplication.Web
                 {
                     Driver.FindElement(By.Id("user")).SendKeys(Config.User.Name);
                     Driver.FindElement(By.Id("password")).SendKeys(Config.User.Password);
+                    Sleep();
                     Driver.FindElement(By.ClassName("btn-login")).Click();
                     Sleep();
                 }

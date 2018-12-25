@@ -15,7 +15,7 @@ namespace SQLiteApplication
         public double Level { get; set; }  
         public double NeededPopulation { get; set; }
         public double TargetLevel { get; set; }
-        public Boolean IsBuildeable { get; set; }
+        public bool IsBuildeable { get; set; }
         public double MaxLevel { get; set; }
         public TimeSpan TimeToCanBuild { get; set; }
         public Village Village { get; set; }

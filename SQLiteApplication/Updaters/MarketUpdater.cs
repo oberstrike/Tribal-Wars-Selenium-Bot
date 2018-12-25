@@ -14,7 +14,9 @@ namespace SQLiteApplication.Tools
         public void Update(FirefoxDriver driver, Village village)
         {
             var available = driver.FindElement(By.Id("market_merchant_available_count")).Text;
-            village.Traders = double.Parse(available);
+            var total = driver.FindElement(By.Id("market_merchant_total_count")).Text;
+            village.TManager.AvailableTraders = int.Parse(available);
+            village.TManager.TotalTraders = int.Parse(total);
         }
     }
 }
