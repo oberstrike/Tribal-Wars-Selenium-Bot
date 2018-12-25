@@ -1,6 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using OpenQA.Selenium.Support.UI;
+using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
 using SQLiteApplication.UserData;
 using System;
@@ -18,18 +18,94 @@ namespace SQLiteApplication.Web
 
         public static void Sleep()
         {
-            Thread.Sleep((new Random().Next(1, 3) * 1000) + 245);
+            Thread.Sleep((new Random().Next(1, 2) * 1000) + new Random().Next(1, 10) * 10);
         }
         #endregion
 
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
-        private FirefoxOptions options;
 
+        private FirefoxOptions options;
+        public List<string> BuildOrder { get; set; } = new List<string>() { "stone", "wood", "iron" };
         #region Properties
         public bool IsConnected { get; set; }
         public bool IsLoggedIn { get; set; }
         public Configuration Config { get; set; }
+        public void Update()
+        {
+            foreach (Village village in Config.User.Villages)
+            {
+                Update(village);
+            }
+
+        }
+
+        public Building GetBuildingWithShortestTimeToBuild(List<Building> buildings)
+        {
+            Building returnValue = null;
+
+            foreach (Building building in buildings)
+            {
+                if (returnValue == null)
+                {
+                    returnValue = building;
+                }
+                else if (returnValue.TimeToCanBuild > building.TimeToCanBuild)
+                {
+                    returnValue = building;
+                }
+
+            }
+
+            return returnValue;
+
+        }
+
+        public IEnumerable<Building> GetBuildeableBuildings()
+        {
+            return Config.User.Villages.SelectMany(each => each.Buildings).Where(each => BuildOrder.Contains(each.Name) && each.TimeToCanBuild != TimeSpan.Zero).Select(each => each);
+
+        }
+
+
+        public TimeSpan? GetBestTime()
+        {
+            return GetBuildeableBuildings().Select(each => each.TimeToCanBuild).Min();
+        }
         public Process TorProcess { get; set; }
+        public Timer MyTimer { get; set; }
+
+        public void Update(Village village)
+        {
+            Console.WriteLine(DateTime.Now + " Update Village: " + village.Id);
+            village.Update();
+            UpgradeBuildings(village);
+
+        }
+
+        public void UpgradeBuildings(Village village)
+        {
+            IEnumerable<Building> buildingsToUpgrade = default(IEnumerable<Building>);
+            do
+            {
+                buildingsToUpgrade = village.Buildings.Where(each =>
+                {
+
+                    return BuildOrder.Contains(each.Name) & each.IsBuildeable & each.Level < each.MaxLevel;
+                }
+                );
+                if (buildingsToUpgrade != null && buildingsToUpgrade.Count() > 0)
+                {
+                    Console.WriteLine(DateTime.Now + " Building: " + buildingsToUpgrade.First().Name + " in " + village.Id);
+                    village.Build(buildingsToUpgrade.First());
+                    MainPage mainPage = (MainPage)village.Pages.Where(each => each is MainPage).First();
+                    mainPage.Update();
+                    break;
+                }
+            } while (buildingsToUpgrade != default(IEnumerable<Building>) && buildingsToUpgrade.Count() > 0d);
+
+
+
+        }
 
         public FirefoxDriver Driver { get; set; }
         #endregion
@@ -41,11 +117,13 @@ namespace SQLiteApplication.Web
 #if (!DEBUG)
                 options.AddArgument("--headless");
 #endif
-            if (configuration.TorBrowserPath != null)
+            if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
 
             }
+
+
         }
 
         private void ConfigureAdvancedBrowser()
@@ -56,7 +134,7 @@ namespace SQLiteApplication.Web
             {
 
                 TorProcess = new Process();
-                TorProcess.StartInfo.FileName = Config.TorBrowserPath;
+                TorProcess.StartInfo.FileName = Config.User.TorBrowserPath;
                 TorProcess.StartInfo.Arguments = " - n";
                 TorProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
                 TorProcess.Start();
@@ -66,11 +144,9 @@ namespace SQLiteApplication.Web
             profile.SetPreference("network.proxy.type", 1);
             profile.SetPreference("network.proxy.socks", "127.0.0.1");
             profile.SetPreference("network.proxy.socks_port", 9150);
-             profile.SetPreference("general.useragent.override",
-                                   "Mozilla/5.0 (Linux; Android 6.0; HTC One M9 Build/MRA58K) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.98 Mobile Safari/537.36"); 
             options.Profile = profile;
             Console.WriteLine("Starte versteckten Client.");
-            
+
         }
 
         public void Connect()
@@ -78,7 +154,11 @@ namespace SQLiteApplication.Web
             try
             {
                 Driver = new FirefoxDriver(options);
-                Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(2);
+                Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(25);
+                Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
+
+                Console.WriteLine("Starte Timer");
+
                 Driver.Navigate().GoToUrl(urls[0]);
                 IsConnected = true;
             }
@@ -109,7 +189,8 @@ namespace SQLiteApplication.Web
                 try
                 {
                     Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                     Console.WriteLine("Einloggbutton wurde nicht gefunden");
@@ -143,12 +224,14 @@ namespace SQLiteApplication.Web
 
         private double[] GetVillageIds()
         {
+            Sleep();
             GoTo(PathCreator.GetOverview(Config.User.Server.ToString()));
+            Sleep();
             IWebElement trTag = Driver.FindElement(By.XPath("//tr[contains(@class,'nowrap')]"));
 
             IReadOnlyList<IWebElement> elements = trTag.FindElements(By.XPath("//span[@class='quickedit-vn']"));
             double[] dArray = new double[elements.Count];
-            for(int i = 0; i < dArray.Length; i++)
+            for (int i = 0; i < dArray.Length; i++)
             {
                 dArray[i] = double.Parse(elements[i].GetAttribute("data-id"));
             }
@@ -168,8 +251,8 @@ namespace SQLiteApplication.Web
 
         public void GoTo(string url)
         {
-           Driver.GoTo(url);
+            Driver.GoTo(url);
         }
-       
+
     }
 }

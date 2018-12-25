@@ -7,6 +7,7 @@ using Newtonsoft.Json;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 
 namespace SQLiteApplication
@@ -29,15 +30,7 @@ namespace SQLiteApplication
         public Dictionary<string, int> MaxBuildings { get; set; }
         public double Id { get; set; }
         public double ServerId { get; set; }
-        public double Wood { get; set; }
-        public double Stone { get; set; }
-        public double Iron { get; set; }
-        public double WoodProduction { get; set; }
-        public double IronProduction { get; set; }
-        public double StoneProduction { get; set; }
-        public double StorageMax { get; set; }
-        public double Population { get; set; }
-        public double MaxPopulation { get; set; }
+        public ResourcesManager Manager { get; set; }
         public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
         public int HaendlerCount { get; set; }
         public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
@@ -54,13 +47,13 @@ namespace SQLiteApplication
         #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
-            if (wood > Wood || stone > Stone || iron > Iron || Population + population > MaxPopulation)
+            if (wood > Manager.Wood || stone > Manager.Stone || iron > Manager.Iron || Manager.Population + population > Manager.MaxPopulation)
             {
                 return false;
             }
-            Wood -= wood;
-            Stone -= stone;
-            Iron -= iron;
+            Manager.Wood -= wood;
+            Manager.Stone -= stone;
+            Manager.Iron -= iron;
             return true;
         }
         public bool CanConsume(Unit unit)
@@ -89,8 +82,8 @@ namespace SQLiteApplication
 
         public override string ToString()
         {
-            return $"Wood: {Wood}, Stone:  {Stone}, Iron: {Iron}, {Buildings} " +
-                $"\nWood Production: {WoodProduction}, Stone Production: {StoneProduction}, Iron Production: {IronProduction}";
+            return $"Wood: {Manager.Wood}, Stone:  {Manager.Stone}, Iron: {Manager.Iron}, {Buildings} " +
+                $"\nWood Production: {Manager.WoodProduction}, Stone Production: {Manager.StoneProduction}, Iron Production: {Manager.IronProduction}";
         }
 
         public void Build(string name)
@@ -120,6 +113,50 @@ namespace SQLiteApplication
 
             }
         }
+
+        public override bool Equals(object obj)
+        {
+            var village = obj as Village;
+            if(village != null)  
+                return village.Id == this.Id;
+            
+            return false;
+        }
+
+        public Dictionary<string, double> GetMissingRessourcesForBuilding(Building building)
+        {
+            string[] ressis = { "Wood", "Stone", "Iron" };
+            Dictionary<string, double> resDictionary = new Dictionary<string, double>();
+
+            foreach(var res in ressis)
+            {
+                double buildingValue = (double) building.GetType().GetProperty(res).GetValue(building);
+                double villageValue = (double)this.GetType().GetProperty(res).GetValue(this);
+                double diff = buildingValue - villageValue;
+                if (diff > 0)
+                    resDictionary.Add(res, diff);
+            }
+            return resDictionary;
+
+
+        }
+
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
+
+        public static bool operator ==(Village village1, Village village2)
+        {
+            return EqualityComparer<Village>.Default.Equals(village1, village2);
+        }
+
+        public static bool operator !=(Village village1, Village village2)
+        {
+            return !(village1 == village2);
+        }
+
+
 
         #endregion
     }

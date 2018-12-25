@@ -73,7 +73,7 @@ namespace SQLiteApplication.Web
 
         public static string GetOverview(string serverId)
         {
-            return $"https://de{serverId}.die-staemme.de/game.php?screen=overview_villages";
+            return $"https://de{serverId}.die-staemme.de/game.php?&screen=overview_villages&mode=combined";
         }
 
         public static string GetLogout(string serverId)

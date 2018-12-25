@@ -10,7 +10,7 @@ namespace SQLiteApplication.UserData
         public string Name { get; set; }
         public string Password { get; set; }
         public int Server { get; set; }
-
+        public String TorBrowserPath { get; set; }
         public bool HasFarmmanager { get; set; }
 
         public override string ToString()

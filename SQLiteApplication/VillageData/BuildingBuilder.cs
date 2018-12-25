@@ -81,5 +81,12 @@ namespace SQLiteApplication
             }
             return this;
         }
+
+        internal BuildingBuilder WithVillage(Village village)
+        {
+            instance.Village = village;
+            return this;
+
+        }
     }
 }

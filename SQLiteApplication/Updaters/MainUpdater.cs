@@ -1,4 +1,5 @@
 ﻿using OpenQA.Selenium.Firefox;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
@@ -41,19 +42,20 @@ namespace SQLiteApplication.Tools
         private void UpdateRessources()
         {
             var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
+            ResourcesManager manager = new ResourcesManager();
 
-            village.Wood = (Int64)villageData["wood"];
-            village.Iron = (Int64)villageData["iron"];
-            village.Stone = (Int64)villageData["stone"];
-            village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
-            village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
-            village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
-            village.StorageMax = (Int64)villageData["storage_max"];
-            village.Population = (Int64)villageData["pop"];
-            village.MaxPopulation = (Int64)villageData["pop_max"];
+            manager.Wood = (Int64)villageData["wood"];
+            manager.Iron = (Int64)villageData["iron"];
+            manager.Stone = (Int64)villageData["stone"];
+            manager.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
+            manager.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
+            manager.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
+            manager.StorageMax = (Int64)villageData["storage_max"];
+            manager.Population = (Int64)villageData["pop"];
+            manager.MaxPopulation = (Int64)villageData["pop_max"];
             village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
-
+            village.Manager = manager;
         }
 
         private ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
@@ -86,6 +88,7 @@ namespace SQLiteApplication.Tools
                                 .WithMaxLevel((Int64)dictionary["max_level"])
                                 .WithBuildeable(text == null)
                                 .WithBuildingTime(timeSpan)
+                                .WithVillage(village)
                                 .Build());
 
                 }
@@ -104,7 +107,7 @@ namespace SQLiteApplication.Tools
 
         private static TimeSpan? GetTimeToBuild(string text, TimeSpan? timeSpan)
         {
-            if (text.Length > 1 && text.Contains("Genug") && text.Contains("um"))
+            if (text.Length > 1 && text.Contains("Genug") && text.Contains("um") && !text.Contains("am"))
             {
                 var date = text.Split(' ')[4];
 
@@ -119,6 +122,16 @@ namespace SQLiteApplication.Tools
                     var b = text.Split(' ')[7];
                 }
                 timeSpan = dateTime - nowTime;
+            }else if (text.Contains("am"))
+            {
+                var strArray = text.Split(' ');
+                var uhrzeit = TimeSpan.Parse(strArray[5]);
+
+                var date = DateTime.Today.AddDays(2).Add(uhrzeit);
+                timeSpan = date - DateTime.Now;
+
+
+
             }
 
             return timeSpan;
