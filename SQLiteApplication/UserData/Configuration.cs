@@ -16,7 +16,9 @@ namespace SQLiteApplication.UserData
         public bool Farm { get; set; }
         public bool Trade {get; set;}
         public int TimeToWait{get; set;}
-        
+        public static int MinimumTimeToWait { get; set; } = 5;
+        public static int MaximumTimeToWait { get; set; } = 10;
+
         public Configuration()
         {
 

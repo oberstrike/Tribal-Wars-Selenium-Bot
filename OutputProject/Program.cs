@@ -18,8 +18,8 @@ namespace OutputProject
             1. Exceptionhandling Outsourcen
             2. Firefox window am Ende nicht schließen, sondern nur ausloggen und auf google gehen.
             3. Neue Configurationsmöglichkeiten:
-                - Farm/Ausbauen ein und ausstellen 
-                - Buildorder als String array darstellen
+                - Farm/Ausbauen ein und ausstellen (CHECK)
+                - Buildorder als String array darstellen (CHECK)
                 - Wartezeiten zwischen den Aktionen
         */
 

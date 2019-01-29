@@ -12,25 +12,21 @@ namespace SQLiteApplication.UserData
 {
     public class ConfigurationManager
     {
-        public Configuration Configuration { get; set; }
+        public Configuration Configuration { get; set; } = new Configuration();
 
         public string Path { get; set; }
 
         public ConfigurationManager(string path)
         {
             Path = path;
-     //       Console.WriteLine(path);
-     //       Console.Read();
             Init();
 
         }
 
         private void Init()
         {
-
             try
             {
-       //         Console.WriteLine( File.Exists(Path) );
                 using (var file = File.OpenText(Path))
                 {
                     using (var reader = new JsonTextReader(file))

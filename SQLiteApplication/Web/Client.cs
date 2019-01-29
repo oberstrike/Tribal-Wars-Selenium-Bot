@@ -22,8 +22,8 @@ namespace SQLiteApplication.Web
         #region STATIC
         public static void Sleep()
         {
-            var random = new Randomizer();
-            var delay = (random.Next(3, 11) * 1000) + random.Next(1, 13) * 19;
+            Randomizer random = new Randomizer();
+            int delay = (random.Next(Configuration.MinimumTimeToWait, Configuration.MaximumTimeToWait) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
@@ -119,10 +119,7 @@ namespace SQLiteApplication.Web
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
-
             }
-
-
         }
         private void ConfigureAdvancedBrowser()
         {
@@ -148,7 +145,6 @@ namespace SQLiteApplication.Web
         }
         public void Connect()
         {
-
             try
             {
                 Driver = GetFirefoxDriver();
