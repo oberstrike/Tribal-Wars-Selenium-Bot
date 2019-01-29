@@ -51,7 +51,12 @@ namespace SQLiteApplication.Page
             }
             Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen.");
 
-            NormalAttack(aCount);
+            if(Village.FarmingVillages != null)
+            {
+                if(Village.FarningVillages.Length > 0)
+                     NormalAttack(aCount);
+            }
+           
 
         }
 
@@ -73,16 +78,10 @@ namespace SQLiteApplication.Page
                 attackCount++;
                 vorhandene -= count;
             }
-            Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen");
+            if(attackCount > 0)
+                Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen");
         }
 
-        private void PressNextAttack()
-        {
-            IWebElement btn = Village.Driver.FindElement(By.XPath("(//a[contains(@class, ' farm_icon farm_icon_a')])[1]"));
-            string script = btn.GetAttribute("onclick");
-            Village.Driver.ExecuteScript(script);
-            Village.Driver.Navigate().Refresh();
-        }
         public void Attack(string target, Dictionary<Unit, int> pk)
         {
             Client.Print($"{DateTime.Now}: {Village.Name} greift {target} an.");
