@@ -12,6 +12,22 @@ namespace OutputProject
     {
         public static List<string> buildOrder = new List<string>() { "snob" };
 
+        
+        /*
+        Neue Anforderungen:
+            1. Exceptionhandling Outsourcen
+            2. Firefox window am Ende nicht schließen, sondern nur ausloggen und auf google gehen.
+            3. Neue Configurationsmöglichkeiten:
+                - Farm/Ausbauen ein und ausstellen 
+                - Buildorder als String array darstellen
+                - Wartezeiten zwischen den Aktionen
+  
+  
+        
+        
+        
+        */
+        
         public static void Main(string[] args)
         {
             Configuration config = new ConfigurationManager(@"Config.json").Configuration;
