@@ -12,7 +12,7 @@ namespace OutputProject
     {
         public static List<string> buildOrder = new List<string>() { "snob" };
 
-        
+
         /*
         Neue Anforderungen:
             1. Exceptionhandling Outsourcen
@@ -22,7 +22,7 @@ namespace OutputProject
                 - Buildorder als String array darstellen
                 - Wartezeiten zwischen den Aktionen
         */
-        
+
         public static void Main(string[] args)
         {
             Configuration config = new ConfigurationManager(@"Config.json").Configuration;
@@ -70,19 +70,20 @@ namespace OutputProject
                 }
                 catch (Exception e)
                 {
-                    errorCount++;
-                    Client.Print(e.Message);
-                    Client.Print(e.Source);
-                    SendEmail(e.Message);
-                    try
+                    if (e.Message.Contains("SecurityError"))
                     {
-                        client.Close();
+                        SendEmail(e.Message);
+                        return;
                     }
-                    catch
+                    else if (e.Message.Contains("imeout") | e.Message.Contains("Tried to run"))
                     {
-
+                        Client.Print("Upps there was a mistake.");
+                        Client.Print(e.Message);
                     }
-                    Console.ReadLine();
+                    else
+                    {
+                        Client.Print(e.Message);
+                    }
                 }
 
             }

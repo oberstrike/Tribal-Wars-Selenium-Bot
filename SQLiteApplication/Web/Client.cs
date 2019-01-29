@@ -115,7 +115,7 @@ namespace SQLiteApplication.Web
             Config = configuration;
 
             firefoxOptions = new FirefoxOptions();
-            //        firefoxOptions.AddArgument("--headless");
+            firefoxOptions.AddArgument("--headless");
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -191,7 +191,7 @@ namespace SQLiteApplication.Web
                     Console.WriteLine(e.Message);
                 }
 
-                if (count++ > 4)
+                if (count++ > 1)
                     break;
             }
             return webDriver;

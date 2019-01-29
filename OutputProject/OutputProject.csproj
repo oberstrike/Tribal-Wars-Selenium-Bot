@@ -56,9 +56,9 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQLiteApplication\SQLiteApplication.csproj">
+    <ProjectReference Include="..\SQLiteApplication\TWLibrary.csproj">
       <Project>{4afec5d3-0290-4408-8a3c-1cd5bcc3ee80}</Project>
-      <Name>SQLiteApplication</Name>
+      <Name>TWLibrary</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

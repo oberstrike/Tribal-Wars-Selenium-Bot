@@ -6,7 +6,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProjectGuid>{4AFEC5D3-0290-4408-8A3C-1CD5BCC3EE80}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>SQLiteApplication</RootNamespace>
+    <RootNamespace>TWLibrary</RootNamespace>
     <AssemblyName>TWLibrary</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
