@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -18,14 +19,18 @@ namespace SQLiteApplication.UserData
         public ConfigurationManager(string path)
         {
             Path = path;
+     //       Console.WriteLine(path);
+     //       Console.Read();
             Init();
 
         }
 
         private void Init()
         {
+
             try
             {
+       //         Console.WriteLine( File.Exists(Path) );
                 using (var file = File.OpenText(Path))
                 {
                     using (var reader = new JsonTextReader(file))
@@ -38,8 +43,8 @@ namespace SQLiteApplication.UserData
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Die Config wurde nicht gefunden.");
+                Client.Print(e.Message);
+                Client.Print("Die Config wurde nicht gefunden.");
                 File.Create(Path);
                 return;
             }

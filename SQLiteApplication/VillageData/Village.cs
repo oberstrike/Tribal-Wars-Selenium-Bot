@@ -1,6 +1,8 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
+using SQLiteApplication.UserData;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
@@ -11,17 +13,24 @@ namespace SQLiteApplication
 {
     public sealed class Village
     {
-        public Village(double id, double serverId, FirefoxDriver driver)
+        public Village(double id, double serverId, IWebDriver driver, User user )
         {
             Id = id;
             ServerId = serverId;
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
+            MyUser = user;
+            Pages =  new List<AbstractPage>() { };
         }
+
+        public static List<string> buildOrder = new List<string>() { "wood","stone","iron"};
+
+
         #region PROPERTIES    
-        public List<AbstractPage> Pages => new List<AbstractPage>() { new MainPage(Driver, this), new MarketPage(Driver, this) };
+        public User MyUser { get; set; }
+        public List<AbstractPage> Pages { get; set; } 
         public ICollection<Building> Buildings { get; set; }
-        public FirefoxDriver Driver { get; set; }
+        public IWebDriver Driver { get; set; }
         public Dictionary<string, int> MaxBuildings { get; set; }
         public double Id { get; set; }
         public double ServerId { get; set; }
@@ -38,12 +47,23 @@ namespace SQLiteApplication
         public PathCreator pathCreator { get; set; }
         public string Csrf { get; internal set; }
         public string Coordinates { get; set; }
+        public string Name { get; set; }
+        public string[] FarmingVillages { get; set; }
         #endregion
 
         #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
             return RManager.CanConsume(wood, stone, iron, population);
+        }
+
+        public Building GetNextBuilding()
+        {
+            var buildings = GetBuildingsInBuildOrder().OrderBy(each => !each.IsBuildeable);
+            if (buildings.Count() > 0)
+                return buildings.First();
+            else
+                return null;
         }
 
         public bool CanConsume(Unit unit)
@@ -77,10 +97,18 @@ namespace SQLiteApplication
         }
         public void Build(Building building)
         {
-            MainPage page = Pages.Where(each => each is MainPage).First() as MainPage;
-            Driver.GoTo(page.URL);
-            page.Build(building);
-            Client.Sleep();
+            int queueCount = BuildingsInQueue.Count();
+            int maxQueueCount = MyUser.IsPremium ? 4 : 2;
+
+            if(queueCount < maxQueueCount)
+            {
+                MainPage page = Pages.Where(each => each is MainPage).First() as MainPage;
+                Driver.GoTo(page.URL);
+                page.Build(building);
+                Client.Sleep();
+                Client.Print(DateTime.Now + " " + building.Name + " wird in " + Id + " ausgebaut");
+            }
+
         }
 
         public void Train(Dictionary<Unit, double> units)
@@ -94,21 +122,39 @@ namespace SQLiteApplication
             }
         }
 
-        public void SendRessourceToVillage(Dictionary<string, double> resources, Village village)
+        public bool SendRessourceToVillage(Dictionary<string, double> resources, Village village)
         {
-            MarketPage page = Pages.Select(each => each as MarketPage).First();
-            var wood = resources["Wood"];
-            var stone = resources["Stone"];
-            var iron = resources["Iron"];
+            MarketPage page = Pages.Where(each => each is MarketPage).First() as MarketPage;
+            double wood = 0;
+            double stone = 0;
+            double iron = 0;
+
+            if(resources.ContainsKey("Wood"))
+                wood = resources["Wood"];
+            if (resources.ContainsKey("Stone"))
+                stone = resources["Stone"];
+            if (resources.ContainsKey("Iron"))
+                iron = resources["Iron"];
             var traders = Math.Round((wood + stone + iron)/1000 + 0.5);
 
             if(wood < RManager.Wood && stone < RManager.Stone && iron < RManager.Iron && TManager.AvailableTraders >= traders)
             {
-                page.SendRessource(resources["Wood"], resources["Stone"], resources["Iron"], village.Coordinates);
-                page.Update();
+                return page.SendRessource(wood, stone, iron, village.Coordinates);
             }
+            return false;
+        }
+
+        public IEnumerable<Building> GetBuildingsInBuildOrder()
+        {
+            return Buildings.Where(each => {
+                return buildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
+            }).Select(each =>
+            {
+                return each;
+            });
 
         }
+
         #endregion
 
         #region OPERATORS

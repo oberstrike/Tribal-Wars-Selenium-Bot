@@ -28,19 +28,34 @@ namespace SQLiteApplication.VillageData
             MyVillage = village;
         }
 
-        public void GetMissingRessourcesForBuilding(Building building)
+        public void GetMissingRessourcesForBuildings(IEnumerable<Building> buildings)
         {
             string[] ressis = { "Wood", "Stone", "Iron" };
             Dictionary<string, double> resDictionary = new Dictionary<string, double>();
 
             foreach (var res in ressis)
             {
-                double buildingValue = (double)building.GetType().GetProperty(res).GetValue(building);
+                double buildingValue = GetHighestRessourceCostForBuildings(buildings, res);
                 double villageValue = (double)this.GetType().GetProperty(res).GetValue(this);
                 double diff = villageValue - buildingValue;
                 this.GetType().GetProperty($"Unused{res}").SetValue(this, diff);
             }
         }
+
+        private double GetHighestRessourceCostForBuildings(IEnumerable<Building> buildings, string ressource)
+        {
+            if (buildings.Count() == 0)
+                throw new ArgumentOutOfRangeException("Die Anzahl an zu überprüfenden Gebäude darf nicht \"0\" sein");
+            double highestValue = (double)buildings.ElementAt(0).GetType().GetProperty(ressource).GetValue(buildings.ElementAt(0));
+            for (int i = 1; i < buildings.Count(); i++)
+            {
+                double value = (double)buildings.ElementAt(i).GetType().GetProperty(ressource).GetValue(buildings.ElementAt(i));
+                if (value > highestValue)
+                    highestValue = value;
+            }
+            return highestValue;
+        }
+
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
             if (wood > Wood || stone > Stone || iron > Iron || Population + population > MaxPopulation)

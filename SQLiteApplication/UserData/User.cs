@@ -13,6 +13,8 @@ namespace SQLiteApplication.UserData
         public String TorBrowserPath { get; set; }
         public bool HasFarmmanager { get; set; }
 
+        public bool IsPremium { get; set; } = false;
+
         public override string ToString()
         {
             return $"Name: {Name}, Server: {Server}";

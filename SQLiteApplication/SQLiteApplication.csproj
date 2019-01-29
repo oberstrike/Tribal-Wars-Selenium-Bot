@@ -15,7 +15,7 @@
     </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
+    <PlatformTarget>x86</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
@@ -64,18 +64,20 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Page\BarracksPage.cs" />
+    <Compile Include="Page\FarmassistPage.cs" />
     <Compile Include="Page\MainPage.cs" />
     <Compile Include="Page\MarketPage.cs" />
     <Compile Include="Page\PlacePage.cs" />
-    <Compile Include="Page\SmithPage.cs" />
     <Compile Include="Tools\AbstractBuildingPage.cs" />
     <Compile Include="Tools\AbstractPage.cs" />
     <Compile Include="Tools\Enums.cs" />
+    <Compile Include="Tools\Factory.cs" />
+    <Compile Include="Tools\IPlugin.cs" />
     <Compile Include="Tools\IUpdater.cs" />
+    <Compile Include="Updaters\FarmassistUpdater.cs" />
     <Compile Include="Updaters\MainUpdater.cs" />
     <Compile Include="Updaters\MarketUpdater.cs" />
     <Compile Include="Updaters\MovementUpdater.cs" />
-    <Compile Include="Updaters\SmithUpdater.cs" />
     <Compile Include="Updaters\TroopUpdater.cs" />
     <Compile Include="UserData\ConfigurationManager.cs" />
     <Compile Include="UserData\User.cs" />
@@ -92,7 +94,9 @@
     <Compile Include="Web\PathCreator.cs" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="App.config" />
+    <None Include="App.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup />
@@ -104,6 +108,8 @@
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\Selenium.Chrome.WebDriver.2.45\build\Selenium.Chrome.WebDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.Chrome.WebDriver.2.45\build\Selenium.Chrome.WebDriver.targets'))" />
     <Error Condition="!Exists('..\packages\Selenium.WebDriver.GeckoDriver.0.23.0.3\build\Selenium.WebDriver.GeckoDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.GeckoDriver.0.23.0.3\build\Selenium.WebDriver.GeckoDriver.targets'))" />
+    <Error Condition="!Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.45.0\build\Selenium.WebDriver.ChromeDriver.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Selenium.WebDriver.ChromeDriver.2.45.0\build\Selenium.WebDriver.ChromeDriver.targets'))" />
   </Target>
   <Import Project="..\packages\Selenium.WebDriver.GeckoDriver.0.23.0.3\build\Selenium.WebDriver.GeckoDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.GeckoDriver.0.23.0.3\build\Selenium.WebDriver.GeckoDriver.targets')" />
+  <Import Project="..\packages\Selenium.WebDriver.ChromeDriver.2.45.0\build\Selenium.WebDriver.ChromeDriver.targets" Condition="Exists('..\packages\Selenium.WebDriver.ChromeDriver.2.45.0\build\Selenium.WebDriver.ChromeDriver.targets')" />
 </Project>

@@ -11,21 +11,19 @@ namespace SQLiteApplication.Page
 {
     public class MainPage : AbstractPage
     {
-        public MainPage(FirefoxDriver driver, Village village) : base(driver, village)
+        public MainPage(Village village) : base(village)
         {
 
         }
 
         public override string URL => Village.pathCreator.GetMain();
-
-
         public override List<IUpdater> Updaters => new List<IUpdater>() { new MainUpdater() };
 
         public void Build(Building building)
         {
             if (Village.CanConsume(building))
             {
-                Driver.ExecuteScript($"BuildingMain.build(\"{building.Name}\")");
+                Village.Driver.ExecuteScript($"BuildingMain.build(\"{building.Name}\")");
                 Client.Sleep();
             }
 

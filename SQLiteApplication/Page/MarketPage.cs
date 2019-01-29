@@ -6,15 +6,18 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SQLiteApplication.Page
 {
     class MarketPage : AbstractBuildingPage
     {
-        public MarketPage(FirefoxDriver driver, Village village) : base(driver, village)
-        {
+        public IWebDriver Driver { get; set; }
 
+        public MarketPage(Village village) : base(village)
+        {
+            Driver = village.Driver;
         }
 
 
@@ -24,9 +27,10 @@ namespace SQLiteApplication.Page
 
         public override string URL => Village.pathCreator.GetMarketModeSend();
 
-        public void SendRessource(double wood, double stone, double iron, string targetCoordinates)
+        public bool SendRessource(double wood, double stone, double iron, string targetCoordinates)
         {
             Driver.GoTo(URL);
+            Client.Sleep();
 
             var woodInput = Driver.FindElement(By.XPath("//input[@name='wood']"));
             var stoneInput = Driver.FindElement(By.XPath("//input[@name='stone']"));
@@ -37,13 +41,20 @@ namespace SQLiteApplication.Page
             if (Village.CanConsume(wood, stone, iron, 0))
             {
                 woodInput.SendKeys(wood.ToString());
+                Task.Delay(750).Wait();
                 stoneInput.SendKeys(stone.ToString());
+                Task.Delay(750).Wait();
                 ironInput.SendKeys(iron.ToString());
+                Task.Delay(750).Wait();
                 targetInput.SendKeys(targetCoordinates);
+                Task.Delay(1500).Wait();
             }
-            Client.Sleep();
             btn.Click();
             Client.Sleep();
+            btn = Driver.FindElement(By.XPath("//input[@value='OK']"));
+            btn.Click();
+            Client.Print($"{wood} wood, {stone} stone, {iron} iron an {targetCoordinates} gesendet.");
+            return true;
         }
 
        

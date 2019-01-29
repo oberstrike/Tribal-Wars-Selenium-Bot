@@ -12,7 +12,7 @@ namespace SQLiteApplication.Tools
 
         public abstract string BUILDING { get; }
 
-        public AbstractBuildingPage(FirefoxDriver driver, Village village) : base(driver, village)
+        public AbstractBuildingPage(Village village) : base(village)
         {
 
         }

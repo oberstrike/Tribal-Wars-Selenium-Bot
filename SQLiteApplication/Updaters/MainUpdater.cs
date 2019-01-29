@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
@@ -12,23 +13,42 @@ namespace SQLiteApplication.Tools
     public class MainUpdater : IUpdater
     {
         private Village village;
-        private FirefoxDriver driver;
+        private IWebDriver driver;
 
-        public void Update( FirefoxDriver driver, Village village)
+        public void Update(Village village)
         {
             this.village = village;
-            this.driver = driver;
+            driver = village.Driver;
             UpdateBuildingQueue();
             UpdateRessources();
+            UpdateBuildings();
 
         }
 
+        private void UpdateBuildings()
+        {
+            var building = default(Building);
+            do
+            {
+                building = village.GetNextBuilding();
+                if(building == null)
+                    return;
+                if (!building.IsBuildeable)
+                    return;
+                
+                village.Build(building);
+                UpdateRessources();
+                Client.Sleep();
+
+            } while (building != null);
+
+        }
 
         private void UpdateBuildingQueue()
         {
   
-            var timeElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
-            var nameElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
+            var timeElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//span")).Select(x => TimeSpan.Parse(x.Text));
+            var nameElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//img")).Select(x => x.GetAttribute("title"));
 
             village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
 
@@ -42,26 +62,25 @@ namespace SQLiteApplication.Tools
         private void UpdateRessources()
         {
             var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
+ 
+
+
             ResourcesManager manager = new ResourcesManager(village);
 
-            manager.Wood = (Int64)villageData["wood"];
-            manager.Iron = (Int64)villageData["iron"];
-            manager.Stone = (Int64)villageData["stone"];
+            manager.Wood = (long)villageData["wood"];
+            manager.Iron = (long)villageData["iron"];
+            manager.Stone = (long)villageData["stone"];
             manager.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
             manager.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
             manager.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
-            manager.StorageMax = (Int64)villageData["storage_max"];
-            manager.Population = (Int64)villageData["pop"];
-            manager.MaxPopulation = (Int64)villageData["pop_max"];
+            manager.StorageMax = (long)villageData["storage_max"];
+            manager.Population = (long)villageData["pop"];
+            manager.MaxPopulation = (long)villageData["pop_max"];
             village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
             village.RManager = manager;
             village.Coordinates = (string) villageData["coord"];
-
-            foreach(var building in village.Buildings)
-            {
-                village.RManager.GetMissingRessourcesForBuilding(building);
-            }
+           
         }
 
         private ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
@@ -100,9 +119,9 @@ namespace SQLiteApplication.Tools
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.Source);
-                    Console.WriteLine(key + " wurde nicht gefunden");
+                    Client.Print(e.Message);
+                    Client.Print(e.Source);
+                    Client.Print(key + " wurde nicht gefunden");
                 }
 
 
