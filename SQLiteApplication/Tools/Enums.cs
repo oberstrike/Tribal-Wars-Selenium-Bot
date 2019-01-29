@@ -31,7 +31,7 @@ namespace SQLiteApplication.Tools
             while (n > 1)
             {
                 n--;
-                int k = new Random().Next(n + 1);
+                int k = new Randomzier().Next(0, n + 1);
                 T value = list[k];
                 list[k] = list[n];
                 list[n] = value;
