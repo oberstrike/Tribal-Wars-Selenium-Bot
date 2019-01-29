@@ -12,9 +12,9 @@ namespace SQLiteApplication.Tools
 {
     public static class Factory
     {
-        public static Village GetVillage(double id, double serverId, IWebDriver driver, User user)
+        public static Village GetVillage(double id, double serverId, IWebDriver driver, User user, string[] buildOrder)
         {
-            return new Village(id, serverId, driver, user);
+            return new Village(id, serverId, driver, user, buildOrder);
         }
 
         public static Client GetAdvancedClient(Configuration config)
