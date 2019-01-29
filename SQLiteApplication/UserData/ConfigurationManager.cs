@@ -43,13 +43,30 @@ namespace SQLiteApplication.UserData
             }
             catch(Exception e)
             {
-                Client.Print(e.Message);
                 Client.Print("Die Config wurde nicht gefunden.");
-                File.Create(Path);
+                Client.Print(e.Message);
+                SaveConfigFile(Configuration);
                 return;
             }
 
         }
+        
+        public void SaveConfigFile(Configuration config)
+        {
+            var json = JsonConvert.SerializeObject(config);
+
+            using (StreamWriter file = File.CreateText(Path))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, config);
+                Client.Print("Config wurde erstellt.");
+            }
+
+
+
+
+        }
+        
 
     }
 }
