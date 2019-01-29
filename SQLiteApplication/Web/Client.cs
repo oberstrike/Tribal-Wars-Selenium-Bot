@@ -233,7 +233,7 @@ namespace SQLiteApplication.Web
                     
                     Config.User.IsPremium = userData;
 
-                    Config.User.Villages = GetVillages();
+                    Config.User.Villages = FindVillagesInOverviewPage();
                 }
                 IsLoggedIn = true;
 
@@ -241,7 +241,7 @@ namespace SQLiteApplication.Web
             }
 
         }
-        internal virtual List<Village> GetVillages()
+        internal virtual List<Village> FindVillagesInOverviewPage()
         {
             KeyValuePair<double[], string[]> keyValuePair = GetVillageIds();
             double[] ids = keyValuePair.Key;
@@ -251,7 +251,7 @@ namespace SQLiteApplication.Web
            
             for (int i = 0; i < ids.Length; i++)
             {
-                Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User);
+                Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User, Config.BuildOrder);
                 village.Name = names[i];
                 village.FarmingVillages = Config.FarmingVillages;
                 villages.Add(village);
