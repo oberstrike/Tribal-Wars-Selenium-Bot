@@ -82,13 +82,13 @@ namespace SQLiteApplication.Page
                 Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen");
         }
 
-        public void Attack(string target, Dictionary<Unit, int> pk)
+        public void Attack(string target, Dictionary<Unit, int> unitAndCount)
         {
             Client.Print($"{DateTime.Now}: {Village.Name} greift {target} an.");
 
             Village.Driver.GoTo(Village.pathCreator.GetAttackLink(target));
             Thread.Sleep(1250);
-            foreach (KeyValuePair<Unit, int> kvp in pk)
+            foreach (KeyValuePair<Unit, int> kvp in unitAndCount)
             {
                 Village.Driver.FindElement(By.Id("unit_input_" + kvp.Key.ToString().ToLower())).SendKeys(kvp.Value.ToString());
                 Thread.Sleep(1250);
