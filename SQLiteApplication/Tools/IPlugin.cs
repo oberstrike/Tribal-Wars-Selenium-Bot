@@ -13,13 +13,23 @@ namespace SQLiteApplication.Tools
 
     }
 
+        public class PluginCouldntLoadException : Exception
+    {
+        public PluginCouldntLoadException(Type type) : base($"Das Plugin {type.Name} konnte nicht getsartet werden.")
+        {
+        
+        }
+
+    }
+    
     public class TradingPlugin : IPlugin
     {
         public void Compute(Client client)
         {
             foreach(var village in client.Config.User.Villages)
             {
-                if (village.Pages.Where(each => each is MarketPage).Count() == 0) village.Pages.Add(new MarketPage(village));
+                 if (village.Pages.Where(each => each is MarketPage).Count() == 0)             
+                    throw new PluginCouldntLoadException(this.GetType());
                 village.RManager.GetMissingRessourcesForBuildings(village.GetBuildingsInBuildOrder());
 
             }
