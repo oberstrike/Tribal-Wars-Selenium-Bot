@@ -13,17 +13,15 @@ namespace SQLiteApplication
 {
     public sealed class Village
     {
-        public Village(double id, double serverId, IWebDriver driver, User user )
+        public Village(double id, double serverId, IWebDriver driver, User user, string[] buildOrder )
         {
             Id = id;
             ServerId = serverId;
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
             MyUser = user;
-            Pages =  new List<AbstractPage>() { };
+            BuildOrder = buildOrder;
         }
-
-        public static List<string> buildOrder = new List<string>() { "wood","stone","iron"};
 
 
         #region PROPERTIES    
@@ -40,10 +38,8 @@ namespace SQLiteApplication
         public ICollection<TroupMovement> OutcomingTroops { get; set; }
         public Dictionary<string, object> Technologies { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
-        public IList<string> GetAttackedVillages()
-        {
-            return OutcomingTroops.Select(x => x.TargetId).ToList();
-        }
+        public string[] BuildOrder {get; set;}
+        public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
         public PathCreator pathCreator { get; set; }
         public string Csrf { get; internal set; }
         public string Coordinates { get; set; }
@@ -147,7 +143,7 @@ namespace SQLiteApplication
         public IEnumerable<Building> GetBuildingsInBuildOrder()
         {
             return Buildings.Where(each => {
-                return buildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
+                return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
             }).Select(each =>
             {
                 return each;
