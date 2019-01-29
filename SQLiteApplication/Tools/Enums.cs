@@ -1,6 +1,7 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Web;
+using SQLiteApplication.Tools.Randomizer;
 using System;
 using System.Collections.Generic;
 
@@ -31,7 +32,7 @@ namespace SQLiteApplication.Tools
             while (n > 1)
             {
                 n--;
-                int k = new Randomzier().Next(0, n + 1);
+                int k = new Randomizer().Next(0, n + 1);
                 T value = list[k];
                 list[k] = list[n];
                 list[n] = value;
