@@ -22,7 +22,8 @@ namespace SQLiteApplication.Web
         #region STATIC
         public static void Sleep()
         {
-            var delay = (new Random().Next(3, 11) * 1000) + new Random().Next(1, 13) * 19;        
+            var random = new Randomizer();
+            var delay = (random.Next(3, 11) * 1000) + random.Next(1, 13) * 19;        
             Task.Delay(delay).Wait();
         }
 
