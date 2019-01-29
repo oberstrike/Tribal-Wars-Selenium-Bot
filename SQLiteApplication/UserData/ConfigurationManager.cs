@@ -1,5 +1,6 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -11,7 +12,7 @@ namespace SQLiteApplication.UserData
 {
     public class ConfigurationManager
     {
-        public Configuration Configuration { get; set; }
+        public Configuration Configuration { get; set; } = new Configuration();
 
         public string Path { get; set; }
 
@@ -38,13 +39,30 @@ namespace SQLiteApplication.UserData
             }
             catch(Exception e)
             {
-                Console.WriteLine(e.Message);
-                Console.WriteLine("Die Config wurde nicht gefunden.");
-                File.Create(Path);
+                Client.Print("Die Config wurde nicht gefunden.");
+                Client.Print(e.Message);
+                SaveConfigFile(Configuration);
                 return;
             }
 
         }
+        
+        public void SaveConfigFile(Configuration config)
+        {
+            var json = JsonConvert.SerializeObject(config);
+
+            using (StreamWriter file = File.CreateText(Path))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, config);
+                Client.Print("Config wurde erstellt.");
+            }
+
+
+
+
+        }
+        
 
     }
 }

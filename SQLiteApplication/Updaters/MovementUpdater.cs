@@ -12,13 +12,13 @@ namespace SQLiteApplication.Tools
     class MovementUpdater : IUpdater
     {
 
-        public void Update(FirefoxDriver driver, Village village)
+        public void Update(Village village)
         {
             string tr_Class = "command-row";
             Client.Sleep();
             try
             {
-                var rows = driver.FindElement(By.Id("commands_outgoings")).FindElements(By.ClassName(tr_Class));
+                var rows = village.Driver.FindElement(By.Id("commands_outgoings")).FindElements(By.ClassName(tr_Class));
                 ICollection<TroupMovement> movements = new List<TroupMovement>();
 
                 foreach (var row in rows)
@@ -34,23 +34,27 @@ namespace SQLiteApplication.Tools
 
                 foreach (var movement in movements)
                 {
-                    var d = driver.FindElement(By.CssSelector($".quickedit-out[data-id='{movement.MovementId}']"));
+                    var d = village.Driver.FindElement(By.CssSelector($".quickedit-out[data-id='{movement.MovementId}']"));
 
 
                     if (movements.Where(move => move.MovementId == d.GetAttribute("")).Count() == 0)
                     {
                         d.Click();
-                        var id = driver.FindElements(By.XPath("//*[@data-player]")).ToArray()[1].GetAttribute("data -id");
+                        var id = village.Driver.FindElements(By.XPath("//*[@data-player]")).ToArray()[1].GetAttribute("data -id");
                         movement.TargetId = id;
                         Client.Sleep();
-                        driver.Navigate().GoToUrl(village.pathCreator.GetPlace());
+                        village.Driver.Navigate().GoToUrl(village.pathCreator.GetPlace());
                     }
                 }
                 village.OutcomingTroops = movements;
             }
-            catch
+            catch(Exception e) 
             {
+#if DEBUG
+                Client.Print(e.Message);
+#endif
 
+                Client.Print(DateTime.Now + " keine Truppenbewegungen entdeckt");
             }
         }
     }

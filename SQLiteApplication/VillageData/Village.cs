@@ -1,72 +1,72 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Newtonsoft.Json;
+﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Page;
 using SQLiteApplication.Tools;
+using SQLiteApplication.UserData;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
+using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace SQLiteApplication
 {
     public sealed class Village
     {
-        public Village(double id, double serverId, FirefoxDriver driver)
+        public Village(double id, double serverId, IWebDriver driver, User user, string[] buildOrder )
         {
             Id = id;
             ServerId = serverId;
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
+            MyUser = user;
+            BuildOrder = buildOrder;
         }
 
 
         #region PROPERTIES    
-        public List<AbstractPage> Pages { get => new List<AbstractPage>() { new MainPage(Driver, this), new BarracksPage(Driver, this)}; }
+        public User MyUser { get; set; }
+        public List<AbstractPage> Pages { get; set; } 
         public ICollection<Building> Buildings { get; set; }
-        public FirefoxDriver Driver { get; set; }
+        public IWebDriver Driver { get; set; }
         public Dictionary<string, int> MaxBuildings { get; set; }
         public double Id { get; set; }
         public double ServerId { get; set; }
-        public double Wood { get; set; }
-        public double Stone { get; set; }
-        public double Iron { get; set; }
-        public double WoodProduction { get; set; }
-        public double IronProduction { get; set; }
-        public double StoneProduction { get; set; }
-        public double StorageMax { get; set; }
-        public double Population { get; set; }
-        public double MaxPopulation { get; set; }
-        public IList<KeyValuePair<string,TimeSpan>> BuildingsInQueue { get; set; }
-        public int HaendlerCount { get; set; }
-        public Village(Dictionary<string, int> maxBuildings) => MaxBuildings = maxBuildings;
-        public void AddBuilding(Building building) => Buildings.Add(building);
+        public ResourcesManager RManager { get; set; }
+        public TradeManager TManager { get; set; } = new TradeManager();
+        public IList<KeyValuePair<string, TimeSpan>> BuildingsInQueue { get; set; }
         public ICollection<TroupMovement> OutcomingTroops { get; set; }
         public Dictionary<string, object> Technologies { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
+        public string[] BuildOrder {get; set;}
         public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
         public PathCreator pathCreator { get; set; }
         public string Csrf { get; internal set; }
-        public double Traders { get; internal set; }
+        public string Coordinates { get; set; }
+        public string Name { get; set; }
+        public string[] FarmingVillages { get; set; }
         #endregion
 
         #region METHODS
         public bool CanConsume(double wood, double stone, double iron, double population)
         {
-            if (wood > Wood || stone > Stone || iron > Iron || Population + population > MaxPopulation)
-            {
-                return false;
-            }
-            Wood -= wood;
-            Stone -= stone;
-            Iron -= iron;
-            return true;
+            return RManager.CanConsume(wood, stone, iron, population);
         }
+
+        public Building GetNextBuilding()
+        {
+            var buildings = GetBuildingsInBuildOrder().OrderBy(each => !each.IsBuildeable);
+            if (buildings.Count() > 0)
+                return buildings.First();
+            else
+                return null;
+        }
+
         public bool CanConsume(Unit unit)
         {
             return CanConsume(unit.GetWood(), unit.GetStone(), unit.GetIron(), unit.GetNeededPopulation());
         }
+
         public bool CanConsume(Building building)
         {
             return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
@@ -80,17 +80,11 @@ namespace SQLiteApplication
 
         public void Update()
         {
-            foreach(var page in Pages)
+            foreach (AbstractPage page in Pages)
             {
                 page.Update();
                 Client.Sleep();
             }
-        }
-
-        public override string ToString()
-        {
-            return $"Wood: {Wood}, Stone:  {Stone}, Iron: {Iron}, {Buildings} " +
-                $"\nWood Production: {WoodProduction}, Stone Production: {StoneProduction}, Iron Production: {IronProduction}";
         }
 
         public void Build(string name)
@@ -99,28 +93,93 @@ namespace SQLiteApplication
         }
         public void Build(Building building)
         {
+            int queueCount = BuildingsInQueue.Count();
+            int maxQueueCount = MyUser.IsPremium ? 4 : 2;
 
-            var page = Pages.Where(each => each is MainPage).First() as MainPage;
-            page.GoTo();
-            page.Build(building);
-            Client.Sleep();
-            
+            if(queueCount < maxQueueCount)
+            {
+                MainPage page = Pages.Where(each => each is MainPage).First() as MainPage;
+                Driver.GoTo(page.URL);
+                page.Build(building);
+                Client.Sleep();
+                Client.Print(DateTime.Now + " " + building.Name + " wird in " + Id + " ausgebaut");
+            }
 
         }
 
         public void Train(Dictionary<Unit, double> units)
         {
-            var page = (BarracksPage) Pages.Where(each => each is BarracksPage).First();
+            BarracksPage page = (BarracksPage)Pages.Where(each => each is BarracksPage).First();
 
-            foreach (var kvp in units)
+            foreach (KeyValuePair<Unit, double> kvp in units)
             {
-                var name = ((Unit)kvp.Key).GetName();
+                string name = kvp.Key.GetName();
                 page.Train(kvp.Key, kvp.Value);
-                    
-
             }
         }
 
+        public bool SendRessourceToVillage(Dictionary<string, double> resources, Village village)
+        {
+            MarketPage page = Pages.Where(each => each is MarketPage).First() as MarketPage;
+            double wood = 0;
+            double stone = 0;
+            double iron = 0;
+
+            if(resources.ContainsKey("Wood"))
+                wood = resources["Wood"];
+            if (resources.ContainsKey("Stone"))
+                stone = resources["Stone"];
+            if (resources.ContainsKey("Iron"))
+                iron = resources["Iron"];
+            var traders = Math.Round((wood + stone + iron)/1000 + 0.5);
+
+            if(wood < RManager.Wood && stone < RManager.Stone && iron < RManager.Iron && TManager.AvailableTraders >= traders)
+            {
+                return page.SendRessource(wood, stone, iron, village.Coordinates);
+            }
+            return false;
+        }
+
+        public IEnumerable<Building> GetBuildingsInBuildOrder()
+        {
+            return Buildings.Where(each => {
+                return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
+            }).Select(each =>
+            {
+                return each;
+            });
+
+        }
+
         #endregion
+
+        #region OPERATORS
+        public override bool Equals(object obj)
+        {
+            Village village = obj as Village;
+            if (village != null)
+                return village.Id == this.Id;
+
+            return false;
+        }
+        public override string ToString()
+        {
+            return $"Wood: {RManager.Wood}, Stone:  {RManager.Stone}, Iron: {RManager.Iron}, {Buildings} " +
+                $"\nWood Production: {RManager.WoodProduction}, Stone Production: {RManager.StoneProduction}, Iron Production: {RManager.IronProduction}";
+        }
+        public override int GetHashCode()
+        {
+            return 2108858624 + Id.GetHashCode();
+        }
+        public static bool operator ==(Village village1, Village village2)
+        {
+            return EqualityComparer<Village>.Default.Equals(village1, village2);
+        }
+        public static bool operator !=(Village village1, Village village2)
+        {
+            return !(village1 == village2);
+        }
+        #endregion
+
     }
 }

@@ -70,6 +70,8 @@ namespace SQLiteApplication
 
         public Building Build()
         {
+            if (instance.Level == instance.MaxLevel)
+                instance.IsBuildeable = false;
             return instance;
         }
 
@@ -80,6 +82,13 @@ namespace SQLiteApplication
                 instance.TimeToCanBuild = dateTime.Value;
             }
             return this;
+        }
+
+        internal BuildingBuilder WithVillage(Village village)
+        {
+            instance.Village = village;
+            return this;
+
         }
     }
 }

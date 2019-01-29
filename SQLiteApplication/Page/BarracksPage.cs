@@ -1,4 +1,5 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
 using SQLiteApplication.Web;
 using System;
@@ -11,7 +12,7 @@ namespace SQLiteApplication.Page
 {
     class BarracksPage : AbstractBuildingPage
     {
-        public BarracksPage(FirefoxDriver driver, Village village) : base(driver, village)
+        public BarracksPage(Village village) : base( village)
         {
 
         }
@@ -20,16 +21,16 @@ namespace SQLiteApplication.Page
 
         public override string BUILDING => "barracks";
 
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>();
+        public override List<IUpdater> Updaters => new List<IUpdater>();
 
         public override string URL => Village.pathCreator.GetBarracks();
 
         public void Train(Unit unit, double count)
         {
-            Driver.GoTo(URL);
-            var element = Driver.FindElementByXPath($"//input[@id='{unit.GetName()}_0']");
+            Village.Driver.GoTo(URL);
+            var element = Village.Driver.FindElement(By.XPath($"//input[@id='{unit.GetName()}_0']"));
             element.SendKeys(count.ToString());
-            var button = Driver.FindElementByXPath("//input[@class='btn btn-recruit']");
+            var button = Village.Driver.FindElement(By.XPath("//input[@class='btn btn-recruit']"));
             button.Click();
             Client.Sleep();
         }

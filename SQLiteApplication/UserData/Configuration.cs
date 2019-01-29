@@ -9,20 +9,26 @@ namespace SQLiteApplication.UserData
 {
     public class Configuration
     {   
-        public bool IsGreedyOnRessources { get; set; }
         public string[] FarmingVillages { get; set; }
-        public List<Dictionary<string, double>> Templates { get; set; }
+        public string[] BuildOrder {get; set;}
         public User User { get; set; }
-        public String TorBrowserPath { get; set; }
+        public bool Build { get; set; }
+        public bool Farm { get; set; }
+        public bool Trade {get; set;}
+        public int TimeToWait{get; set;}
+        public static int MinimumTimeToWait { get; set; } = 5;
+        public static int MaximumTimeToWait { get; set; } = 10;
 
         public Configuration()
         {
 
         }
 
+        
+
         public override string ToString()
         {
-            return $"User: {User}, Using Tor:{TorBrowserPath != null}";
+            return $"User: {User}, Using Tor:{User.TorBrowserPath != null}";
         }
     }
 }

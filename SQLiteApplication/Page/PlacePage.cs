@@ -12,27 +12,14 @@ namespace SQLiteApplication.Page
 {
     public class PlacePage : AbstractPage
     {
-        public PlacePage(FirefoxDriver driver, Village village) : base(driver, village)
+        public IWebDriver Driver { get; set; }
+        public PlacePage(Village village) : base( village)
         {
-
+            Driver = village.Driver;
         }
-
-
-        public override List<AbstractUpdater> Updaters => new List<AbstractUpdater>() { new MovementUpdater(), new TroopUpdater() };
+        public override List<IUpdater> Updaters => new List<IUpdater>() { new MovementUpdater(), new TroopUpdater() };
         public override string URL => Village.pathCreator.GetPlace();
 
-        public void Attack(Dictionary<string, double> units, string target)
-        {
-            Driver.GoTo(URL+"&target=" +  target);
-            foreach (var kvp in units)
-            {
-                Driver.FindElement(By.Id("unit_input_" + kvp.Key)).SendKeys(kvp.Value.ToString());
-                Client.Sleep();
-            }
-            Driver.FindElement(By.Id("target_attack")).Click();
-            Client.Sleep();
-            Driver.FindElement(By.Id("troop_confirm_go")).Click();
 
-        }
     }
 }

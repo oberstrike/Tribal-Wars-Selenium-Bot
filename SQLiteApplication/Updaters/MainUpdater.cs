@@ -1,4 +1,6 @@
-﻿using OpenQA.Selenium.Firefox;
+﻿using OpenQA.Selenium;
+using OpenQA.Selenium.Firefox;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
@@ -11,23 +13,42 @@ namespace SQLiteApplication.Tools
     public class MainUpdater : IUpdater
     {
         private Village village;
-        private FirefoxDriver driver;
+        private IWebDriver driver;
 
-        public void Update( FirefoxDriver driver, Village village)
+        public void Update(Village village)
         {
             this.village = village;
-            this.driver = driver;
+            driver = village.Driver;
             UpdateBuildingQueue();
             UpdateRessources();
+            UpdateBuildings();
 
         }
 
+        private void UpdateBuildings()
+        {
+            var building = default(Building);
+            do
+            {
+                building = village.GetNextBuilding();
+                if(building == null)
+                    return;
+                if (!building.IsBuildeable)
+                    return;
+                
+                village.Build(building);
+                UpdateRessources();
+                Client.Sleep();
+
+            } while (building != null);
+
+        }
 
         private void UpdateBuildingQueue()
         {
   
-            var timeElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//span").Select(x => TimeSpan.Parse(x.Text));
-            var nameElements = driver.FindElementsByXPath("//tr[contains(@class, 'buildorder')]//img").Select(x => x.GetAttribute("title"));
+            var timeElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//span")).Select(x => TimeSpan.Parse(x.Text));
+            var nameElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//img")).Select(x => x.GetAttribute("title"));
 
             village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
 
@@ -41,19 +62,25 @@ namespace SQLiteApplication.Tools
         private void UpdateRessources()
         {
             var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
+ 
 
-            village.Wood = (Int64)villageData["wood"];
-            village.Iron = (Int64)villageData["iron"];
-            village.Stone = (Int64)villageData["stone"];
-            village.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
-            village.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
-            village.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
-            village.StorageMax = (Int64)villageData["storage_max"];
-            village.Population = (Int64)villageData["pop"];
-            village.MaxPopulation = (Int64)villageData["pop_max"];
+
+            ResourcesManager manager = new ResourcesManager(village);
+
+            manager.Wood = (long)villageData["wood"];
+            manager.Iron = (long)villageData["iron"];
+            manager.Stone = (long)villageData["stone"];
+            manager.WoodProduction = (double)villageData["wood_prod"] * 60 * 60;
+            manager.IronProduction = (double)villageData["iron_prod"] * 60 * 60;
+            manager.StoneProduction = (double)villageData["stone_prod"] * 60 * 60;
+            manager.StorageMax = (long)villageData["storage_max"];
+            manager.Population = (long)villageData["pop"];
+            manager.MaxPopulation = (long)villageData["pop_max"];
             village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
-
+            village.RManager = manager;
+            village.Coordinates = (string) villageData["coord"];
+           
         }
 
         private ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
@@ -86,14 +113,15 @@ namespace SQLiteApplication.Tools
                                 .WithMaxLevel((Int64)dictionary["max_level"])
                                 .WithBuildeable(text == null)
                                 .WithBuildingTime(timeSpan)
+                                .WithVillage(village)
                                 .Build());
 
                 }
                 catch(Exception e)
                 {
-                    Console.WriteLine(e.Message);
-                    Console.WriteLine(e.Source);
-                    Console.WriteLine(key + " wurde nicht gefunden");
+                    Client.Print(e.Message);
+                    Client.Print(e.Source);
+                    Client.Print(key + " wurde nicht gefunden");
                 }
 
 
@@ -104,7 +132,7 @@ namespace SQLiteApplication.Tools
 
         private static TimeSpan? GetTimeToBuild(string text, TimeSpan? timeSpan)
         {
-            if (text.Length > 1 && text.Contains("Genug") && text.Contains("um"))
+            if (text.Length > 1 && text.Contains("Genug") && text.Contains("um") && !text.Contains("am"))
             {
                 var date = text.Split(' ')[4];
 
@@ -119,6 +147,16 @@ namespace SQLiteApplication.Tools
                     var b = text.Split(' ')[7];
                 }
                 timeSpan = dateTime - nowTime;
+            }else if (text.Contains("am"))
+            {
+                var strArray = text.Split(' ');
+                var uhrzeit = TimeSpan.Parse(strArray[5]);
+
+                var date = DateTime.Today.AddDays(2).Add(uhrzeit);
+                timeSpan = date - DateTime.Now;
+
+
+
             }
 
             return timeSpan;

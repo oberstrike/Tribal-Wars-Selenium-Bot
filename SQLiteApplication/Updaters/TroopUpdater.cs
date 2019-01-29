@@ -12,11 +12,11 @@ namespace SQLiteApplication.Tools
 {
     class TroopUpdater : IUpdater
     {
-        public void Update(FirefoxDriver driver, Village village)
+        public void Update(Village village)
         {
             foreach (Unit unit in Enum.GetValues(typeof(Unit)))
             {
-                var count = double.Parse(Regex.Match(driver.FindElements(By.Id($"units_entry_all_{unit}")).First().Text, @"\d+").Value);
+                var count = double.Parse(Regex.Match(village.Driver.FindElements(By.Id($"units_entry_all_{unit}")).First().Text, @"\d+").Value);
                 village.Units[unit] = count;
 
             }

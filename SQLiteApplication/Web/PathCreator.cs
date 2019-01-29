@@ -45,9 +45,9 @@ namespace SQLiteApplication.Web
             return $"{GetBasePath()}&screen=am_farm";
         }
 
-        public string GetBuildingOverview()
+        public string GetOverview()
         {
-            return $"{GetBasePath()}&screen=overview_villages";
+            return $"{GetBasePath()}&screen=overview_villages&mode=combined";
         }
 
         public string GetMarketModeSend()
@@ -73,7 +73,7 @@ namespace SQLiteApplication.Web
 
         public static string GetOverview(string serverId)
         {
-            return $"https://de{serverId}.die-staemme.de/game.php?screen=overview_villages";
+            return $"https://de{serverId}.die-staemme.de/game.php?&screen=overview_villages&mode=combined";
         }
 
         public static string GetLogout(string serverId)

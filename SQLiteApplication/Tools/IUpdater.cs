@@ -11,6 +11,6 @@ namespace SQLiteApplication.Tools
     public interface IUpdater
     {
 
-        void Update(FirefoxDriver driver, Village village);
+        void Update(Village village);
     }
 }
