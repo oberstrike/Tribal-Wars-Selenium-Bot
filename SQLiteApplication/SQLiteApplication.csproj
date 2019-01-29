@@ -74,6 +74,7 @@
     <Compile Include="Tools\Factory.cs" />
     <Compile Include="Tools\IPlugin.cs" />
     <Compile Include="Tools\IUpdater.cs" />
+    <Compile Include="Tools\Randomizer.cs" />
     <Compile Include="Updaters\FarmassistUpdater.cs" />
     <Compile Include="Updaters\MainUpdater.cs" />
     <Compile Include="Updaters\MarketUpdater.cs" />

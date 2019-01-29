@@ -21,11 +21,6 @@ namespace OutputProject
                 - Farm/Ausbauen ein und ausstellen 
                 - Buildorder als String array darstellen
                 - Wartezeiten zwischen den Aktionen
-  
-  
-        
-        
-        
         */
         
         public static void Main(string[] args)

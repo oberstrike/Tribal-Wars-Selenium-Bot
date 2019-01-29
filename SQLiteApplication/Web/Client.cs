@@ -23,7 +23,7 @@ namespace SQLiteApplication.Web
         public static void Sleep()
         {
             var random = new Randomizer();
-            var delay = (random.Next(3, 11) * 1000) + random.Next(1, 13) * 19;        
+            var delay = (random.Next(3, 11) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
@@ -41,7 +41,7 @@ namespace SQLiteApplication.Web
         public bool IsConnected { get; set; }
         public bool IsLoggedIn { get; set; }
         public Configuration Config { get; set; }
-        public List<IPlugin> Plugins { get; set; } = new List<IPlugin>() ;
+        public List<IPlugin> Plugins { get; set; } = new List<IPlugin>();
         public Process TorProcess { get; set; }
         public IWebDriver Driver { get; set; }
         #endregion
@@ -52,11 +52,11 @@ namespace SQLiteApplication.Web
             foreach (Village village in Config.User.Villages)
             {
                 Client.Print(DateTime.Now + " Starte Update von " + village.Name);
-                village.Update() ;
+                village.Update();
                 Client.Print(DateTime.Now + " Update wurde beendet von " + village.Id);
             }
 
-            foreach(IPlugin plugin in Plugins)
+            foreach (IPlugin plugin in Plugins)
             {
                 plugin.Compute(this);
             }
@@ -88,14 +88,14 @@ namespace SQLiteApplication.Web
         }
         public TimeSpan? GetBestTimeToCanBuild()
         {
-            
-            foreach(Village village in Config.User.Villages)
+
+            foreach (Village village in Config.User.Villages)
             {
                 if (village.BuildingsInQueue == null)
                     break;
 
                 var sum = new TimeSpan(village.BuildingsInQueue.Sum(each => each.Value.Ticks));
-                
+
 
             }
             if (GetBuildeableBuildings() == null)
@@ -115,7 +115,7 @@ namespace SQLiteApplication.Web
             Config = configuration;
 
             firefoxOptions = new FirefoxOptions();
-    //        firefoxOptions.AddArgument("--headless");
+            //        firefoxOptions.AddArgument("--headless");
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -148,7 +148,7 @@ namespace SQLiteApplication.Web
         }
         public void Connect()
         {
-           
+
             try
             {
                 Driver = GetFirefoxDriver();
@@ -171,32 +171,33 @@ namespace SQLiteApplication.Web
             chromeOptions.AddArgument("--disable-dev-shm-usage");
             return new ChromeDriver(chromeOptions);
         }
-    
+
         private IWebDriver GetFirefoxDriver()
         {
             IWebDriver webDriver = null;
             int count = 0;
-            while(webDriver == null)
+            while (webDriver == null)
             {
                 CancellationTokenSource tokenSource = new CancellationTokenSource();
                 Task<FirefoxDriver> t = Task.Run(() => { try { return new FirefoxDriver(firefoxOptions); } catch { return null; } }, tokenSource.Token);
-                
+
                 try
                 {
                     bool value = t.Wait(2000, tokenSource.Token);
                     webDriver = t.Result;
-                }catch(Exception e)
+                }
+                catch (Exception e)
                 {
                     Console.WriteLine(e.Message);
                 }
 
-                if(count++ > 4)
-                        break;
+                if (count++ > 4)
+                    break;
             }
             return webDriver;
-                 
+
         }
-            
+
 
         public void Login()
         {
@@ -230,7 +231,7 @@ namespace SQLiteApplication.Web
                 if (Driver.Url != urls[0])
                 {
                     var userData = (bool)Driver.ExecuteScript("return TribalWars.getGameData().features[\"Premium\"].active");
-                    
+
                     Config.User.IsPremium = userData;
 
                     Config.User.Villages = FindVillagesInOverviewPage();
@@ -248,7 +249,7 @@ namespace SQLiteApplication.Web
             string[] names = keyValuePair.Value;
 
             List<Village> villages = new List<Village>();
-           
+
             for (int i = 0; i < ids.Length; i++)
             {
                 Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User, Config.BuildOrder);
@@ -273,7 +274,7 @@ namespace SQLiteApplication.Web
             string[] sArray = new string[idElements.Count];
             for (int i = 0; i < dArray.Length; i++)
             {
-                var name = nameElements[i].GetAttribute("data-text"); 
+                var name = nameElements[i].GetAttribute("data-text");
                 dArray[i] = double.Parse(idElements[i].GetAttribute("data-id"));
                 sArray[i] = name;
             }

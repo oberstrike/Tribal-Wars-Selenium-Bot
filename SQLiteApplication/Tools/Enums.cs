@@ -1,7 +1,6 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Web;
-using SQLiteApplication.Tools.Randomizer;
 using System;
 using System.Collections.Generic;
 
@@ -25,9 +24,7 @@ namespace SQLiteApplication.Tools
         /// Shuffles the element order of the specified list.
         /// </summary>
         public static void Shuffle<T>(this IList<T> list)
-        {
-      
-
+        { 
             int n = list.Count;
             while (n > 1)
             {

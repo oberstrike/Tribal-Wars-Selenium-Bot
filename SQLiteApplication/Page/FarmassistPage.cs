@@ -53,7 +53,7 @@ namespace SQLiteApplication.Page
 
             if(Village.FarmingVillages != null)
             {
-                if(Village.FarningVillages.Length > 0)
+                if(Village.FarmingVillages.Length > 0)
                      NormalAttack(aCount);
             }
            
