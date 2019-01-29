@@ -80,8 +80,8 @@ namespace OutputProject
         private static void SendEmail(string error)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("g.i.g.a.n.t@hotmail.de"); //Absender 
-            mail.To.Add("tribal-wars.bot@gmx.de"); //Empfänger 
+            mail.From = new MailAddress("meine-email@hotmail.de"); //Absender 
+            mail.To.Add("andere-email@gmx.de"); //Empfänger 
             mail.Subject = "BOT-SCHUTZ";
             mail.Body = $"{DateTime.Now} + \n {error}";
 
@@ -89,7 +89,7 @@ namespace OutputProject
 
             try
             {
-                client.Credentials = new System.Net.NetworkCredential("g.i.g.a.n.t@hotmail.de", "Pianohits2.");//Anmeldedaten für den SMTP Server 
+                client.Credentials = new System.Net.NetworkCredential("meine-email@hotmail.de", "meinpasswort");//Anmeldedaten für den SMTP Server 
 
                 client.EnableSsl = true; //Die meisten Anbieter verlangen eine SSL-Verschlüsselung 
 
