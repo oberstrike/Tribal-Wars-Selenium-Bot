@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SQLiteApplication.Tools
 {
-    class Randomizer
+    public class Randomizer
     {
         private readonly RandomNumberGenerator provider = new RNGCryptoServiceProvider();
 

@@ -1,4 +1,5 @@
-﻿using SQLiteApplication.Tools;
+﻿
+using SQLiteApplication.Tools;
 using SQLiteApplication.UserData;
 using SQLiteApplication.Web;
 using System;
@@ -26,7 +27,7 @@ namespace OutputProject
         public static void Main(string[] args)
         {
             Configuration config = new ConfigurationManager(@"Config.json").Configuration;
-
+            var randomizer = new Randomizer();
             int errorCount = 0;
             while (errorCount == 0)
             {
@@ -34,9 +35,10 @@ namespace OutputProject
                 Client.Print(config.User);
 
                 Client client = Factory.GetAdvancedClient(config);
+                client.Connect();
                 try
                 {
-                    client.Connect();
+
                     client.Login();
 
                     client.Update();
@@ -45,14 +47,14 @@ namespace OutputProject
 
                     TimeSpan? timeSpan = null;
                     client.Logout();
-                    client.Close();
+
 
                     if (config.Build)
                     {
                         timeSpan = client.GetBestTimeToCanBuild();
                         if (!timeSpan.HasValue)
                         {
-
+      
                             TimeSpan? timeForQueue = client.GetBestTimeForQueue();
                             if (!timeForQueue.HasValue)
                                 timeSpan = new TimeSpan(new Random().Next(2, 3), new Random().Next(1, 20), new Random().Next(1, 20));
@@ -61,7 +63,7 @@ namespace OutputProject
                     }
 
 
-                    timeSpan = new TimeSpan(0, new Random().Next(12, 20), new Random().Next(0, 60));
+                    timeSpan = new TimeSpan(0,randomizer.Next(config.MinimumTimeToWait, config.MaximumTimeToWait), randomizer.Next(0, 60));
                     Client.Print("Schlafe für " + timeSpan);
                     Client.Print("Schlafe bis " + DateTime.Now.Add(timeSpan.Value));
                     Task.Delay(timeSpan.Value).Wait();
@@ -70,30 +72,38 @@ namespace OutputProject
                 }
                 catch (Exception e)
                 {
-                    if (e.Message.Contains("SecurityError"))
-                    {
-                        SendEmail(e.Message);
-                        return;
-                    }
-                    else if (e.Message.Contains("imeout") | e.Message.Contains("Tried to run"))
-                    {
-                        Client.Print("Upps there was a mistake.");
-                        Client.Print(e.Message);
-                    }
-                    else
-                    {
-                        Client.Print(e.Message);
-                    }
+                    ExceptionHandling(e, client);
+     
                 }
 
+            }
+        }
+
+        public static void ExceptionHandling(Exception e, Client client)
+        {
+            if (e.Message.Contains("SecurityError"))
+            {
+                SendEmail(e.Message);
+                return;
+            }
+            else if (e.Message.Contains("imeout") | e.Message.Contains("Tried to run"))
+            {
+                Client.Print("Upps there was a mistake.");
+                Client.Print(e.Message);
+                client.Close();
+            }
+            else
+            {
+                Client.Print(e.Message);
+                client.Close();
             }
         }
 
         private static void SendEmail(string error)
         {
             MailMessage mail = new MailMessage();
-            mail.From = new MailAddress("meine-email@hotmail.de"); //Absender 
-            mail.To.Add("andere-email@gmx.de"); //Empfänger 
+            mail.From = new MailAddress("g.i.g.a.n.t@hotmail.de"); //Absender 
+            mail.To.Add("tribal-wars.bot@gmx.de"); //Empfänger 
             mail.Subject = "BOT-SCHUTZ";
             mail.Body = $"{DateTime.Now} + \n {error}";
 
@@ -101,7 +111,7 @@ namespace OutputProject
 
             try
             {
-                client.Credentials = new System.Net.NetworkCredential("meine-email@hotmail.de", "meinpasswort");//Anmeldedaten für den SMTP Server 
+                client.Credentials = new System.Net.NetworkCredential("g.i.g.a.n.t@hotmail.de", "Pianohits2.");//Anmeldedaten für den SMTP Server 
 
                 client.EnableSsl = true; //Die meisten Anbieter verlangen eine SSL-Verschlüsselung 
 

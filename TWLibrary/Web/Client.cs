@@ -23,7 +23,7 @@ namespace SQLiteApplication.Web
         public static void Sleep()
         {
             Randomizer random = new Randomizer();
-            int delay = (random.Next(Configuration.MinimumTimeToWait, Configuration.MaximumTimeToWait) * 1000) + random.Next(1, 13) * 19;
+            int delay = (random.Next(3, 5) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
@@ -53,7 +53,7 @@ namespace SQLiteApplication.Web
             {
                 Client.Print(DateTime.Now + " Starte Update von " + village.Name);
                 village.Update();
-                Client.Print(DateTime.Now + " Update wurde beendet von " + village.Id);
+                Client.Print(DateTime.Now + " Update wurde beendet von " + village.Name);
             }
 
             foreach (IPlugin plugin in Plugins)
@@ -115,7 +115,9 @@ namespace SQLiteApplication.Web
             Config = configuration;
 
             firefoxOptions = new FirefoxOptions();
-            firefoxOptions.AddArgument("--headless");
+#if !DEBUG
+             firefoxOptions.AddArgument("--headless");
+#endif
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -170,27 +172,7 @@ namespace SQLiteApplication.Web
 
         private IWebDriver GetFirefoxDriver()
         {
-            IWebDriver webDriver = null;
-            int count = 0;
-            while (webDriver == null)
-            {
-                CancellationTokenSource tokenSource = new CancellationTokenSource();
-                Task<FirefoxDriver> t = Task.Run(() => { try { return new FirefoxDriver(firefoxOptions); } catch { return null; } }, tokenSource.Token);
-
-                try
-                {
-                    bool value = t.Wait(2000, tokenSource.Token);
-                    webDriver = t.Result;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-
-                if (count++ > 1)
-                    break;
-            }
-            return webDriver;
+            return new FirefoxDriver(firefoxOptions);
 
         }
 
@@ -250,7 +232,8 @@ namespace SQLiteApplication.Web
             {
                 Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User, Config.BuildOrder);
                 village.Name = names[i];
-                village.FarmingVillages = Config.FarmingVillages;
+                if(Config.FarmingVillages != null)
+                    village.FarmingVillages = Config.FarmingVillages;
                 villages.Add(village);
 
             }
@@ -289,6 +272,6 @@ namespace SQLiteApplication.Web
         {
             Driver.GoTo(url);
         }
-        #endregion
+#endregion
     }
 }

@@ -7,13 +7,13 @@ namespace SQLiteApplication.UserData
 {
     public class User
     {
-        public string Name { get; set; }
-        public string Password { get; set; }
-        public int Server { get; set; }
+        public string Name { get; set; } = "Username";
+        public string Password { get; set; } = "Passwort";
+        public int Server { get; set; } = 160;
         public String TorBrowserPath { get; set; }
-        public bool HasFarmmanager { get; set; }
+        public bool HasFarmmanager { get; set; } = true;
 
-        public bool IsPremium { get; set; } = false;
+        public bool IsPremium { get; set; } = true;
 
         public override string ToString()
         {

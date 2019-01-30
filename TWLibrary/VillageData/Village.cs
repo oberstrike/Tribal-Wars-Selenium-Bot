@@ -26,7 +26,7 @@ namespace SQLiteApplication
 
         #region PROPERTIES    
         public User MyUser { get; set; }
-        public List<AbstractPage> Pages { get; set; } 
+        public List<AbstractPage> Pages { get; set; } = new List<AbstractPage>();
         public ICollection<Building> Buildings { get; set; }
         public IWebDriver Driver { get; set; }
         public Dictionary<string, int> MaxBuildings { get; set; }
@@ -44,7 +44,7 @@ namespace SQLiteApplication
         public string Csrf { get; internal set; }
         public string Coordinates { get; set; }
         public string Name { get; set; }
-        public string[] FarmingVillages { get; set; }
+        public string[] FarmingVillages { get; set; } = new string[0];
         #endregion
 
         #region METHODS
