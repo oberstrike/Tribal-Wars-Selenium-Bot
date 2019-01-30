@@ -28,16 +28,20 @@ namespace SQLiteApplication.VillageData
             MyVillage = village;
         }
 
+
         public void GetMissingRessourcesForBuildings(IEnumerable<Building> buildings)
         {
+            if (buildings.Count() == 0)
+                throw new ArgumentOutOfRangeException("Die Anzahl an zu überprüfenden Gebäude darf nicht \"0\" sein");
+
             string[] ressis = { "Wood", "Stone", "Iron" };
             Dictionary<string, double> resDictionary = new Dictionary<string, double>();
 
             foreach (var res in ressis)
             {
-                double buildingValue = GetHighestRessourceCostForBuildings(buildings, res);
+                double costValue = GetHighestRessourceCostForBuildings(buildings, res);
                 double villageValue = (double)this.GetType().GetProperty(res).GetValue(this);
-                double diff = villageValue - buildingValue;
+                double diff = villageValue - costValue;
                 this.GetType().GetProperty($"Unused{res}").SetValue(this, diff);
             }
         }

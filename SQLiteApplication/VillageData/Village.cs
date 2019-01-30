@@ -56,17 +56,16 @@ namespace SQLiteApplication
         public Building GetNextBuilding()
         {
             var buildings = GetBuildingsInBuildOrder().OrderBy(each => !each.IsBuildeable);
+ 
             if (buildings.Count() > 0)
                 return buildings.First();
             else
                 return null;
         }
-
         public bool CanConsume(Unit unit)
         {
             return CanConsume(unit.GetWood(), unit.GetStone(), unit.GetIron(), unit.GetNeededPopulation());
         }
-
         public bool CanConsume(Building building)
         {
             return CanConsume(building.Wood, building.Stone, building.Iron, building.NeededPopulation);
@@ -77,7 +76,6 @@ namespace SQLiteApplication
                     where building.Name.Equals(name)
                     select building).First();
         }
-
         public void Update()
         {
             foreach (AbstractPage page in Pages)
@@ -86,7 +84,6 @@ namespace SQLiteApplication
                 Client.Sleep();
             }
         }
-
         public void Build(string name)
         {
             Build(GetBuilding(name));
@@ -106,21 +103,25 @@ namespace SQLiteApplication
             }
 
         }
-
-        public void Train(Dictionary<Unit, double> units)
+        public bool Train(Dictionary<Unit, double> units)
         {
             BarracksPage page = (BarracksPage)Pages.Where(each => each is BarracksPage).First();
+            bool successfull = true;
 
             foreach (KeyValuePair<Unit, double> kvp in units)
             {
                 string name = kvp.Key.GetName();
-                page.Train(kvp.Key, kvp.Value);
+                if (!page.Train(kvp.Key, kvp.Value))
+                    successfull = false;
             }
+            return successfull;
         }
-
         public bool SendRessourceToVillage(Dictionary<string, double> resources, Village village)
         {
             MarketPage page = Pages.Where(each => each is MarketPage).First() as MarketPage;
+            if (page == null)
+                return false;
+
             double wood = 0;
             double stone = 0;
             double iron = 0;
@@ -140,6 +141,11 @@ namespace SQLiteApplication
             return false;
         }
 
+        public bool SendRessourceToVillage(Dictionary<string, double> resources, String coordinates)
+        {
+            return SendRessourceToVillage(resources, new Village(0, 0, null, null, null) { Coordinates = coordinates });
+
+        }
         public IEnumerable<Building> GetBuildingsInBuildOrder()
         {
             return Buildings.Where(each => {
@@ -150,7 +156,6 @@ namespace SQLiteApplication
             });
 
         }
-
         #endregion
 
         #region OPERATORS

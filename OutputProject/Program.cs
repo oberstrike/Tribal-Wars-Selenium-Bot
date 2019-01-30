@@ -10,8 +10,6 @@ namespace OutputProject
 {
     internal class Program
     {
-        public static List<string> buildOrder = new List<string>() { "snob" };
-
 
         /*
         Neue Anforderungen:

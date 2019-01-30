@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication
+namespace SQLiteApplication.VillageData
 {
     public class BuildingBuilder
     {
@@ -72,6 +72,7 @@ namespace SQLiteApplication
         {
             if (instance.Level == instance.MaxLevel)
                 instance.IsBuildeable = false;
+            
             return instance;
         }
 

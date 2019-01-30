@@ -1,5 +1,6 @@
 ﻿using OpenQA.Selenium.Firefox;
 using SQLiteApplication.Tools;
+using SQLiteApplication.VillageData;
 using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
