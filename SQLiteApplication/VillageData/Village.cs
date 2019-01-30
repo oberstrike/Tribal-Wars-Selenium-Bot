@@ -99,7 +99,7 @@ namespace SQLiteApplication
                 Driver.GoTo(page.URL);
                 page.Build(building);
                 Client.Sleep();
-                Client.Print(DateTime.Now + " " + building.Name + " wird in " + Id + " ausgebaut");
+                Client.Print(building.Name + " wird in " + Id + " ausgebaut");
             }
 
         }

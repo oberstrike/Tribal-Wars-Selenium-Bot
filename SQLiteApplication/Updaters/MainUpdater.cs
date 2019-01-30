@@ -15,6 +15,11 @@ namespace SQLiteApplication.Tools
         private Village village;
         private IWebDriver driver;
 
+        private string _villageScript = "return TribalWars.getGameData().village";
+        private string _buildingsScript = "return BuildingMain.buildings";
+        private By _buildingsInQueueTimePath = By.XPath("//tr[contains(@class, 'buildorder')]//span");
+        private By _buildingsInQueueNamePath = By.XPath("//tr[contains(@class, 'buildorder')]//img");
+
         public void Update(Village village)
         {
             this.village = village;
@@ -47,8 +52,8 @@ namespace SQLiteApplication.Tools
         private void UpdateBuildingQueue()
         {
   
-            var timeElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//span")).Select(x => TimeSpan.Parse(x.Text));
-            var nameElements = driver.FindElements(By.XPath("//tr[contains(@class, 'buildorder')]//img")).Select(x => x.GetAttribute("title"));
+            var timeElements = driver.FindElements(_buildingsInQueueTimePath).Select(x => TimeSpan.Parse(x.Text));
+            var nameElements = driver.FindElements(_buildingsInQueueNamePath).Select(x => x.GetAttribute("title"));
 
             village.BuildingsInQueue = new List<KeyValuePair<string, TimeSpan>>();
 
@@ -61,7 +66,7 @@ namespace SQLiteApplication.Tools
 
         private void UpdateRessources()
         {
-            var villageData = (Dictionary<string, object>)driver.ExecuteScript("return TribalWars.getGameData().village");
+            var villageData = (Dictionary<string, object>)driver.ExecuteScript(_villageScript);
  
 
 
@@ -76,7 +81,7 @@ namespace SQLiteApplication.Tools
             manager.StorageMax = (long)villageData["storage_max"];
             manager.Population = (long)villageData["pop"];
             manager.MaxPopulation = (long)villageData["pop_max"];
-            village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript("return BuildingMain.buildings"));
+            village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript(_buildingsScript));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
             village.RManager = manager;
             village.Coordinates = (string) villageData["coord"];
@@ -97,7 +102,7 @@ namespace SQLiteApplication.Tools
                     text = (string)dictionary["error"];
                     if (text != null)
                     {
-                        timeSpan = GetTimeToBuild(text, timeSpan);
+                        timeSpan = ConvertTextToTime(text, timeSpan);
                     }
 
                 }
@@ -130,7 +135,7 @@ namespace SQLiteApplication.Tools
             return newBuildings;
         }
 
-        private static TimeSpan? GetTimeToBuild(string text, TimeSpan? timeSpan)
+        private static TimeSpan? ConvertTextToTime(string text, TimeSpan? timeSpan)
         {
             if (text.Length > 1 && text.Contains("Genug") && text.Contains("um") && !text.Contains("am"))
             {

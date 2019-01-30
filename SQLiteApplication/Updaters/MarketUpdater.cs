@@ -9,16 +9,22 @@ using SQLiteApplication.Web;
 
 namespace SQLiteApplication.Tools
 {
-    public class MarketUpdater : IUpdater { 
-    
+    public class MarketUpdater : IUpdater {
+
+
+        private By _availableId = By.XPath( "market_merchant_available_count");
+        private By _totalId = By.XPath("market_merchant_total_count");
+        private By _busyTrader = By.XPath("//span[@class='nowrap']");
+
+
         public void Update(Village village)
         {
-            var available = village.Driver.FindElement(By.Id("market_merchant_available_count")).Text;
-            var total = village.Driver.FindElement(By.Id("market_merchant_total_count")).Text;
+            var available = village.Driver.FindElement(_availableId).Text;
+            var total = village.Driver.FindElement(_totalId).Text;
             village.TManager.AvailableTraders = int.Parse(available);
             village.TManager.TotalTraders = int.Parse(total);
             
-            var elements = village.Driver.FindElements(By.XPath("//span[@class='nowrap']"));
+            var elements = village.Driver.FindElements(_busyTrader);
 
             if (elements.Count == 0)
                 return;

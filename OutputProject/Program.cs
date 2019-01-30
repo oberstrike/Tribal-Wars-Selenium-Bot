@@ -4,6 +4,7 @@ using SQLiteApplication.Web;
 using System;
 using System.Collections.Generic;
 using System.Net.Mail;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace OutputProject
@@ -23,6 +24,8 @@ namespace OutputProject
 
         public static void Main(string[] args)
         {
+
+
             Configuration config = new ConfigurationManager(@"Config.json").Configuration;
 
             int errorCount = 0;
@@ -32,8 +35,8 @@ namespace OutputProject
                 Client.Print(config.User);
 
                 Client client = Factory.GetAdvancedClient(config);
-                try
-                {
+           //     try
+           //     {
                     client.Connect();
                     client.Login();
 
@@ -65,8 +68,8 @@ namespace OutputProject
                     Task.Delay(timeSpan.Value).Wait();
 
 
-                }
-                catch (Exception e)
+      //          }
+     /*           catch (Exception e)
                 {
                     if (e.Message.Contains("SecurityError"))
                     {
@@ -82,8 +85,8 @@ namespace OutputProject
                     {
                         Client.Print(e.Message);
                     }
-                }
-
+       //        }
+       */
             }
         }
 

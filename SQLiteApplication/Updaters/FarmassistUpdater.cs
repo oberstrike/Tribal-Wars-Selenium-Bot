@@ -10,9 +10,11 @@ namespace SQLiteApplication.Updaters
 {
     class FarmassistUpdater : IUpdater
     {
+        private string _currentUnitsScript = "return Accountmanager.farm.current_units";
+
         public void Update(Village village)
         {
-            var dic = (Dictionary<string,object>)village.Driver.ExecuteScript("return Accountmanager.farm.current_units");
+            var dic = (Dictionary<string,object>)village.Driver.ExecuteScript(_currentUnitsScript);
             var units = new Dictionary<Unit, double>();
 
 

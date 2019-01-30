@@ -29,7 +29,7 @@ namespace SQLiteApplication.Web
 
         public static void Print(object input)
         {
-            new TaskFactory().StartNew(() => Console.WriteLine(input.ToString()));
+            new TaskFactory().StartNew(() => Console.WriteLine(DateTime.Now + ": " + input.ToString()));
         }
         #endregion
 
@@ -51,9 +51,9 @@ namespace SQLiteApplication.Web
         {
             foreach (Village village in Config.User.Villages)
             {
-                Client.Print(DateTime.Now + " Starte Update von " + village.Name);
+                Client.Print("Starte Update von " + village.Name);
                 village.Update();
-                Client.Print(DateTime.Now + " Update wurde beendet von " + village.Id);
+                Client.Print("Update wurde beendet von " + village.Id);
             }
 
             foreach (IPlugin plugin in Plugins)
@@ -115,7 +115,16 @@ namespace SQLiteApplication.Web
             Config = configuration;
 
             firefoxOptions = new FirefoxOptions();
-            firefoxOptions.AddArgument("--headless");
+   //         firefoxOptions.AddArgument("--headless");
+
+            //Experimental
+            firefoxOptions.LogLevel = FirefoxDriverLogLevel.Error;
+            
+
+
+            if (configuration.User == null)
+                return;
+
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -139,6 +148,7 @@ namespace SQLiteApplication.Web
             profile.SetPreference("network.proxy.type", 1);
             profile.SetPreference("network.proxy.socks", "127.0.0.1");
             profile.SetPreference("network.proxy.socks_port", 9150);
+           
             firefoxOptions.Profile = profile;
             Client.Print("Starte versteckten Client.");
 
@@ -170,27 +180,7 @@ namespace SQLiteApplication.Web
 
         private IWebDriver GetFirefoxDriver()
         {
-            IWebDriver webDriver = null;
-            int count = 0;
-            while (webDriver == null)
-            {
-                CancellationTokenSource tokenSource = new CancellationTokenSource();
-                Task<FirefoxDriver> t = Task.Run(() => { try { return new FirefoxDriver(firefoxOptions); } catch { return null; } }, tokenSource.Token);
-
-                try
-                {
-                    bool value = t.Wait(2000, tokenSource.Token);
-                    webDriver = t.Result;
-                }
-                catch (Exception e)
-                {
-                    Console.WriteLine(e.Message);
-                }
-
-                if (count++ > 1)
-                    break;
-            }
-            return webDriver;
+            return new FirefoxDriver(firefoxOptions);
 
         }
 
