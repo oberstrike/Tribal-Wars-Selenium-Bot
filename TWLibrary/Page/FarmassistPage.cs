@@ -30,7 +30,7 @@ namespace SQLiteApplication.Page
             Unit unitEnum = (Unit)Enum.Parse(typeof(Unit), unit.ToUpper());
             double count = 1;
             double aCount = Village.Units[(Unit)Enum.Parse(typeof(Unit), unit.ToUpper())];
-            Client.Print($"{DateTime.Now}:  Einheit: {unit} werden {count} benötigt. Es sind {aCount} vorhanden, buffer: {(Village.FarmingVillages.Length + 1) * 5}");
+            Client.Print($"Einheit: {unit} werden {count} benötigt. Es sind {aCount} vorhanden, buffer: {(Village.FarmingVillages.Length + 1) * 5}");
             if (aCount < (Village.FarmingVillages.Length + 1) * 5)
                 return;
 
@@ -43,13 +43,13 @@ namespace SQLiteApplication.Page
 
                 string script = element.GetAttribute("onclick");
                 Village.Driver.ExecuteScript(script);
-                Thread.Sleep(new Random().Next(610, 810));
+                Thread.Sleep(new Randomizer().Next(610, 810));
 
                 aCount -= count;
                 Village.Units[unitEnum] = aCount;
                 attackCount++;
             }
-            Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen.");
+            Client.Print($"Es  {(attackCount > 1 ? "wurden" : "wurde")} {attackCount} {(attackCount > 1 ? "Dörfer" : "Dorf")} angegriffen.");
 
             if(Village.FarmingVillages != null)
             {
@@ -69,7 +69,7 @@ namespace SQLiteApplication.Page
 
             foreach (string village in Village.FarmingVillages)
             {
-                Client.Print($"{DateTime.Now}:  Einheit: {Unit.LIGHT} werden {count} benötigt. Es sind {vorhandene} vorhanden");
+                Client.Print($"Einheit: {Unit.LIGHT} werden {count} benötigt. Es sind {vorhandene} vorhanden");
 
                 if (vorhandene >= count)
                     Attack(village, dictionary);
@@ -79,12 +79,14 @@ namespace SQLiteApplication.Page
                 vorhandene -= count;
             }
             if(attackCount > 0)
-                Client.Print($"{DateTime.Now}: Es wurden {attackCount} Dörfer angegriffen");
+                Client.Print($"Es wurden {attackCount} Dörfer angegriffen");
         }
+
+       
 
         public void Attack(string target, Dictionary<Unit, int> unitAndCount)
         {
-            Client.Print($"{DateTime.Now}: {Village.Name} greift {target} an.");
+            Client.Print($"{Village.Name} greift {target} an.");
 
             Village.Driver.GoTo(Village.pathCreator.GetAttackLink(target));
             Thread.Sleep(1250);

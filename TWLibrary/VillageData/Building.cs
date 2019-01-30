@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication
+namespace SQLiteApplication.VillageData
 {
     public class Building
     {
@@ -20,7 +20,7 @@ namespace SQLiteApplication
         public TimeSpan TimeToCanBuild { get; set; }
         public Village Village { get; set; }
 
-        public Building()
+        internal Building()
         {
 
         }
@@ -67,5 +67,6 @@ namespace SQLiteApplication
         {
             return !(building1 == building2);
         }
+
     }
 }

@@ -23,13 +23,13 @@ namespace SQLiteApplication.Web
         public static void Sleep()
         {
             Randomizer random = new Randomizer();
-            int delay = (random.Next(3, 5) * 1000) + random.Next(1, 13) * 19;
+            int delay = (random.Next(Configuration.MinimumTimeToWait, Configuration.MaximumTimeToWait) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
         public static void Print(object input)
         {
-            new TaskFactory().StartNew(() => Console.WriteLine(input.ToString()));
+            new TaskFactory().StartNew(() => Console.WriteLine(DateTime.Now + ": " + input.ToString()));
         }
         #endregion
 
@@ -51,9 +51,9 @@ namespace SQLiteApplication.Web
         {
             foreach (Village village in Config.User.Villages)
             {
-                Client.Print(DateTime.Now + " Starte Update von " + village.Name);
+                Client.Print("Starte Update von " + village.Name);
                 village.Update();
-                Client.Print(DateTime.Now + " Update wurde beendet von " + village.Name);
+                Client.Print("Update wurde beendet von " + village.Id);
             }
 
             foreach (IPlugin plugin in Plugins)
@@ -115,9 +115,16 @@ namespace SQLiteApplication.Web
             Config = configuration;
 
             firefoxOptions = new FirefoxOptions();
-#if !DEBUG
-             firefoxOptions.AddArgument("--headless");
-#endif
+   //         firefoxOptions.AddArgument("--headless");
+
+            //Experimental
+            firefoxOptions.LogLevel = FirefoxDriverLogLevel.Error;
+            
+
+
+            if (configuration.User == null)
+                return;
+
             if (configuration.User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
@@ -141,6 +148,7 @@ namespace SQLiteApplication.Web
             profile.SetPreference("network.proxy.type", 1);
             profile.SetPreference("network.proxy.socks", "127.0.0.1");
             profile.SetPreference("network.proxy.socks_port", 9150);
+           
             firefoxOptions.Profile = profile;
             Client.Print("Starte versteckten Client.");
 
@@ -232,8 +240,7 @@ namespace SQLiteApplication.Web
             {
                 Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User, Config.BuildOrder);
                 village.Name = names[i];
-                if(Config.FarmingVillages != null)
-                    village.FarmingVillages = Config.FarmingVillages;
+                village.FarmingVillages = Config.FarmingVillages;
                 villages.Add(village);
 
             }
@@ -272,6 +279,6 @@ namespace SQLiteApplication.Web
         {
             Driver.GoTo(url);
         }
-#endregion
+        #endregion
     }
 }

@@ -25,14 +25,23 @@ namespace SQLiteApplication.Page
 
         public override string URL => Village.pathCreator.GetBarracks();
 
-        public void Train(Unit unit, double count)
+        public bool Train(Unit unit, double count)
         {
-            Village.Driver.GoTo(URL);
-            var element = Village.Driver.FindElement(By.XPath($"//input[@id='{unit.GetName()}_0']"));
-            element.SendKeys(count.ToString());
-            var button = Village.Driver.FindElement(By.XPath("//input[@class='btn btn-recruit']"));
-            button.Click();
-            Client.Sleep();
+            try
+            {
+                Village.Driver.GoTo(URL);
+                var element = Village.Driver.FindElement(By.XPath($"//input[@id='{unit.GetName()}_0']"));
+                element.SendKeys(count.ToString());
+                var button = Village.Driver.FindElement(By.XPath("//input[@class='btn btn-recruit']"));
+                button.Click();
+                Client.Sleep();
+                return true;
+            }catch(Exception e)
+            {
+                Client.Print(e.Message);
+                return false;
+            }
+
         }
     }
 }

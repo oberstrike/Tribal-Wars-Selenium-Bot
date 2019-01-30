@@ -22,6 +22,11 @@ namespace SQLiteApplication.Web
             VillageId = pVillageId;
 
         }
+    
+        public PathCreator(object pServerId, object pVillageId) : this(pServerId.ToString(), pVillageId.ToString())
+        {
+
+        }
 
         public string GetMain()
         {

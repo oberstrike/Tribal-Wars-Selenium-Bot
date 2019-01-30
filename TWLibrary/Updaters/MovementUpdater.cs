@@ -54,7 +54,7 @@ namespace SQLiteApplication.Tools
                 Client.Print(e.Message);
 #endif
 
-                Client.Print(DateTime.Now + " keine Truppenbewegungen entdeckt");
+                Client.Print("keine Truppenbewegungen entdeckt");
             }
         }
     }

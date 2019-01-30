@@ -85,7 +85,6 @@
     <Compile Include="VillageData\Building.cs" />
     <Compile Include="VillageData\BuildingBuilder.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="UserData\Configuration.cs" />
     <Compile Include="VillageData\ResourcesManager.cs" />
     <Compile Include="VillageData\TradeManager.cs" />
     <Compile Include="VillageData\TroupMovement.cs" />
