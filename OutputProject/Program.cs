@@ -47,7 +47,7 @@ namespace OutputProject
 
                     TimeSpan? timeSpan = null;
                     client.Logout();
-
+                    client.Close();
 
                     if (config.Build)
                     {
@@ -71,10 +71,10 @@ namespace OutputProject
 
                 }
                 catch (Exception e)
-                {
-                    ExceptionHandling(e, client);
+               {
+                   ExceptionHandling(e, client);
      
-                }
+              }
 
             }
         }

@@ -23,7 +23,7 @@ namespace SQLiteApplication.Web
         public static void Sleep()
         {
             Randomizer random = new Randomizer();
-            int delay = (random.Next(Configuration.MinimumTimeToWait, Configuration.MaximumTimeToWait) * 1000) + random.Next(1, 13) * 19;
+            int delay = (random.Next(3, 6) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
