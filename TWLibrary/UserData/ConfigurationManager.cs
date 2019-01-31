@@ -1,27 +1,29 @@
 ﻿using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
-using SQLiteApplication.Web;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TWLibrary.UserData;
+using TWLibrary.Tools;
 
-namespace SQLiteApplication.UserData
+namespace TWLibrary.UserData
 {
 
     public class Configuration
     {
-        public string[] FarmingVillages { get; set; }
-        public string[] BuildOrder { get; set; }
-        public User User { get; set; }
-        public bool Build { get; set; }
-        public bool Farm { get; set; }
-        public bool Trade { get; set; }
-        public int TimeToWait { get; set; }
+        public string[] FarmingVillages { get; set; } = new string[0];
+        public string[] BuildOrder { get; set; } = new string[0];
+        public User User { get; set; } = new User();
+        public bool Build { get; set; } = false;
+        public bool Farm { get; set; } = true;
+        public bool Trade { get; set; } = true;
         public int MinimumTimeToWait { get; set; } = 5;
         public int MaximumTimeToWait { get; set; } = 10;
+        public EmailAccount EmailAccount { get; set; } = new EmailAccount();
 
         public Configuration()
         {
@@ -60,6 +62,9 @@ namespace SQLiteApplication.UserData
                     {
                         JObject o2 = (JObject)JToken.ReadFrom(reader);
                         Configuration = JsonConvert.DeserializeObject<Configuration>(o2.ToString());
+                        CheckIfIsEncrypted(Configuration.EmailAccount);
+                        CheckIfIsEncrypted(Configuration.User);
+
                     }
 
                 }
@@ -73,16 +78,27 @@ namespace SQLiteApplication.UserData
             }
 
         }
-        
+
+        private void CheckIfIsEncrypted(IEncrypted encrypted)
+        {
+            if (!encrypted.IsEncrypted)
+            {
+                encrypted.EncryptPassword();
+                encrypted.IsEncrypted = true;
+                SaveConfigFile(Configuration);
+            }
+        }
+
         public void SaveConfigFile(Configuration config)
         {
             var json = JsonConvert.SerializeObject(config);
+
 
             using (StreamWriter file = File.CreateText(Path))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, config);
-                Client.Print("Config wurde erstellt.");
+                Client.Print("Config wurde gespeichert.");
             }
 
 

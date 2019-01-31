@@ -1,10 +1,10 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Page;
-using SQLiteApplication.Tools;
-using SQLiteApplication.UserData;
-using SQLiteApplication.VillageData;
+using TWLibrary.Page;
+using TWLibrary.Tools;
+using TWLibrary.UserData;
+using TWLibrary.VillageData;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +14,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Web
+namespace TWLibrary.Web
 {
     public class Client
     {

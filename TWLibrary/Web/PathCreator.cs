@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Web
+namespace TWLibrary.Web
 {
     public class PathCreator
     {

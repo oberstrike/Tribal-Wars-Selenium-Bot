@@ -1,14 +1,14 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Tools;
-using SQLiteApplication.Web;
+using TWLibrary.Tools;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Page 
+namespace TWLibrary.Page 
 {
     class BarracksPage : AbstractBuildingPage
     {

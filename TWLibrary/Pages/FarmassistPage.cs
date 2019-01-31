@@ -1,12 +1,12 @@
 ﻿using OpenQA.Selenium;
-using SQLiteApplication.Tools;
-using SQLiteApplication.Updaters;
-using SQLiteApplication.Web;
+using TWLibrary.Tools;
+using TWLibrary.Updaters;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Threading;
 
-namespace SQLiteApplication.Page
+namespace TWLibrary.Page
 {
     public class FarmassistPage : AbstractPage
     {

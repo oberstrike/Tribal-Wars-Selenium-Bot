@@ -1,14 +1,15 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.VillageData;
-using SQLiteApplication.Web;
+using TWLibrary.Tools;
+using TWLibrary.VillageData;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Tools
+namespace TWLibrary.Updaters
 {
     public class MainUpdater : IUpdater
     {

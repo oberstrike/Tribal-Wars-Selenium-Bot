@@ -1,14 +1,15 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Tools;
-using SQLiteApplication.Web;
+using TWLibrary.Tools;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using TWLibrary.Updaters;
 
-namespace SQLiteApplication.Page
+namespace TWLibrary.Page
 {
     public class PlacePage : AbstractPage
     {
