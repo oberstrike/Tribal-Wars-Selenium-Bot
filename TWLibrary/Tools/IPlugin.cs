@@ -1,11 +1,11 @@
-﻿using SQLiteApplication.Page;
-using SQLiteApplication.VillageData;
-using SQLiteApplication.Web;
+﻿using TWLibrary.Page;
+using TWLibrary.VillageData;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SQLiteApplication.Tools
+namespace TWLibrary.Tools
 {
     public interface IPlugin
     {

@@ -1,14 +1,10 @@
-﻿using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Tools;
-using SQLiteApplication.VillageData;
-using SQLiteApplication.Web;
-using System;
+﻿using TWLibrary.Tools;
+using TWLibrary.Updaters;
+using TWLibrary.VillageData;
+using TWLibrary.Web;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace SQLiteApplication.Page
+namespace TWLibrary.Page
 {
     public class MainPage : AbstractPage
     {

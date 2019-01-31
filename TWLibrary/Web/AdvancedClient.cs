@@ -1,10 +1,10 @@
-﻿using SQLiteApplication.Page;
-using SQLiteApplication.Tools;
-using SQLiteApplication.UserData;
+﻿using TWLibrary.Page;
+using TWLibrary.Tools;
+using TWLibrary.UserData;
 using System;
 using System.Collections.Generic;
 
-namespace SQLiteApplication.Web
+namespace TWLibrary.Web
 {
     public class AdvancedClient : Client
     {

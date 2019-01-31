@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.VillageData
+namespace TWLibrary.VillageData
 {
     public class ResourcesManager
     {

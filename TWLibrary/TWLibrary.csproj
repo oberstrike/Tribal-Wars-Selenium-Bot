@@ -37,9 +37,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Microsoft.Extensions.Primitives, Version=2.1.1.0, Culture=neutral, PublicKeyToken=adb9793829ddae60, processorArchitecture=MSIL">
-      <HintPath>..\packages\Microsoft.Extensions.Primitives.2.1.1\lib\netstandard2.0\Microsoft.Extensions.Primitives.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=12.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.12.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
     </Reference>
@@ -63,24 +60,28 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Page\BarracksPage.cs" />
-    <Compile Include="Page\FarmassistPage.cs" />
-    <Compile Include="Page\MainPage.cs" />
-    <Compile Include="Page\MarketPage.cs" />
-    <Compile Include="Page\PlacePage.cs" />
+    <Compile Include="Pages\BarracksPage.cs" />
+    <Compile Include="Pages\FarmassistPage.cs" />
+    <Compile Include="Pages\MainPage.cs" />
+    <Compile Include="Pages\MarketPage.cs" />
+    <Compile Include="Pages\PlacePage.cs" />
     <Compile Include="Tools\AbstractBuildingPage.cs" />
     <Compile Include="Tools\AbstractPage.cs" />
     <Compile Include="Tools\Enums.cs" />
     <Compile Include="Tools\Factory.cs" />
+    <Compile Include="Tools\IEncrypted.cs" />
     <Compile Include="Tools\IPlugin.cs" />
     <Compile Include="Tools\IUpdater.cs" />
     <Compile Include="Tools\Randomizer.cs" />
+    <Compile Include="Tools\StringCipher.cs" />
     <Compile Include="Updaters\FarmassistUpdater.cs" />
     <Compile Include="Updaters\MainUpdater.cs" />
     <Compile Include="Updaters\MarketUpdater.cs" />
     <Compile Include="Updaters\MovementUpdater.cs" />
     <Compile Include="Updaters\TroopUpdater.cs" />
     <Compile Include="UserData\ConfigurationManager.cs" />
+    <Compile Include="UserData\EmailAccount.cs" />
+    <Compile Include="UserData\EmailProvider.cs" />
     <Compile Include="UserData\User.cs" />
     <Compile Include="VillageData\Building.cs" />
     <Compile Include="VillageData\BuildingBuilder.cs" />

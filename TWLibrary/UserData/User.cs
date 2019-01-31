@@ -2,19 +2,21 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using TWLibrary.Tools;
 
-namespace SQLiteApplication.UserData
+namespace TWLibrary.UserData
 {
-    public class User
+    public class User : IEncrypted
     {
         public string Name { get; set; } = "Username";
         public string Password { get; set; } = "Passwort";
         public int Server { get; set; } = 160;
         public String TorBrowserPath { get; set; }
         public bool HasFarmmanager { get; set; } = true;
-
+        public bool IsEncrypted { get; set; } = false;
         public bool IsPremium { get; set; } = true;
 
+        private static readonly string _geheim = "geheim";
         public override string ToString()
         {
             return $"Name: {Name}, Server: {Server}";
@@ -33,5 +35,14 @@ namespace SQLiteApplication.UserData
             return GetVillage(Convert.ToInt32(id));
         }
 
+        public void EncryptPassword()
+        {
+            Password = StringCipher.Encrypt(Password, _geheim);
+        }
+
+        public string DecryptPassword()
+        {
+            return StringCipher.Decrypt(Password, _geheim);
+        }
     }
 }

@@ -1,12 +1,12 @@
 ﻿using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Tools;
+using TWLibrary.Tools;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Updaters
+namespace TWLibrary.Updaters
 {
     class FarmassistUpdater : IUpdater
     {

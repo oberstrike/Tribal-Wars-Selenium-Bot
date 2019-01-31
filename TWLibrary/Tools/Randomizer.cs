@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Security.Cryptography;
 using System.Text;
 
-namespace SQLiteApplication.Tools
+namespace TWLibrary.Tools
 {
     public class Randomizer
     {

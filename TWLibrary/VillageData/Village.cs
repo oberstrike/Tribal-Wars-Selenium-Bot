@@ -1,15 +1,15 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Page;
-using SQLiteApplication.Tools;
-using SQLiteApplication.UserData;
-using SQLiteApplication.VillageData;
-using SQLiteApplication.Web;
+using TWLibrary.Page;
+using TWLibrary.Tools;
+using TWLibrary.UserData;
+using TWLibrary.VillageData;
+using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace SQLiteApplication
+namespace TWLibrary
 {
     public sealed class Village
     {

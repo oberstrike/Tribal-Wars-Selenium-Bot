@@ -1,10 +1,10 @@
 ﻿using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Firefox;
-using SQLiteApplication.Page;
-using SQLiteApplication.Tools;
-using SQLiteApplication.UserData;
-using SQLiteApplication.VillageData;
+using TWLibrary.Page;
+using TWLibrary.Tools;
+using TWLibrary.UserData;
+using TWLibrary.VillageData;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +14,7 @@ using System.Reflection;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace SQLiteApplication.Web
+namespace TWLibrary.Web
 {
     public class Client
     {
@@ -23,7 +23,7 @@ namespace SQLiteApplication.Web
         public static void Sleep()
         {
             Randomizer random = new Randomizer();
-            int delay = (random.Next(Configuration.MinimumTimeToWait, Configuration.MaximumTimeToWait) * 1000) + random.Next(1, 13) * 19;
+            int delay = (random.Next(3, 6) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
