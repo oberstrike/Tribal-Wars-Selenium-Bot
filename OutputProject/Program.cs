@@ -18,8 +18,6 @@ namespace OutputProject
             Configuration config = new ConfigurationManager(@"Config.json").Configuration;
             TimeSpan? timeSpan = null;
 
-            Console.Read();
-
             EmailAccount account = config.EmailAccount;
             var randomizer = new Randomizer();
             int errorCount = 0;
