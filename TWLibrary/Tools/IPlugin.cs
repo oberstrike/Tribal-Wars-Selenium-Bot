@@ -21,7 +21,32 @@ namespace TWLibrary.Tools
         }
 
     }
-    
+    public class ConquerPlugin : IPlugin
+    {
+        public void Compute(Client client)
+        {
+            List<Village> villagesWithAG = new List<Village>();
+            string target = "";
+  
+
+            foreach (Village village in client.Config.User.Villages)
+            {
+                var value = village.Units[Unit.SNOB];
+                if (value > 0)
+                    villagesWithAG.Add(village);
+            }
+
+            if(villagesWithAG.Count() > 0)
+            {
+
+
+
+            }
+
+
+        }
+    }
+
     public class TradingPlugin : IPlugin
     {
         public void Compute(Client client)

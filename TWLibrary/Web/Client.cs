@@ -23,7 +23,7 @@ namespace TWLibrary.Web
         public static void Sleep()
         {
             Randomizer random = new Randomizer();
-            int delay = (random.Next(3, 6) * 1000) + random.Next(1, 13) * 19;
+            int delay = (random.Next(1, 3) * 1000) + random.Next(1, 13) * 19;
             Task.Delay(delay).Wait();
         }
 
@@ -197,7 +197,7 @@ namespace TWLibrary.Web
                 if (!contains)
                 {
                     Driver.FindElement(By.Id("user")).SendKeys(Config.User.Name);
-                    Driver.FindElement(By.Id("password")).SendKeys(Config.User.Password);
+                    Driver.FindElement(By.Id("password")).SendKeys(Config.User.DecryptPassword());
                     Sleep();
                     Driver.FindElement(By.ClassName("btn-login")).Click();
                     Sleep();

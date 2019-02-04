@@ -49,6 +49,11 @@ namespace TWLibrary.Web
         {
             return $"{GetBasePath()}&screen=am_farm";
         }
+        
+        public string GetFarmAssistSecondPage()
+        {
+            return GetFarmAssist() + "&order=distance&dir=asc&Farm_page=1";
+        }
 
         public string GetOverview()
         {

@@ -33,7 +33,7 @@ namespace OutputProject
                     client.Login();
                     client.Update();
                     client.Logout();
-
+                    client.Close();
 
                     if (config.Build)
                     {
@@ -58,8 +58,8 @@ namespace OutputProject
                 {
                     var weiter = ExceptionHandling(e, client, new EmailProvider(account));
 
-                    if (!weiter)
-                        break;
+                   if (!weiter)
+                       break;
                 }
 
             }

@@ -22,7 +22,7 @@ namespace TWLibrary.UserData
             }
             set
             {
-                _targetEmail = value + "TEST";
+                _targetEmail = value;
             }
         }
 

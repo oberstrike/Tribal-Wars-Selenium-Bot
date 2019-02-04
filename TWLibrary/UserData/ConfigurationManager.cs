@@ -9,6 +9,7 @@ using System.Text;
 using System.Threading.Tasks;
 using TWLibrary.UserData;
 using TWLibrary.Tools;
+using System.Threading;
 
 namespace TWLibrary.UserData
 {
@@ -100,6 +101,7 @@ namespace TWLibrary.UserData
                 serializer.Serialize(file, config);
                 Client.Print("Config wurde gespeichert.");
             }
+            Thread.Sleep(5000);
 
 
 
