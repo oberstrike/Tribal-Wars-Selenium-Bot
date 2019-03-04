@@ -8,7 +8,7 @@
     <OutputType>Exe</OutputType>
     <RootNamespace>OutputProject</RootNamespace>
     <AssemblyName>OutputProject</AssemblyName>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <Deterministic>true</Deterministic>
