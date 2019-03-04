@@ -8,7 +8,7 @@
     <OutputType>Library</OutputType>
     <RootNamespace>SQLiteApplication</RootNamespace>
     <AssemblyName>TWLibrary</AssemblyName>
-    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
+    <TargetFramework>netcoreapp2.1</TargetFramework>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
     <NuGetPackageImportStamp>
