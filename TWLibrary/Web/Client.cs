@@ -37,19 +37,18 @@ namespace TWLibrary.Web
         private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
         private FirefoxOptions firefoxOptions;
         private ChromeOptions chromeOptions;
-        public List<string> BuildOrder { get; set; } = new List<string>() { "snob" };
         public bool IsConnected { get; set; }
         public bool IsLoggedIn { get; set; }
-        public Configuration Config { get; set; }
         public List<IPlugin> Plugins { get; set; } = new List<IPlugin>();
         public Process TorProcess { get; set; }
         public IWebDriver Driver { get; set; }
+        public User User { get; set; }
         #endregion
 
         #region METHODS
         public void Update()
         {
-            foreach (Village village in Config.User.Villages)
+            foreach (Village village in User.Villages)
             {
                 Client.Print("Starte Update von " + village.Name);
                 village.Update();
@@ -83,13 +82,13 @@ namespace TWLibrary.Web
         }
         public IEnumerable<Building> GetBuildeableBuildings()
         {
-            return Config.User.Villages.SelectMany(each => each.GetBuildingsInBuildOrder());
+            return User.Villages.SelectMany(each => each.GetBuildingsInBuildOrder());
 
         }
         public TimeSpan? GetBestTimeToCanBuild()
         {
 
-            foreach (Village village in Config.User.Villages)
+            foreach (Village village in User.Villages)
             {
                 if (village.BuildingsInQueue == null)
                     break;
@@ -106,13 +105,13 @@ namespace TWLibrary.Web
         }
         public TimeSpan? GetBestTimeForQueue()
         {
-            var a = Config.User.Villages.Select(each => new TimeSpan(each.BuildingsInQueue.Sum(time => time.Value.Ticks))).Where(each => each != TimeSpan.Zero).Select(each => each);
+            var a = User.Villages.Select(each => new TimeSpan(each.BuildingsInQueue.Sum(time => time.Value.Ticks))).Where(each => each != TimeSpan.Zero).Select(each => each);
             return a.Min();
 
         }
-        public Client(Configuration configuration)
+        public Client(User user)
         {
-            Config = configuration;
+            User = user;
 
             firefoxOptions = new FirefoxOptions();
    //         firefoxOptions.AddArgument("--headless");
@@ -122,10 +121,10 @@ namespace TWLibrary.Web
             
 
 
-            if (configuration.User == null)
+            if (User == null)
                 return;
 
-            if (configuration.User.TorBrowserPath != null)
+            if (User.TorBrowserPath != null)
             {
                 ConfigureAdvancedBrowser();
             }
@@ -138,7 +137,7 @@ namespace TWLibrary.Web
             {
 
                 TorProcess = new Process();
-                TorProcess.StartInfo.FileName = Config.User.TorBrowserPath;
+                TorProcess.StartInfo.FileName = User.TorBrowserPath;
                 TorProcess.StartInfo.Arguments = " - n";
                 TorProcess.StartInfo.WindowStyle = ProcessWindowStyle.Maximized;
                 TorProcess.Start();
@@ -193,11 +192,11 @@ namespace TWLibrary.Web
                 {
                     Driver.Navigate().GoToUrl(urls[0]);
                 }
-                bool contains = Driver.PageSource.Contains(Config.User.Name);
+                bool contains = Driver.PageSource.Contains(User.Name);
                 if (!contains)
                 {
-                    Driver.FindElement(By.Id("user")).SendKeys(Config.User.Name);
-                    Driver.FindElement(By.Id("password")).SendKeys(Config.User.DecryptPassword());
+                    Driver.FindElement(By.Id("user")).SendKeys(User.Name);
+                    Driver.FindElement(By.Id("password")).SendKeys(User.DecryptPassword());
                     Sleep();
                     Driver.FindElement(By.ClassName("btn-login")).Click();
                     Sleep();
@@ -205,7 +204,7 @@ namespace TWLibrary.Web
 
                 try
                 {
-                    Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(Config.User.Server.ToString())).First().Click();
+                    Driver.FindElements(By.ClassName("world_button_active")).Where(each => each.Text.Contains(User.Server.ToString())).First().Click();
                 }
                 catch (Exception e)
                 {
@@ -218,9 +217,9 @@ namespace TWLibrary.Web
                 {
                     var userData = (bool)Driver.ExecuteScript("return TribalWars.getGameData().features[\"Premium\"].active");
 
-                    Config.User.IsPremium = userData;
+                    User.IsPremium = userData;
 
-                    Config.User.Villages = FindVillagesInOverviewPage();
+                    User.Villages = FindVillagesInOverviewPage();
                 }
                 IsLoggedIn = true;
 
@@ -238,9 +237,9 @@ namespace TWLibrary.Web
 
             for (int i = 0; i < ids.Length; i++)
             {
-                Village village = Factory.GetVillage(ids[i], Config.User.Server, Driver, Config.User, Config.BuildOrder);
+                Village village = Factory.GetVillage(ids[i], User.Server, Driver, User, User.BuildOrder);
                 village.Name = names[i];
-                village.FarmingVillages = Config.FarmingVillages;
+                village.FarmingVillages = User.FarmingVillages;
                 villages.Add(village);
 
             }
@@ -250,7 +249,7 @@ namespace TWLibrary.Web
         private KeyValuePair<double[], string[]> GetVillageIds()
         {
             Sleep();
-            GoTo(PathCreator.GetOverview(Config.User.Server.ToString()));
+            GoTo(PathCreator.GetOverview(User.Server.ToString()));
             Sleep();
             IWebElement trTag = Driver.FindElement(By.XPath("//tr[contains(@class,'nowrap')]"));
 
@@ -268,7 +267,7 @@ namespace TWLibrary.Web
         }
         public void Logout()
         {
-            Driver.Navigate().GoToUrl(PathCreator.GetLogout(Config.User.Server.ToString()));
+            Driver.Navigate().GoToUrl(PathCreator.GetLogout(User.Server.ToString()));
             IsLoggedIn = false;
         }
         public void Close()

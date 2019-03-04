@@ -21,15 +21,14 @@ namespace TWLibrary.Tools
         }
 
     }
+    [Obsolete("Idee")]
     public class ConquerPlugin : IPlugin
     {
         public void Compute(Client client)
         {
             List<Village> villagesWithAG = new List<Village>();
-            string target = "";
-  
-
-            foreach (Village village in client.Config.User.Villages)
+            
+            foreach (Village village in client.User.Villages)
             {
                 var value = village.Units[Unit.SNOB];
                 if (value > 0)
@@ -51,7 +50,7 @@ namespace TWLibrary.Tools
     {
         public void Compute(Client client)
         {
-            foreach(var village in client.Config.User.Villages)
+            foreach(var village in client.User.Villages)
             {
                  if (village.Pages.Where(each => each is MarketPage).Count() == 0)             
                     throw new PluginCouldntLoadException(this.GetType());
@@ -59,7 +58,7 @@ namespace TWLibrary.Tools
 
             }
 
-            IEnumerable<ResourcesManager> managers = client.Config.User.Villages.Select(each => each.RManager);
+            IEnumerable<ResourcesManager> managers = client.User.Villages.Select(each => each.RManager);
 
             string[] ressis = { "Wood", "Iron", "Stone" };
             foreach (string res in ressis)

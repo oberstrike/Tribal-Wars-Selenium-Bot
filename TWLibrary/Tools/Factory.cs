@@ -17,14 +17,14 @@ namespace TWLibrary.Tools
             return new Village(id, serverId, driver, user, buildOrder);
         }
 
-        public static Client GetAdvancedClient(Configuration config)
+        public static Client GetAdvancedClient(User user)
         {
-            return new AdvancedClient(config);
+            return new AdvancedClient(user);
         }
 
-        public static Client GetClient(Configuration config)
+        public static Client GetClient(User user)
         {
-            return new Client(config);
+            return new Client(user);
         }
         
 

@@ -15,6 +15,11 @@ namespace TWLibrary.UserData
         public bool HasFarmmanager { get; set; } = true;
         public bool IsEncrypted { get; set; } = false;
         public bool IsPremium { get; set; } = true;
+        public bool Farm { get; set; } = false;
+        public bool Build { get; set; } = false;
+        public bool Trade { get; set; } = false;
+        public string[] FarmingVillages { get; set; } = new string[0];
+        public string[] BuildOrder { get; set; } = new string[0];
 
         private static readonly string _geheim = "geheim";
         public override string ToString()

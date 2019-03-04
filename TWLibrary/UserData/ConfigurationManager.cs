@@ -16,12 +16,8 @@ namespace TWLibrary.UserData
 
     public class Configuration
     {
-        public string[] FarmingVillages { get; set; } = new string[0];
-        public string[] BuildOrder { get; set; } = new string[0];
-        public User User { get; set; } = new User();
-        public bool Build { get; set; } = false;
-        public bool Farm { get; set; } = true;
-        public bool Trade { get; set; } = true;
+
+        public User[] Users { get; set; } = { new UserData.User() };
         public int MinimumTimeToWait { get; set; } = 5;
         public int MaximumTimeToWait { get; set; } = 10;
         public EmailAccount EmailAccount { get; set; } = new EmailAccount();
@@ -35,7 +31,13 @@ namespace TWLibrary.UserData
 
         public override string ToString()
         {
-            return $"User: {User}, Using Tor:{User.TorBrowserPath != null}";
+            string str = "";
+            foreach(User user in Users)
+            {
+                str += $"User: {user}, Using Tor:{user.TorBrowserPath != null} \n";
+            }
+
+            return str;
         }
     }
 
@@ -64,7 +66,10 @@ namespace TWLibrary.UserData
                         JObject o2 = (JObject)JToken.ReadFrom(reader);
                         Configuration = JsonConvert.DeserializeObject<Configuration>(o2.ToString());
                         CheckIfIsEncrypted(Configuration.EmailAccount);
-                        CheckIfIsEncrypted(Configuration.User);
+                        foreach(User user in Configuration.Users)
+                        {
+                            CheckIfIsEncrypted(user);
+                        }
 
                     }
 

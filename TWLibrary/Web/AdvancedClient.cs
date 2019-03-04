@@ -8,9 +8,9 @@ namespace TWLibrary.Web
 {
     public class AdvancedClient : Client
     {
-        public AdvancedClient(Configuration configuration) : base(configuration)
+        public AdvancedClient(User user) : base(user)
         {
-            if (Config.Trade)
+            if (User.Trade)
                 Plugins.Add(new TradingPlugin());
         }
 
@@ -21,11 +21,11 @@ namespace TWLibrary.Web
                 List<Village> villages = base.FindVillagesInOverviewPage();
                 foreach (Village village in villages)
                 {
-                    if (Config.Farm)
+                    if (User.Farm)
                         village.Pages.Add(new FarmassistPage(village));
-                    if (Config.Build)
+                    if (User.Build)
                         village.Pages.Add(new MainPage(village));
-                    if (Config.Trade)
+                    if (User.Trade)
                         village.Pages.Add(new MarketPage(village));
                     village.Pages.Shuffle();
                 }
