@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using System.Linq;
+﻿using System;
+using System.Collections.Generic;
+using System.Reflection;
 
 namespace TWLibrary.Tools
 {
@@ -19,6 +20,8 @@ namespace TWLibrary.Tools
         private double _ironPop;
         private double _freePop;
 
+        public double WoodLevel { get => _woodLevel; set => _woodLevel = value; }
+
         public VillageBuilder(Village village)
         {
 
@@ -37,7 +40,7 @@ namespace TWLibrary.Tools
             _stonePop = village.GetBuilding("stone").NeededPopulation;
             _ironPop = village.GetBuilding("iron").NeededPopulation;
             _freePop = village.RManager.MaxPopulation - village.RManager.Population;
-           
+
 
         }
 
@@ -45,10 +48,10 @@ namespace TWLibrary.Tools
         {
             string[] targets = new string[count];
 
-            for(int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)
             {
                 string target = GetNextResourceBuilding();
-
+                UpdateTarget(target);
 
             }
 
@@ -56,13 +59,36 @@ namespace TWLibrary.Tools
             return null;
         }
 
+        private void UpdateTarget(string target)
+        {
+            FieldInfo[] types = GetType().GetFields(
+                         BindingFlags.NonPublic |
+                         BindingFlags.Instance);
+            Console.WriteLine(types.Length);
+
+            foreach (FieldInfo type in types)
+            {
+                Console.WriteLine(type.Name);
+                if (type.Name.Equals($"_{target}Level"))
+                {
+                    
+                    var value = (double) type.GetValue(this);
+                    var newValue = value++;
+                    type.SetValue(this, newValue);
+
+                }
+
+            }
+
+
+        }
+
         public string GetNextResourceBuilding()
         {
 
 
-
             KeyValuePair<string, double> target = GetNextResource();
-
+            UpdateTarget("wood");
             double targetPop = target.Value;
             if (targetPop > _freePop)
             {
