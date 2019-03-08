@@ -32,9 +32,7 @@ namespace TWLibrary.Page
                 Village.Driver.FindElement(By.Id("full_losses_checkbox")).Click();
                 Village.Driver.Navigate().Refresh();
             }
-
-
-
+            
             var showAllAttacks = Village.Driver.FindElement(By.Id("attacked_checkbox"));
             isChecked = showAllAttacks.GetAttribute("checked");
         
@@ -43,12 +41,8 @@ namespace TWLibrary.Page
                 Village.Driver.FindElement(By.Id("attacked_checkbox")).Click();
                 Village.Driver.Navigate().Refresh();
             }
+            var unit = "light";
 
-
-
-
-
-            string unit = "light";
 
             double aCount = Village.Units[(Unit)Enum.Parse(typeof(Unit), unit.ToUpper())];
 

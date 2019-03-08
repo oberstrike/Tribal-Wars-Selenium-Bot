@@ -46,21 +46,19 @@ namespace OutputProject
                         }
                         timeSpan = timeSpan.Value.Add(new TimeSpan(0, 1, 0));
                     }
-
-
-                    timeSpan = new TimeSpan(0, randomizer.Next(config.MinimumTimeToWait, config.MaximumTimeToWait), randomizer.Next(0, 60));
+                 
                     Client.Print("Schlafe für " + timeSpan);
                     Client.Print("Schlafe bis " + DateTime.Now.Add(timeSpan.Value));
                     Task.Delay(timeSpan.Value).Wait();
 
-                }
+               }
                 catch (Exception e)
                 {
-                    var weiter = ExceptionHandling(e, client, new EmailProvider(account));
+                   var weiter = ExceptionHandling(e, client, new EmailProvider(account));
 
-                   if (!weiter)
-                       break;
-                }
+                if (!weiter)
+                     break;
+               }
 
             }
         }
