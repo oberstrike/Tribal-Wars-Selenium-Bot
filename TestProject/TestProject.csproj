@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{090BE0BF-4856-47EC-9064-C7D7BEB88228}</ProjectGuid>
+    <ProjectGuid>{9771D69D-ECBF-436E-823C-B9224944C1BF}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TWTest</RootNamespace>
-    <AssemblyName>TWTest</AssemblyName>
+    <RootNamespace>TestProject</RootNamespace>
+    <AssemblyName>TestProject</AssemblyName>
     <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{3AC096D0-A1C2-E12C-1390-A8335801FDAB};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -50,14 +50,15 @@
     <Reference Include="WebDriver, Version=3.141.0.0, Culture=neutral, PublicKeyToken=null" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Tools\VillageBuilderTests.cs" />
+    <Compile Include="UnitTest1.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="VillageData\VillageTests.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\SQLiteApplication\TWLibrary.csproj">
+    <ProjectReference Include="..\TWLibrary\TWLibrary.csproj">
       <Project>{4AFEC5D3-0290-4408-8A3C-1CD5BCC3EE80}</Project>
       <Name>TWLibrary</Name>
     </ProjectReference>

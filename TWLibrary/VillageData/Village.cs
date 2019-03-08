@@ -13,19 +13,19 @@ namespace TWLibrary
 {
     public sealed class Village
     {
-        public Village(double id, double serverId, IWebDriver driver, User user, string[] buildOrder )
+        public Village(double id, double serverId, IWebDriver driver, User user )
         {
             Id = id;
             ServerId = serverId;
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
             MyUser = user;
-            BuildOrder = buildOrder;
         }
 
 
         #region PROPERTIES    
         public User MyUser { get; set; }
+        public VillageBuilder Builder { get; set; }
         public List<AbstractPage> Pages { get; set; } = new List<AbstractPage>();
         public ICollection<Building> Buildings { get; set; }
         public IWebDriver Driver { get; set; }
@@ -38,7 +38,6 @@ namespace TWLibrary
         public ICollection<TroupMovement> OutcomingTroops { get; set; }
         public Dictionary<string, object> Technologies { get; set; }
         public Dictionary<Unit, double> Units { get; set; }
-        public string[] BuildOrder {get; set;}
         public IList<string> GetAttackedVillages() => OutcomingTroops.Select(x => x.TargetId).ToList();
         public PathCreator pathCreator { get; set; }
         public string Csrf { get; internal set; }
@@ -140,19 +139,17 @@ namespace TWLibrary
             }
             return false;
         }
-
         public bool SendRessourceToVillage(Dictionary<string, double> resources, String coordinates)
         {
-            return SendRessourceToVillage(resources, new Village(0, 0, null, null, null) { Coordinates = coordinates });
+            return SendRessourceToVillage(resources, new Village(0, 0, null, null) { Coordinates = coordinates });
 
         }
         public IEnumerable<Building> GetBuildingsInBuildOrder()
         {
-            return Buildings.Where(each => {
-                return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
-            }).Select(each =>
+            return Buildings.Where(each =>
             {
-                return each;
+                return true;
+         //       return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
             });
 
         }

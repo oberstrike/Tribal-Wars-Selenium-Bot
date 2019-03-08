@@ -74,6 +74,7 @@
     <Compile Include="Tools\IUpdater.cs" />
     <Compile Include="Tools\Randomizer.cs" />
     <Compile Include="Tools\StringCipher.cs" />
+    <Compile Include="Tools\VillageBuilder.cs" />
     <Compile Include="Updaters\FarmassistUpdater.cs" />
     <Compile Include="Updaters\MainUpdater.cs" />
     <Compile Include="Updaters\MarketUpdater.cs" />

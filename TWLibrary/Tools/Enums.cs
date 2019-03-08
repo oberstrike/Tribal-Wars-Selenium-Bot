@@ -3,6 +3,7 @@ using OpenQA.Selenium.Firefox;
 using TWLibrary.Web;
 using System;
 using System.Collections.Generic;
+using System.Collections;
 
 namespace TWLibrary.Tools
 {

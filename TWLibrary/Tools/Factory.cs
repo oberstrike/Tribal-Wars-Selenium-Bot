@@ -12,9 +12,9 @@ namespace TWLibrary.Tools
 {
     public static class Factory
     {
-        public static Village GetVillage(double id, double serverId, IWebDriver driver, User user, string[] buildOrder)
+        public static Village GetVillage(double id, double serverId, IWebDriver driver, User user)
         {
-            return new Village(id, serverId, driver, user, buildOrder);
+            return new Village(id, serverId, driver, user);
         }
 
         public static Client GetAdvancedClient(User user)

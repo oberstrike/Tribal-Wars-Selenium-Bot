@@ -34,7 +34,7 @@ namespace TWLibrary.Web
         #endregion
 
         #region Properties
-        private readonly List<string> urls = new List<string>() { "https://www.die-staemme.de/" };
+        private readonly string _mainURL = "https://www.die-staemme.de/";
         private FirefoxOptions firefoxOptions;
         private ChromeOptions chromeOptions;
         public bool IsConnected { get; set; }
@@ -50,14 +50,14 @@ namespace TWLibrary.Web
         {
             foreach (Village village in User.Villages)
             {
-                Client.Print("Starte Update von " + village.Name);
+                Print("Starte Update von " + village.Name);
                 village.Update();
-                Client.Print("Update wurde beendet von " + village.Id);
+                Print("Update wurde beendet von " + village.Name);
             }
 
-            foreach (IPlugin plugin in Plugins)
+            foreach (IVillagesPlugin plugin in Plugins)
             {
-                plugin.Compute(this);
+                plugin.Compute(User.Villages);
             }
         }
         public Building GetBuildingWithShortestTimeToBuild(List<Building> buildings)
@@ -159,7 +159,7 @@ namespace TWLibrary.Web
                 Driver = GetFirefoxDriver();
                 Driver.Manage().Timeouts().PageLoad = TimeSpan.FromSeconds(25);
                 Driver.Manage().Timeouts().ImplicitWait = TimeSpan.FromSeconds(10);
-                Driver.Navigate().GoToUrl(urls[0]);
+                Driver.Navigate().GoToUrl(_mainURL);
                 IsConnected = true;
             }
             catch (Exception e)
@@ -188,9 +188,9 @@ namespace TWLibrary.Web
         {
             if (IsConnected)
             {
-                if (!Driver.Url.Equals(urls[0]))
+                if (!Driver.Url.Equals(_mainURL))
                 {
-                    Driver.Navigate().GoToUrl(urls[0]);
+                    Driver.Navigate().GoToUrl(_mainURL);
                 }
                 bool contains = Driver.PageSource.Contains(User.Name);
                 if (!contains)
@@ -213,7 +213,7 @@ namespace TWLibrary.Web
                 }
 
                 Sleep();
-                if (Driver.Url != urls[0])
+                if (Driver.Url != _mainURL)
                 {
                     var userData = (bool)Driver.ExecuteScript("return TribalWars.getGameData().features[\"Premium\"].active");
 
@@ -237,7 +237,7 @@ namespace TWLibrary.Web
 
             for (int i = 0; i < ids.Length; i++)
             {
-                Village village = Factory.GetVillage(ids[i], User.Server, Driver, User, User.BuildOrder);
+                Village village = Factory.GetVillage(ids[i], User.Server, Driver, User);
                 village.Name = names[i];
                 village.FarmingVillages = User.FarmingVillages;
                 villages.Add(village);

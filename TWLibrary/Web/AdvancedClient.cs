@@ -10,8 +10,7 @@ namespace TWLibrary.Web
     {
         public AdvancedClient(User user) : base(user)
         {
-            if (User.Trade)
-                Plugins.Add(new TradingPlugin());
+         
         }
 
         internal override List<Village> FindVillagesInOverviewPage()

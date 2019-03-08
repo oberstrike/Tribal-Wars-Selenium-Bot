@@ -16,10 +16,10 @@ namespace TWLibrary.Updaters
         private Village village;
         private IWebDriver driver;
 
-        private string _villageScript = "return TribalWars.getGameData().village";
-        private string _buildingsScript = "return BuildingMain.buildings";
-        private By _buildingsInQueueTimePath = By.XPath("//tr[contains(@class, 'buildorder')]//span");
-        private By _buildingsInQueueNamePath = By.XPath("//tr[contains(@class, 'buildorder')]//img");
+        private readonly string _getVillageScript = "return TribalWars.getGameData().village";
+        private readonly string _getBuildingsScript = "return BuildingMain.buildings";
+        private readonly By _buildingsInQueueTimePath = By.XPath("//tr[contains(@class, 'buildorder')]//span");
+        private readonly By _buildingsInQueueNamePath = By.XPath("//tr[contains(@class, 'buildorder')]//img");
 
         public void Update(Village village)
         {
@@ -67,7 +67,7 @@ namespace TWLibrary.Updaters
 
         private void UpdateRessources()
         {
-            var villageData = (Dictionary<string, object>)driver.ExecuteScript(_villageScript);
+            var villageData = (Dictionary<string, object>)driver.ExecuteScript(_getVillageScript);
  
 
 
@@ -82,13 +82,18 @@ namespace TWLibrary.Updaters
             manager.StorageMax = (long)villageData["storage_max"];
             manager.Population = (long)villageData["pop"];
             manager.MaxPopulation = (long)villageData["pop_max"];
-            village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript(_buildingsScript));
+            village.Buildings = GetBuildings((Dictionary<string, object>)driver.ExecuteScript(_getBuildingsScript));
             village.Csrf = (string)driver.ExecuteScript("return csrf_token");
             village.RManager = manager;
             village.Coordinates = (string) villageData["coord"];
            
         }
 
+        /// <summary>
+        /// Extrahiert die Gebäude mittels der GameData
+        /// </summary>
+        /// <param name="keyValuePairs"></param>
+        /// <returns></returns>
         private ICollection<Building> GetBuildings(Dictionary<string, object> keyValuePairs)
         {
             List<Building> newBuildings = new List<Building>();
@@ -135,7 +140,12 @@ namespace TWLibrary.Updaters
             }
             return newBuildings;
         }
-
+        /// <summary>
+        /// Extrahiert und Konvertiert die Zeit aus dem Gebäudetext im Hauptgebäude
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="timeSpan"></param>
+        /// <returns>Zeit bis zum Bau</returns>
         private static TimeSpan? ConvertTextToTime(string text, TimeSpan? timeSpan)
         {
             if (text.Length > 1 && text.Contains("Genug") && text.Contains("um") && !text.Contains("am"))
