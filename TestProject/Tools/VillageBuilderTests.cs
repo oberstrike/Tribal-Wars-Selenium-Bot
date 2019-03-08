@@ -17,10 +17,10 @@ namespace TWLibrary.Tools.Tests
         public void GetNextResourceBuilding()
         {
             Village village = new Village(10, 160, null, new UserData.User());
-            var wood = new BuildingBuilder().WithLevel(30).WithPopulation(10).WithName("wood").Build();
-            var stone = new BuildingBuilder().WithLevel(29).WithPopulation(15).WithName("stone").Build();
-            var iron = new BuildingBuilder().WithLevel(29).WithPopulation(25).WithName("iron").Build();
-            var farm = new BuildingBuilder().WithLevel(20).WithName("farm").Build();
+            var wood = new BuildingBuilder().WithLevel(5).WithPopulation(10).WithName("wood").Build();
+            var stone = new BuildingBuilder().WithLevel(5).WithPopulation(15).WithName("stone").Build();
+            var iron = new BuildingBuilder().WithLevel(5).WithPopulation(25).WithName("iron").Build();
+            var farm = new BuildingBuilder().WithLevel(5).WithName("farm").Build();
             village.RManager = new ResourcesManager(village);
             village.RManager.Population = 100;
             village.RManager.MaxPopulation = 200;
@@ -36,8 +36,8 @@ namespace TWLibrary.Tools.Tests
            
 
             VillageBuilder builder = new VillageBuilder(village);
-            var target = builder.GetNextResourceBuilding();
-            Console.WriteLine(target);
+            var targets = builder.GetNextRessourceBuildings(20);
+            Console.WriteLine(targets);
             Assert.IsTrue(true);
         }
     }

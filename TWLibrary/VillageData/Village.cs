@@ -146,9 +146,11 @@ namespace TWLibrary
         }
         public IEnumerable<Building> GetBuildingsInBuildOrder()
         {
+            Builder = new VillageBuilder(this);
+            var target = Builder.GetNextResourceBuilding();
             return Buildings.Where(each =>
             {
-                return true;
+                return each.Name.Equals(target) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
          //       return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
             });
 

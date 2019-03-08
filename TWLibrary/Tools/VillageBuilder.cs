@@ -20,26 +20,39 @@ namespace TWLibrary.Tools
         private double _ironPop;
         private double _freePop;
 
+        
+
         public double WoodLevel { get => _woodLevel; set => _woodLevel = value; }
+        public double StoneLevel { get => _stoneLevel; set => _stoneLevel = value; }
+        public double IronLevel { get => _ironLevel; set => _ironLevel = value; }
+        public double FarmLevel { get => _farmLevel; set => _farmLevel = value; }
+        public double MaxStorage { get => _maxStorage; set => _maxStorage = value; }
+        public double Wood { get => _wood; set => _wood = value; }
+        public double Iron { get => _iron; set => _iron = value; }
+        public double Stone { get => _stone; set => _stone = value; }
+        public double WoodPop { get => _woodPop; set => _woodPop = value; }
+        public double StonePop { get => _stonePop; set => _stonePop = value; }
+        public double IronPop { get => _ironPop; set => _ironPop = value; }
+        public double FreePop { get => _freePop; set => _freePop = value; }
 
         public VillageBuilder(Village village)
         {
 
             _woodLevel = village.GetBuilding("wood").Level;
-            _stoneLevel = village.GetBuilding("stone").Level;
-            _ironLevel = village.GetBuilding("iron").Level;
+            StoneLevel = village.GetBuilding("stone").Level;
+            IronLevel = village.GetBuilding("iron").Level;
             //_farmLevel = 10;
-            _farmLevel = village.GetBuilding("farm").Level;
-            _maxStorage = village.RManager.StorageMax;
-            _wood = village.RManager.Wood;
-            _iron = village.RManager.Iron;
-            _stone = village.RManager.Stone;
+            FarmLevel = village.GetBuilding("farm").Level;
+            MaxStorage = village.RManager.StorageMax;
+            Wood = village.RManager.Wood;
+            Iron = village.RManager.Iron;
+            Stone = village.RManager.Stone;
 
 
-            _woodPop = village.GetBuilding("wood").NeededPopulation;
-            _stonePop = village.GetBuilding("stone").NeededPopulation;
-            _ironPop = village.GetBuilding("iron").NeededPopulation;
-            _freePop = village.RManager.MaxPopulation - village.RManager.Population;
+            WoodPop = village.GetBuilding("wood").NeededPopulation;
+            StonePop = village.GetBuilding("stone").NeededPopulation;
+            IronPop = village.GetBuilding("iron").NeededPopulation;
+            FreePop = village.RManager.MaxPopulation - village.RManager.Population;
 
 
         }
@@ -51,8 +64,8 @@ namespace TWLibrary.Tools
             for (int i = 0; i < count; i++)
             {
                 string target = GetNextResourceBuilding();
+                Console.WriteLine("Target= " + target);
                 UpdateTarget(target);
-
             }
 
 
@@ -61,19 +74,21 @@ namespace TWLibrary.Tools
 
         private void UpdateTarget(string target)
         {
-            FieldInfo[] types = GetType().GetFields(
-                         BindingFlags.NonPublic |
-                         BindingFlags.Instance);
+            PropertyInfo[] types = GetType().GetProperties();
             Console.WriteLine(types.Length);
 
-            foreach (FieldInfo type in types)
+            foreach (PropertyInfo type in types)
             {
-                Console.WriteLine(type.Name);
-                if (type.Name.Equals($"_{target}Level"))
+
+                if (type.Name.ToLower().Contains(target) && type.Name.Contains("Level"))
                 {
-                    
-                    var value = (double) type.GetValue(this);
-                    var newValue = value++;
+                    Console.WriteLine("Update: " + type.Name);
+                    double value = (double)type.GetValue(this);
+                    double newValue = value + 1;
+
+
+                    Console.WriteLine("Old: " + value);
+                    Console.WriteLine("New: " + newValue);
                     type.SetValue(this, newValue);
 
                 }
@@ -88,11 +103,11 @@ namespace TWLibrary.Tools
 
 
             KeyValuePair<string, double> target = GetNextResource();
-            UpdateTarget("wood");
+
             double targetPop = target.Value;
-            if (targetPop > _freePop)
+            if (targetPop > FreePop)
             {
-                if (_farmLevel < 30)
+                if (FarmLevel < 30)
                     return "farm";
                 else
                     return null;
@@ -107,27 +122,35 @@ namespace TWLibrary.Tools
         private KeyValuePair<string, double> GetNextResource()
         {
             KeyValuePair<string, double> target = new KeyValuePair<string, double>();
-
-            if (_woodLevel - _stoneLevel > 0)
+            Console.WriteLine(this);
+            if (WoodLevel > StoneLevel | WoodLevel < StoneLevel)
             {
-                if (_stoneLevel - _ironLevel > 2)
-                    target = new KeyValuePair<string, double>("iron", _ironPop);
+                if (StoneLevel > IronLevel + 2)
+                    target = new KeyValuePair<string, double>("iron", IronPop);
+                else if (WoodLevel > StoneLevel)
+                    target = new KeyValuePair<string, double>("stone", StonePop);
                 else
-                    target = new KeyValuePair<string, double>("stone", _stonePop);
+                    target = new KeyValuePair<string, double>("wood", WoodPop);
             }
-            else if (_woodLevel - _ironLevel > 0)
+            else if (WoodLevel < IronLevel)
             {
-                target = new KeyValuePair<string, double>("iron", _ironPop);
+                target = new KeyValuePair<string, double>("iron", IronPop);
             }
             else
             {
-                if (_stone > _wood)
-                    target = new KeyValuePair<string, double>("wood", _woodPop);
+                if (Stone > Wood)
+                    target = new KeyValuePair<string, double>("wood", WoodPop);
                 else
-                    target = new KeyValuePair<string, double>("stone", _stonePop);
+                    target = new KeyValuePair<string, double>("stone", StonePop);
             }
 
             return target;
         }
+
+        public override string ToString()
+        {
+            return $"Wood: {WoodLevel}, Stone: {StoneLevel}, Iron: {IronLevel}";
+        }
+
     }
 }
