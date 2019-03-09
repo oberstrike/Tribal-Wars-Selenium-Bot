@@ -15,7 +15,7 @@ namespace OutputProject
 
         public static void Main(string[] args)
         {
-            Configuration config = new ConfigurationManager(@"Config.json").Configuration;
+            Configuration config = new ConfigurationManager(@"MasterConfig.json").Configuration;
             TimeSpan? timeSpan = null;
 
             EmailAccount account = config.EmailAccount;
