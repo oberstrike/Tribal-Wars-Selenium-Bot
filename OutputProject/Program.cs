@@ -30,7 +30,6 @@ namespace OutputProject
                     TimeSpan? zeitspanne = ComputeUser(user);
                     if(zeitspanne.HasValue)
                         timeSpans.Add(zeitspanne.Value);
-
                 }
 
                 TimeSpan timeToWait = timeSpans.OrderBy(each => each.Ticks).First();

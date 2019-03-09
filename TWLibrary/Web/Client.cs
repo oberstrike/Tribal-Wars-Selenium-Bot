@@ -88,17 +88,22 @@ namespace TWLibrary.Web
         public TimeSpan? GetBestTimeToCanBuild()
         {
 
-            foreach (Village village in User.Villages)
-            {
-                if (village.BuildingsInQueue == null)
-                    break;
-
-                var sum = new TimeSpan(village.BuildingsInQueue.Sum(each => each.Value.Ticks));
-
-
-            }
+  
             if (GetBuildeableBuildings() == null)
+            {
+                foreach (Village village in User.Villages)
+                {
+                    if (village.BuildingsInQueue == null)
+                        break;
+
+                    var sum = village.BuildingsInQueue.First().Value;
+                    Print("Dauer des nächsten Slots: " + sum);
+                    return sum;
+
+                }
                 return null;
+            }
+              
 
 
             return GetBuildeableBuildings().Select(each => each.TimeToCanBuild).Min();
@@ -115,12 +120,7 @@ namespace TWLibrary.Web
 
             firefoxOptions = new FirefoxOptions();
    //         firefoxOptions.AddArgument("--headless");
-
-            //Experimental
-            firefoxOptions.LogLevel = FirefoxDriverLogLevel.Error;
-            
-
-
+            firefoxOptions.LogLevel = FirefoxDriverLogLevel.Error;   
             if (User == null)
                 return;
 

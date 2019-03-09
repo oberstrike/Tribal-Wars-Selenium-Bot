@@ -20,6 +20,7 @@ namespace TWLibrary
             pathCreator = new PathCreator(serverId.ToString(), id.ToString());
             Driver = driver;
             MyUser = user;
+            
         }
 
 
@@ -147,12 +148,13 @@ namespace TWLibrary
         public IEnumerable<Building> GetBuildingsInBuildOrder()
         {
             Builder = new VillageBuilder(this);
-            var target = Builder.GetNextResourceBuilding();
+            var rTarget = Builder.GetNextResourceBuilding();
+            var nTarget = Builder.GetNextNormalBuilding();
+            Client.Print($"BuildOrder ${rTarget} und ${nTarget}");
             return Buildings.Where(each =>
             {
-                return each.Name.Equals(target) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
-         //       return BuildOrder.Contains(each.Name) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
-            });
+                return each.Name.Equals(rTarget) || each.Name.Equals(nTarget) && (each.TimeToCanBuild != TimeSpan.Zero || each.IsBuildeable);
+             });
 
         }
         #endregion
