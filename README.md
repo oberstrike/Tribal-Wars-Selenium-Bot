@@ -16,3 +16,5 @@ Projekt wieder aufgenommen am 04.03.2019
 Neue Ziele:
 - Multi-Welten
 - Einfachere Aufgaben Steuerung
+
+Projekt wurde geschlossen.
